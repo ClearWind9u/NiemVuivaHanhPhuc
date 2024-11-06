@@ -1,0 +1,49 @@
+.list-invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 30px 0;
+    font-size: 16px;
+    text-align: center;
+}
+
+.list-invoice-table th,
+.list-invoice-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+.list-invoice-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.list-invoice-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.list-invoice-table tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
+}
+
+.list-invoice-table th,
+.list-invoice-table td {
+    padding: 10px;
+}
+
+.list-invoice-table td {
+    color: #333;
+}
+
+.list-invoice-table th {
+    color: #555;
+}
+
+.pending-invoices {
+    flex: 0 0 90%;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 35px auto;
+    border: 1px solid #ccc;
+}
