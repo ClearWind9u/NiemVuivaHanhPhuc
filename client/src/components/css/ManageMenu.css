@@ -1,0 +1,293 @@
+h2 {
+    font-size: 22px;
+    margin: 10px;
+    font-weight: bold;
+}
+
+h3 {
+    font-size: 17px;
+    margin: 10px;
+    font-weight: bold;
+}
+
+.navbar-left {
+    position: fixed;
+    width: 100px;
+    height: 100vh;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.nav-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.nav-list li {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.nav-list button {
+    color: white;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.nav-list button i {
+    
+    /* Adjust spacing between icon and text */
+}
+
+.nav-list button:hover {
+    background-color: #444;
+    border-radius: 5px;
+}
+
+/* Header with logo, search, filter, and sort */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 0 0;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #ddd;
+}
+
+.avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-left: 15px;
+}
+
+.logo h1 {
+    color: #000;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.img-container {
+    width: 100px;
+    /* Set a fixed width for the image container */
+    height: 100px;
+    /* Set a fixed height for the image container */
+    overflow: hidden;
+    /* Hide overflow to ensure uniformity */
+    display: flex;
+    /* Center the image vertically */
+    justify-content: center;
+    /* Center the image horizontally */
+    align-items: center;
+    /* Align the image */
+}
+
+.food-image {
+    width: 100%;
+    /* Image takes up full width of container */
+    height: 100%;
+    /* Image takes up full height of container */
+    object-fit: cover;
+    /* Maintain aspect ratio while filling container */
+    border-radius: 5px;
+    /* Add slight rounding for a smooth look */
+}
+
+/* Improved cart item styling */
+.cart-item {
+    border: 1px solid #e0e0e0;
+    /* Border around each cart item */
+    padding: 10px 5px;
+    /* Padding inside the cart item */
+    border-radius: 8px;
+    /* Rounded corners for a smoother look */
+    background-color: #ffffff;
+    /* White background for contrast */
+    transition: box-shadow 0.3s;
+    /* Smooth hover effect */
+}
+
+.cart-item>div {
+    margin-right: 30px;
+    /* Adds gap between each section (e.g., image, title, quantity controls) */
+}
+
+.cart-item:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Shadow effect when hovering */
+}
+
+/* Ensure card items align consistently */
+.card-title {
+    margin-bottom: 5px;
+    /* Space between title and price */
+}
+
+.price {
+    font-weight: bold;
+    /* Emphasize the price */
+    color: #000;
+    /* Green color for the price */
+}
+
+.total-price {
+    font-weight: bold;
+    color: #dc3545;
+    /* Red color for the total price */
+}
+
+/* Buttons for quantity control */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-controls input {
+    width: 50px;
+    /* Smaller input for the quantity */
+    text-align: center;
+}
+
+.btn-secondary {
+    font-weight: 500;
+    text-align: center;
+    font-size: 20px;
+    border-radius: 8px;
+}
+
+.form-check-input {
+    margin-left: 80px;
+    /* Reduce spacing between checkbox and label */
+}
+
+/* Footer section */
+.footer-line {
+    line-height: 2.8;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+.social-icon {
+    display: inline-flex;
+    /* Căn chỉnh icon trong khung */
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    /* Tạo hình tròn */
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+    /* Bỏ gạch chân */
+    font-size: 20px;
+}
+
+.custom-link {
+    color: white;
+    text-decoration: none;
+}
+
+.custom-link:hover {
+    color: yellow;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .navbar-left {
+        width: 80px;
+        /* Reduce width of sidebar */
+    }
+
+    .main-content {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+    }
+
+    .header-section {
+        flex-direction: column;
+        /* Stack elements in the header vertically */
+        align-items: flex-start;
+        /* Align to the start */
+    }
+
+    .avatar img {
+        width: 30px;
+        /* Smaller avatar for mobile */
+        height: 30px;
+    }
+
+    h2 {
+        font-size: 20px;
+        /* Smaller heading size */
+    }
+
+    h3 {
+        font-size: 16px;
+        /* Smaller subheading size */
+    }
+
+    .cart-item {
+        flex-direction: column;
+        /* Stack items vertically in the cart */
+        align-items: flex-start;
+        /* Align items to the left */
+    }
+
+    .quantity-controls {
+        margin-bottom: 10px;
+        /* Space between quantity controls and other elements */
+    }
+
+    .btn {
+        width: 70%;
+        /* Make buttons take full width */
+    }
+
+    .buy-now-checkbox {
+        margin-top: 10px;
+        /* Add space above checkbox */
+    }
+}
+
+/* Media query for extra small screens (e.g., phones) */
+@media (max-width: 480px) {
+    .navbar-left {
+        width: 60px;
+        /* Further reduce sidebar width */
+    }
+
+    .nav-list button {
+        font-size: 1.2rem;
+        /* Smaller buttons */
+    }
+
+    .img-container {
+        width: 80px;
+        /* Smaller image container */
+        height: 80px;
+        /* Smaller image height */
+    }
+
+    .food-image {
+        width: 100%;
+        /* Maintain responsiveness */
+        height: auto;
+        /* Auto height for better aspect ratio */
+    }
+
+    .total-price {
+        font-size: 16px;
+        /* Smaller total price */
+    }
+}

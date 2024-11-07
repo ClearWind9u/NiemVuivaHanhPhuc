@@ -1,0 +1,151 @@
+.user-profile {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.user-profile .profile-picture img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+
+.profile-info p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.profile-info h3 {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.profile-form {
+  margin-top: 20px;
+}
+
+.profile-form .form-group {
+  margin-bottom: 15px;
+}
+
+.profile-form label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.profile-form input,
+.profile-form select,
+.profile-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.profile-form button {
+  background-color: #1b1f23;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.profile-form button:hover {
+  background-color: #333d47;
+}
+
+.main-section {
+  display: flex;
+  /* Use flexbox for layout */
+  justify-content: space-between;
+  /* Space between children */
+  margin: 20px;
+  /* Add margin on top */
+}
+
+.user-profile {
+  flex: 0 0 30%;
+  /* This will take 30% of the width */
+  padding: 20px;
+  /* Add some padding */
+  border: 1px solid #ccc;
+  /* Optional: border for better visibility */
+  margin-right: 10px;
+  /* Space between profile and chart */
+}
+
+.transaction-history {
+  flex: 0 0 69%;
+  /* This will take 69% of the width */
+  padding: 10px;
+  /* Add some padding */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  border: 1px solid #ccc;
+}
+
+.purchase-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 16px;
+  text-align: left;
+}
+
+.purchase-history-table th, .purchase-history-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.purchase-history-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.purchase-history-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.purchase-history-table tr:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.3s ease;
+}
+
+.purchase-history-table th, .purchase-history-table td {
+  padding: 10px;
+}
+
+.purchase-history-table td {
+  color: #333;
+}
+
+.purchase-history-table th {
+  color: #555;
+}
+.date-filter {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.date-filter label {
+  font-weight: bold;
+}
+
+.date-filter input[type="date"] {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+

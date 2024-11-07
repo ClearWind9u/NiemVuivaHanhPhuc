@@ -1,0 +1,147 @@
+export const foodList = [
+  {
+    id: 1,
+    name: "Food 1",
+    description: "Delicious food description",
+    image: "../image/food1.jpg",
+    buyed: true,
+    price: 10,
+    inStock: true,
+    reviews: [
+      {
+        username: "John Doe",
+        avatar: "../image/avatar.jpg",
+        rating: 5,
+        review: "This product is amazing! I love it.",
+        timestamp: "29/10/2024, 10:15:57",
+        likes: 0,
+        mylike: false,
+        comments: [
+          {
+            username: "Baby Shark",
+            comment: "I agree with you",
+            timestamp: "29/10/2024, 10:45:07",
+          },
+          {
+            username: "HIEUTHUHAI",
+            comment: "I don't think so!",
+            timestamp: "29/10/2024, 12:51:19",
+          }
+        ],
+      },
+      {
+        username: "Jane Smith",
+        avatar: "../image/avatar.jpg",
+        rating: 4,
+        review: "Good quality and fast shipping. Highly recommend!",
+        timestamp: "30/10/2024, 14:30:05",
+        likes: 0,
+        mylike: false,
+        comments:[],
+      },
+      {
+        username: "Alice Johnson",
+        avatar: "../image/avatar.jpg",
+        rating: 3,
+        review: "Not what I expected, but it's okay.",
+        timestamp: "31/10/2024, 02:00:01",
+        likes: 3,
+        mylike: false,
+        comments: [
+          {
+            username: "William Kane",
+            comment: "Hmm...",
+            timestamp: "31/10/2024, 09:43:38",
+          },
+        ],
+      }
+    ],
+  },
+  {
+    id: 2,
+    name: "Food 2",
+    description: "Tasty food description",
+    image: "../image/food2.jpg",
+    buyed: false,
+    price: 12,
+    inStock: true,
+    reviews: [
+      {
+        username: "John Doe",
+        avatar: "../image/avatar.jpg",
+        rating: 5,
+        review: "This product is amazing! I love it.",
+        timestamp: "29/10/2024, 10:15:57",
+        likes: 1,
+        mylike: false,
+        comments: [
+          {
+            username: "Abel Rosnovski",
+            comment: "Hmm...",
+            timestamp: "30/10/2024, 06:14:25",
+          },
+        ],
+      },
+      {
+        username: "Jane Smith",
+        avatar: "../image/avatar.jpg",
+        rating: 4,
+        review: "Good quality and fast shipping. Highly recommend!",
+        timestamp: "30/10/2024, 14:30:05",
+        likes: 0,
+        mylike: false,
+        comments:[],
+      }
+    ],
+  },
+  {
+    id: 3,
+    name: "Food 3",
+    description: "Yummy food description",
+    image: "../image/food3.jpg",
+    buyed: false,
+    price: 15,
+    inStock: true,
+    reviews: [],
+  },
+  {
+    id: 4,
+    name: "Food 4",
+    description: "Tasty food description",
+    image: "../image/food4.jpg",
+    price: 20,
+    inStock: true,
+    reviews: [
+      {
+        username: "John Doe",
+        avatar: "../image/avatar.jpg",
+        rating: 5,
+        review: "This product is amazing! I love it.",
+        timestamp: "29/10/2024, 10:15:57",
+        likes: 2,
+        mylike: false,
+        comments:[],
+      }
+    ],
+  },
+  {
+    id: 5,
+    name: "Food 5",
+    description: "Tasty food description",
+    image: "../image/food5.jpg",
+    buyed: true,
+    price: 18,
+    inStock: true,
+    reviews: [],
+  },
+  {
+    id: 6,
+    name: "Food 6",
+    description: "Tasty food description",
+    image: "../image/food6.jpg",
+    buyed: false,
+    price: 22,
+    inStock: true,
+    reviews: [],
+  },
+];
