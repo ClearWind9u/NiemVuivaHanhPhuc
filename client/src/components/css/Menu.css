@@ -330,6 +330,15 @@ h2 {
     color: #FFD700;
 }
 
+.cmt-btn {
+    margin: 10px;
+    border: none;
+}
+
+.cmt-btn:hover {
+    background-color: #aeadad;
+}
+
 @media (max-width: 768px) {
     .navbar-left {
         width: 80px;
