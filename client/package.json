@@ -8,7 +8,11 @@
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "mdb-react-ui-kit": "^9.0.0",
+    "mongoose": "^8.8.1",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.5",
     "react-chartjs-2": "^5.2.0",
@@ -45,5 +49,9 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }

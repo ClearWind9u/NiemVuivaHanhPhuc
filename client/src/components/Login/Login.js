@@ -9,16 +9,26 @@ const Login = () => {
   const [role, setRole] = useState('student'); // default role
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'admin' && role === 'admin') {
-      login('admin');
-    } else if (username === 'staff' && password === 'staff' && role === 'staff') {
-      login('staff');
-    } else if (username === 'student' && password === 'student' && role === 'student') {
-      login('student');
-    } else {
-      alert('Invalid credentials');
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, role }),
+      });
+      const data = await response.json();
+  
+      if (response.ok) {
+        login(data.role);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error logging in');
     }
   };
 
