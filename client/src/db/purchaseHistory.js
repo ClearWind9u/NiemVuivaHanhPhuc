@@ -1,5 +1,5 @@
 const purchaseHistory = [
-  { id: 1, items: "Pizza, Soda", totalAmount: 15.99, paymentMethod: "Credit Card", date: "10-01-2024" },
+  { id: 1, items: "Pizza, Soda", totalAmount: 15.99, paymentMethod: "Credit Card", date: "10-01-2024", status:"pending" },
   { id: 2, items: "Burger, Fries", totalAmount: 9.49, paymentMethod: "Cash", date: "10-05-2024" },
   { id: 3, items: "Salad, Water", totalAmount: 7.99, paymentMethod: "Credit Card", date: "10-10-2024" },
   { id: 4, items: "Pasta, Juice", totalAmount: 12.49, paymentMethod: "Debit Card", date: "10-12-2024" },

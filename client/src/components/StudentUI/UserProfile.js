@@ -205,6 +205,8 @@ const UserProfile = () => {
                 <th>Items</th>
                 <th>Total Amount ($)</th>
                 <th>Payment Method</th>
+                <th>Status</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
@@ -214,6 +216,11 @@ const UserProfile = () => {
                   <td>{purchase.items}</td>
                   <td>${purchase.totalAmount.toFixed(2)}</td>
                   <td>{purchase.paymentMethod}</td>
+                  <td>{purchase.status}</td>
+                  <td><button
+                className="button-small">
+                View
+              </button></td>
                 </tr>
               ))}
             </tbody>

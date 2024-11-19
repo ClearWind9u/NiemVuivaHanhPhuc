@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
+import mongoose from "mongoose";
+
+const Schema = mongoose.Schema;
 // Định nghĩa schema cho chi tiết món ăn trong đơn hàng
 const OrderDetailSchema = new Schema({
     dish_id: { 
@@ -60,4 +61,4 @@ const OrderSchema = new Schema({
 // Tạo Model từ schema
 const Order = mongoose.model('orders', OrderSchema);
 
-module.exports = Order;
+export default Order;

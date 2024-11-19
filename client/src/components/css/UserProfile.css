@@ -148,4 +148,17 @@
   border-radius: 4px;
   font-size: 14px;
 }
+.button-small {
+  padding: 5px 10px;    /* Điều chỉnh kích thước padding */
+  font-size: 12px;      /* Điều chỉnh kích thước chữ */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #1b1f23;
+  color: white;
+  cursor: pointer;
+}
+
+.button-small:hover {
+  background-color: #333d47;
+}
 
