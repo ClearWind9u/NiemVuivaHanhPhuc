@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 import "../css/ManageUser.css";
 import { staff as staffDB } from "../../db/staffUser";

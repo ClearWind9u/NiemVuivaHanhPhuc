@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import purchaseHistory from "../../db/purchaseHistory";
+import React, { useState , useEffect} from "react";
+import axios from "axios";
 import "../css/UserProfile.css";
 const UserProfile = () => {
   const [user, setUser] = useState({
+    _id: "507f191e810c19729de860eb",
     username: "john_doe",
     name: "John Doe",
     dob: "15-05-1995",
@@ -10,6 +11,21 @@ const UserProfile = () => {
     email: "john.doe@example.com",
     phone: "+1234567890",
   });
+  const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
+  useEffect(() => {
+    // Gọi API để lấy dữ liệu lịch sử mua hàng
+    const fetchPurchaseHistory = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/staff/orders/${user._id}`);
+        console.log('API',response.data);
+        setPurchaseHistory(response.data.formattedOrders); // Lưu dữ liệu vào state
+      } catch (error) {
+        console.error("Error fetching purchase history:", error);
+      }
+    };
+
+    fetchPurchaseHistory();
+  }, [user._id]);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -28,10 +44,10 @@ const UserProfile = () => {
   };
 
   const filteredPurchases = purchaseHistory.filter((purchase) => {
-    const purchaseDate = new Date(purchase.date);
-    const matchesSearch = purchase.items
+    const purchaseDate = new Date(purchase.order_time); // Lấy ngày từ API
+    const matchesSearch = purchase.dishes
       .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+      .includes(searchTerm.toLowerCase()); // So sánh tên món ăn
     const matchesStartDate = startDate
       ? purchaseDate >= new Date(startDate)
       : true;
@@ -205,15 +221,22 @@ const UserProfile = () => {
                 <th>Items</th>
                 <th>Total Amount ($)</th>
                 <th>Payment Method</th>
+                <th>Status</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
               {filteredPurchases.map((purchase) => (
-                <tr key={purchase.id}>
-                  <td>{purchase.date}</td>
-                  <td>{purchase.items}</td>
-                  <td>${purchase.totalAmount.toFixed(2)}</td>
-                  <td>{purchase.paymentMethod}</td>
+                <tr key={purchase._id}>
+                  <td>{new Date(purchase.order_time).toLocaleString()}</td>
+                  <td>{purchase.dishes}</td>
+                  <td>${purchase.final_price.toFixed(2)}</td>
+                  <td>{purchase.payment_method}</td>
+                  <td>{purchase.status}</td>
+                  <td><button
+                className="button-small">
+                View
+              </button></td>
                 </tr>
               ))}
             </tbody>

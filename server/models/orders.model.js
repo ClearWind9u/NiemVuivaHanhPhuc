@@ -15,7 +15,7 @@ const OrderDetailSchema = new Schema({
         type: Number, 
         required: true },
     price: { type: Number, 
-        required: true }
+        required: true } 
 });
 
 // Định nghĩa schema cho đơn hàng
