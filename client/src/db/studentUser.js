@@ -64,6 +64,11 @@ export const students = [
         { id: 2, items: "Fruit Smoothie, Granola", totalAmount: 5.99, paymentMethod: "Cash", date: "06-05-2024" },
         { id: 3, items: "Nachos, Salsa", totalAmount: 8.49, paymentMethod: "Debit Card", date: "05-06-2024" }
       ]
+    },
+
+    {
+      id: "507f191e810c19729de860ea",
+      name: "TestAPI",
     }
   ];
   

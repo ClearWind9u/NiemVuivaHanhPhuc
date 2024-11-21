@@ -67,7 +67,19 @@ const UserProfile = () => {
   const toggleEditForm = () => {
     setIsEditing(!isEditing);
   };
+  const [selectedOrder, setSelectedOrder] = useState(null); // Chứa thông tin chi tiết hóa đơn
+  const [isModalOpen, setIsModalOpen] = useState(false); // Điều khiển modal
+  const handleViewDetails = (order) => {
+    console.log("Opening modal with order:", order);
+    setSelectedOrder(order); // Set hóa đơn được chọn
+    setIsModalOpen(true); // Mở modal
+  };
 
+  // Hàm để đóng modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
   return (
     <div className="">
       <h2 style={{ textAlign: "center" }}>User Profile</h2>
@@ -235,15 +247,39 @@ const UserProfile = () => {
                   <td>${purchase.final_price.toFixed(2)}</td>
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
-                  <td><button
-                className="button-small">
-                View
-              </button></td>
+                  <td>
+                  <button className="button-small"
+                    onClick={() => handleViewDetails({
+                      order_time: "2024-11-20T14:00:00Z",
+                      dishes: "Pizza, Coke",
+                      final_price: 20.5,
+                      payment_method: "Credit Card",
+                      status: "Completed",
+                    })}
+                  >
+                    View
+                  </button>
+
+                </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {console.log("Modal Open:", isModalOpen, "Selected Order:", selectedOrder)}
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Order Details</h3>
+              <p><strong>Order Date:</strong> {selectedOrder?.order_time}</p>
+              <p><strong>Items:</strong> {selectedOrder?.dishes}</p>
+              <p><strong>Total Amount:</strong> ${selectedOrder?.final_price}</p>
+              <p><strong>Payment Method:</strong> {selectedOrder?.payment_method}</p>
+              <p><strong>Status:</strong> {selectedOrder?.status}</p>
+              <button onClick={closeModal}>Close</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -8,22 +8,39 @@ const ManageOrder = () => {
   const [staffUsers, setStaffUsers] = useState(staffDB);
   const [studentUsers, setStudentUsers] = useState(studentsDB);
   const [showOrderHistory, setShowOrderHistory] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [oldOrders, setOldOrders] = useState([]);
+  const [orderHistory, setOrderHistory] = useState([]);
   const [isOldOrdersModalOpen, setIsOldOrdersModalOpen] = useState(false);
   const navigate = useNavigate();
   const handleNavigation = (path) => {
     navigate(path); // Programmatically navigate to the specified path
   };
 
-  const handleStaffClick = (staff) => {
-    setSelectedStaff(staff);
-    setShowOrderHistory(true);
+  const fetchOrderHistory = async (userId, isStaff) => {
+    try {
+      const url = isStaff
+        ? `http://localhost:8000/staff/orders/${userId}` // API cho nhân viên
+        : `http://localhost:8000/student/orders/${userId}`; // API cho sinh viên
+      const response = await axios.get(url);
+      console.log("Response Data:", response.data);
+      setOrderHistory(response.data.formattedOrders);
+      setShowOrderHistory(true);
+    } catch (error) {
+      console.error("Error fetching order history:", error);
+    }
+    console.log("Fetching for userId:", userId, "isStaff:", isStaff);
+
   };
 
+  const handleUserClick = (user, isStaff) => {
+    console.log("Clicked user:", user); 
+    setSelectedUser(user);
+    fetchOrderHistory(user.id, isStaff);
+  };
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -53,22 +70,20 @@ const ManageOrder = () => {
   const toggleOrderHistory = () => {
     setShowOrderHistory((prev) => !prev);
   };
+  
+    const filteredOrderHistory = orderHistory.filter((purchase) => {
+      const matchesSearch = purchase.dishes
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesStartDate = startDate
+        ? new Date(purchase.date) >= new Date(startDate)
+        : true;
+      const matchesEndDate = endDate
+        ? new Date(purchase.date) <= new Date(endDate)
+        : true;
+      return matchesSearch && matchesStartDate && matchesEndDate;
+    });
 
-  // Filter order history based on search term and date range
-  const filteredOrderHistory = selectedStaff
-    ? selectedStaff.orderHistory.filter((purchase) => {
-        const matchesSearch = purchase.items
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
-        const matchesStartDate = startDate
-          ? new Date(purchase.date) >= new Date(startDate)
-          : true;
-        const matchesEndDate = endDate
-          ? new Date(purchase.date) <= new Date(endDate)
-          : true;
-        return matchesSearch && matchesStartDate && matchesEndDate;
-      })
-    : [];
   const fetchOldOrders = () => {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
@@ -153,9 +168,11 @@ const ManageOrder = () => {
                     >
                       <button
                         className="btn blue-btn"
-                        onClick={() => handleStaffClick(user)}
+                        onClick={() => handleUserClick(user, true)}
+                        
                       >
                         View History
+                        
                       </button>
                     </div>
                   </div>
@@ -187,7 +204,7 @@ const ManageOrder = () => {
                     >
                       <button
                         className="btn blue-btn"
-                        onClick={() => handleStaffClick(user)}
+                        onClick={() => handleUserClick(user, false)}
                       >
                         View History
                       </button>
@@ -275,7 +292,7 @@ const ManageOrder = () => {
           </div>
         )}
 
-        {showOrderHistory && selectedStaff && (
+        {showOrderHistory && selectedUser && (
           <div className="modal-overlay">
             <div style={{ maxWidth: "800px" }}>
               <div className="user-table mt-4">
@@ -286,7 +303,7 @@ const ManageOrder = () => {
                   }}
                 >
                   <h3 className="header-title">
-                    Order History for {selectedStaff.name}
+                    Order History for {selectedUser.name}
                   </h3>
                   <FaTimes
                     onClick={toggleOrderHistory}
@@ -325,18 +342,24 @@ const ManageOrder = () => {
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Items</th>
-                      <th>Total Amount ($)</th>
-                      <th>Payment Method</th>
+                <th>Items</th>
+                <th>Total Amount ($)</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Details</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredOrderHistory.map((purchase) => (
                       <tr key={purchase.id}>
-                        <td>{purchase.date}</td>
-                        <td>{purchase.items}</td>
-                        <td>${purchase.totalAmount.toFixed(2)}</td>
-                        <td>{purchase.paymentMethod}</td>
+                       <td>{new Date(purchase.order_time).toLocaleString()}</td>
+                  <td>{purchase.dishes}</td>
+                  <td>${purchase.final_price.toFixed(2)}</td>
+                  <td>{purchase.payment_method}</td>
+                  <td>{purchase.status}</td>
+                  <td>
+
+                </td>
                       </tr>
                     ))}
                   </tbody>
