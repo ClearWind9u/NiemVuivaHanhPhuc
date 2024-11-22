@@ -17,8 +17,10 @@ const UserProfile = () => {
     // Gọi API để lấy dữ liệu lịch sử mua hàng
     const fetchPurchaseHistory = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/student/orders/${user._id}`);
-        console.log('API',response.data);
+        const response = await axios.get(
+          `http://localhost:8000/student/orders/${user._id}`
+        );
+        console.log("API", response.data);
         setPurchaseHistory(response.data.formattedOrders); // Lưu dữ liệu vào state
       } catch (error) {
         console.error("Error fetching purchase history:", error);
@@ -55,7 +57,6 @@ const UserProfile = () => {
     const matchesEndDate = endDate ? purchaseDate <= new Date(endDate) : true;
     return matchesSearch && matchesStartDate && matchesEndDate;
   });
-  
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -248,34 +249,128 @@ const UserProfile = () => {
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td>
-                  <button className="button-small"
-                    onClick={() => handleViewDetails({
-                      order_time: "2024-11-20T14:00:00Z",
-                      dishes: "Pizza, Coke",
-                      final_price: 20.5,
-                      payment_method: "Credit Card",
-                      status: "Completed",
-                    })}
-                  >
-                    View
-                  </button>
-
-                </td>
+                    <button
+                      className="button-small"
+                      onClick={() => handleViewDetails(purchase)}
+                    >
+                      View
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {console.log("Modal Open:", isModalOpen, "Selected Order:", selectedOrder)}
+        {console.log(
+          "Modal Open:",
+          isModalOpen,
+          "Selected Order:",
+          selectedOrder
+        )}
         {isModalOpen && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div className="modal" style={{ height: "90vh", width: "40vw" }}>
               <h3>Order Details</h3>
-              <p><strong>Order Date:</strong> {selectedOrder?.order_time}</p>
-              <p><strong>Items:</strong> {selectedOrder?.dishes}</p>
-              <p><strong>Total Amount:</strong> ${selectedOrder?.final_price}</p>
-              <p><strong>Payment Method:</strong> {selectedOrder?.payment_method}</p>
-              <p><strong>Status:</strong> {selectedOrder?.status}</p>
+              <p>
+                <strong>Order ID:</strong> {selectedOrder?._id}
+              </p>
+              <p>
+                <strong>Student Name:</strong>{" "}
+                {selectedOrder?.student_id?.fullName}
+              </p>
+              <p>
+                <strong>Staff Name:</strong>{" "}
+                {selectedOrder?.staff_id?.fullName || "N/A"}
+              </p>
+              <p><strong>Order Details (Items)</strong></p>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  margin: "20px 0",
+                  fontSize: "16px",
+                  textAlign: "left",
+                  border: "1px solid #ddd",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      backgroundColor: "#f4f4f4",
+                      borderBottom: "2px solid #ddd",
+                    }}
+                  >
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Dish Name
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Price
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Quantity
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedOrder?.details?.map((item, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        backgroundColor:
+                          index % 2 === 0 ? "#f9f9f9" : "#ffffff",
+                        transition: "background-color 0.3s",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.backgroundColor = "#e8f5e9")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.backgroundColor =
+                          index % 2 === 0 ? "#f9f9f9" : "#ffffff")
+                      }
+                    >
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        {item.dish_id?.name}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        ${item.dish_id?.price}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        {item.quantity}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        ${(item.dish_id?.price * item.quantity).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p>
+                <strong>Total Quantity:</strong> {selectedOrder?.total_quantity}
+              </p>
+              <p>
+                <strong>Total Price:</strong> ${selectedOrder?.total_price}
+              </p>
+              <p>
+                <strong>Discount:</strong> ${selectedOrder?.discount}
+              </p>
+              <p>
+                <strong>Final Price:</strong> ${selectedOrder?.final_price}
+              </p>
+              <p>
+                <strong>Payment Method:</strong> {selectedOrder?.payment_method}
+              </p>
+              <p>
+                <strong>Order Time:</strong>{" "}
+                {new Date(selectedOrder?.order_time).toLocaleString()}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedOrder?.status}
+              </p>
+
               <button onClick={closeModal}>Close</button>
             </div>
           </div>
