@@ -10,16 +10,16 @@ const userSchema = new Schema({
     password: { 
         type: String, 
         required: true },
-    full_name: { 
+    name: { 
         type: String, 
         required: true },
-    birth_date: { 
+    dob: { 
         type: Date },
     gender: { 
         type: String, 
         enum: ['Male', 'Female', 'Other'], 
         default: 'Other' },
-    phone_number: { 
+    phone: { 
         type: String },
     email: { 
         type: String, 
@@ -28,6 +28,10 @@ const userSchema = new Schema({
       type: String,
       enum: ['student', 'staff', 'admin'],
       required: true,
+    },
+    avatar: {
+        type: String,
+        require: true,
     },
   });
 const User = mongoose.model('users', userSchema);

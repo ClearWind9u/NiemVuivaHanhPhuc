@@ -65,7 +65,30 @@ const UserProfile = () => {
   const toggleEditForm = () => {
     setIsEditing(!isEditing);
   };
+  const [selectedOrder, setSelectedOrder] = useState(null); // Chứa thông tin chi tiết hóa đơn
+  const [isModalOpen, setIsModalOpen] = useState(false); // Điều khiển modal
+  const handleViewDetails = async (orderId) => {
+    if (!orderId) {
+      console.error("Invalid orderId:", orderId);  // In ra nếu orderId không hợp lệ
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/orders/${orderId}`
+      );
+  
+      setSelectedOrder(response.data); // Lưu chi tiết hóa đơn vào state
+      setIsModalOpen(true); // Mở modal
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
+  };
 
+  // Hàm để đóng modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
   return (
     <div className="">
       <h2 style={{ textAlign: "center" }}>User Profile</h2>
@@ -234,16 +257,133 @@ const UserProfile = () => {
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td><button
-                className="button-small">
+                 className="button-small"
+                 onClick={() => handleViewDetails(purchase._id)}
+               >
                 View
-              </button></td>
+              </button>
+              </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
+        {console.log(
+          "Modal Open:",
+          isModalOpen,
+          "Selected Order:",
+          selectedOrder
+        )}
+        {isModalOpen && selectedOrder && (
+          <div className="modal-overlay">
+            <div className="modal" style={{ height: "90vh", width: "40vw" }}>
+              <h3>Order Details</h3>
+              <p>
+                <strong>Order ID:</strong> {selectedOrder._id}
+              </p>
+              <p>
+                <strong>Student Name:</strong>{" "}
+                {selectedOrder.student}
+              </p>
+              <p>
+                <strong>Staff Name:</strong>{" "}
+                {selectedOrder.staff || "N/A"}
+              </p>
+              <p><strong>Order Details (Items)</strong></p>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  margin: "20px 0",
+                  fontSize: "16px",
+                  textAlign: "left",
+                  border: "1px solid #ddd",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      backgroundColor: "#f4f4f4",
+                      borderBottom: "2px solid #ddd",
+                    }}
+                  >
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Dish Name
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Price
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Quantity
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedOrder.details.map((item, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        backgroundColor:
+                          index % 2 === 0 ? "#f9f9f9" : "#ffffff",
+                        transition: "background-color 0.3s",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.backgroundColor = "#e8f5e9")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.backgroundColor =
+                          index % 2 === 0 ? "#f9f9f9" : "#ffffff")
+                      }
+                    >
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        {item.name}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        ${item.price}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        {item.quantity}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        ${item.total_price}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p>
+                <strong>Total Quantity:</strong> {selectedOrder.total_quantity}
+              </p>
+              <p>
+                <strong>Total Price:</strong> ${selectedOrder.total_price}
+              </p>
+              <p>
+                <strong>Discount:</strong> ${selectedOrder.discount}
+              </p>
+              <p>
+                <strong>Final Price:</strong> ${selectedOrder.final_price}
+              </p>
+              <p>
+                <strong>Payment Method:</strong> {selectedOrder.payment_method}
+              </p>
+              <p>
+                <strong>Order Time:</strong>{" "}
+                {new Date(selectedOrder.order_time).toLocaleString()}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedOrder.status}
+              </p>
+
+              <button onClick={closeModal}>Close</button>
+            </div>
+          </div>
+        )}
         </div>
       </div>
-    </div>
   );
 };
 

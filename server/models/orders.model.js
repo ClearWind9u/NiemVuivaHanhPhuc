@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const OrderDetailSchema = new Schema({
     dish_id: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'dishes', 
+        ref: 'foods', 
         required: true },
     name: { 
         type: String, 
@@ -15,7 +15,11 @@ const OrderDetailSchema = new Schema({
         type: Number, 
         required: true },
     price: { type: Number, 
-        required: true } 
+        required: true } ,
+    total_price: {
+        type: Number,
+        require: true}
+        
 });
 
 // Định nghĩa schema cho đơn hàng

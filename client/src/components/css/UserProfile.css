@@ -209,6 +209,10 @@
   background-color: #1b1f23;
   color: white;
   cursor: pointer;
+  position: absolute;
+  margin-top: 15px;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .modal .button {
   margin: 0 auto; /* Căn giữa nút theo chiều ngang trong phần tử */
