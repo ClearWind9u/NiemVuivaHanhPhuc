@@ -263,7 +263,7 @@ const ManageMenu = () => {
         <div className="row d-flex">
           {menuItems.map((item) => (
             <div
-              key={item._id}
+              key={item.id}
               className="col-12 d-flex align-items-center mb-3 cart-item"
             >
               <div className="col-2 img-container">

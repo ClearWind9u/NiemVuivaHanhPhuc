@@ -1,22 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { foodList as initialfoodList } from "../../db/foodList";
+import axios from "axios";
 import "../css/Menu.css";
 
 const Menu = () => {
   const [searchText, setSearchText] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
-  const [foodList, setFoodList] = useState(initialfoodList);
+  const [foodList, setFoodList] = useState([]);
   const [expandedReviewIndex, setExpandedReviewIndex] = useState(null); // Track the expanded comment section
   const [commentText, setCommentText] = useState("");
+  const [sortOrder, setSortOrder] = useState(null);
+  const [filterCategory, setFilterCategory] = useState("");
+
+  const fetchFoodList = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/menu/all");
+      setFoodList(response.data);
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFoodList();
+  }, []);
 
   const handleSearch = (e) => {
     setSearchText(e.target.value.toLowerCase());
   };
-
-  const filteredFoodList = foodList.filter((food) =>
-    food.name.toLowerCase().includes(searchText)
-  );
 
   const handleShowReviews = (food) => {
     setSelectedFood(food);
@@ -59,6 +70,33 @@ const Menu = () => {
     }
   }, [foodList, selectedFood]);
 
+  const applyFilters = () => {
+    let filteredList = [...foodList];
+
+    // Apply category filter
+    if (filterCategory) {
+      filteredList = filteredList.filter((food) => food.category === filterCategory);
+    }
+
+    // Apply search filter
+    if (searchText.trim()) {
+      filteredList = filteredList.filter((food) =>
+        food.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    // Apply sort
+    if (sortOrder === "asc") {
+      filteredList.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "desc") {
+      filteredList.sort((a, b) => b.price - a.price);
+    }
+
+    return filteredList;
+  };
+
+  const displayedFoodList = applyFilters();
+
   const handleAddComment = (index) => {
     setExpandedReviewIndex(index === expandedReviewIndex ? null : index);
   };
@@ -100,6 +138,15 @@ const Menu = () => {
     setCommentText("");
   };
 
+  const handleSort = (order) => {
+    if(order === "asc" || order === "desc") setSortOrder(order);
+    else setSortOrder("");
+  };
+  
+  const handleCategoryFilter = (category) => {
+    setFilterCategory(category); // Cập nhật danh mục được chọn
+  };
+
   const handleStatusChange = (foodId) => {
     setFoodList(prevList =>
       prevList.map(food =>
@@ -120,9 +167,10 @@ const Menu = () => {
             <i className="fas fa-filter"></i>
           </button>
           <div className="dropdown-content">
-            <button>Filter by Price</button>
-            <button>Filter by Category</button>
-            <button>Filter by Buyed</button>
+            <button onClick={() => handleCategoryFilter("food")}>Filter by Food</button>
+            <button onClick={() => handleCategoryFilter("drink")}>Filter by Drink</button>
+            <button onClick={() => handleCategoryFilter("snack")}>Filter by Snack</button>
+            <button onClick={() => handleCategoryFilter("")}>Clear Category Filter</button>
           </div>
         </div>
 
@@ -146,9 +194,9 @@ const Menu = () => {
             <i className="fas fa-sort"></i>
           </button>
           <div className="dropdown-content">
-            <button>Sort by Popularity</button>
-            <button>Sort by Price (Low to High)</button>
-            <button>Sort by Price (High to Low)</button>
+            <button onClick={() => handleSort("")}>Clear Filters</button>
+            <button onClick={() => handleSort('asc')}>Sort by Price (Low to High)</button>
+            <button onClick={() => handleSort('desc')}>Sort by Price (High to Low)</button>
           </div>
         </div>
       </div>
@@ -156,7 +204,7 @@ const Menu = () => {
       {/* Food Cards */}
       <div className="container mt-4">
         <div className="row">
-          {filteredFoodList.map((food) => (
+          {displayedFoodList.map((food) => (
             <div key={food.id} className="col-12 col-sm-6 col-md-4">
               <div className="card">
                 <img

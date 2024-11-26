@@ -6,7 +6,7 @@ const router = express.Router();
 router.post("/add", addDish);
 router.put("/update/:id", updateDish);
 router.delete("/delete/:id", deleteDish);
-router.get("/search", searchDishes);
+router.get("/search/:name", searchDishes);
 router.get("/all", getAllDishes);
 
 export default router;
