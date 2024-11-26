@@ -70,10 +70,21 @@ const UserProfile = () => {
   };
   const [selectedOrder, setSelectedOrder] = useState(null); // Chứa thông tin chi tiết hóa đơn
   const [isModalOpen, setIsModalOpen] = useState(false); // Điều khiển modal
-  const handleViewDetails = (order) => {
-    console.log("Opening modal with order:", order);
-    setSelectedOrder(order); // Set hóa đơn được chọn
-    setIsModalOpen(true); // Mở modal
+  const handleViewDetails = async (orderId) => {
+    if (!orderId) {
+      console.error("Invalid orderId:", orderId);  // In ra nếu orderId không hợp lệ
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/orders/${orderId}`
+      );
+  
+      setSelectedOrder(response.data); // Lưu chi tiết hóa đơn vào state
+      setIsModalOpen(true); // Mở modal
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
   };
 
   // Hàm để đóng modal
@@ -243,15 +254,23 @@ const UserProfile = () => {
             <tbody>
               {filteredPurchases.map((purchase) => (
                 <tr key={purchase._id}>
+                   {console.log(
+          "Modal_id :",
+          purchase._id
+        )}
                   <td>{new Date(purchase.order_time).toLocaleString()}</td>
                   <td>{purchase.dishes}</td>
                   <td>${purchase.final_price.toFixed(2)}</td>
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td>
+                  {console.log(
+          "Modal :",
+          purchase._id
+        )}
                     <button
                       className="button-small"
-                      onClick={() => handleViewDetails(purchase)}
+                      onClick={() => handleViewDetails(purchase._id)}
                     >
                       View
                     </button>
@@ -267,20 +286,20 @@ const UserProfile = () => {
           "Selected Order:",
           selectedOrder
         )}
-        {isModalOpen && (
+        {isModalOpen && selectedOrder && (
           <div className="modal-overlay">
             <div className="modal" style={{ height: "90vh", width: "40vw" }}>
               <h3>Order Details</h3>
               <p>
-                <strong>Order ID:</strong> {selectedOrder?._id}
+                <strong>Order ID:</strong> {selectedOrder._id}
               </p>
               <p>
                 <strong>Student Name:</strong>{" "}
-                {selectedOrder?.student_id?.fullName}
+                {selectedOrder.student}
               </p>
               <p>
                 <strong>Staff Name:</strong>{" "}
-                {selectedOrder?.staff_id?.fullName || "N/A"}
+                {selectedOrder.staff || "N/A"}
               </p>
               <p><strong>Order Details (Items)</strong></p>
               <table
@@ -315,7 +334,7 @@ const UserProfile = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedOrder?.details?.map((item, index) => (
+                  {selectedOrder.details.map((item, index) => (
                     <tr
                       key={index}
                       style={{
@@ -332,16 +351,16 @@ const UserProfile = () => {
                       }
                     >
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                        {item.dish_id?.name}
+                        {item.name}
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                        ${item.dish_id?.price}
+                        ${item.price}
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
                         {item.quantity}
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                        ${(item.dish_id?.price * item.quantity).toFixed(2)}
+                        ${item.total_price}
                       </td>
                     </tr>
                   ))}
@@ -349,26 +368,26 @@ const UserProfile = () => {
               </table>
 
               <p>
-                <strong>Total Quantity:</strong> {selectedOrder?.total_quantity}
+                <strong>Total Quantity:</strong> {selectedOrder.total_quantity}
               </p>
               <p>
-                <strong>Total Price:</strong> ${selectedOrder?.total_price}
+                <strong>Total Price:</strong> ${selectedOrder.total_price}
               </p>
               <p>
-                <strong>Discount:</strong> ${selectedOrder?.discount}
+                <strong>Discount:</strong> ${selectedOrder.discount}
               </p>
               <p>
-                <strong>Final Price:</strong> ${selectedOrder?.final_price}
+                <strong>Final Price:</strong> ${selectedOrder.final_price}
               </p>
               <p>
-                <strong>Payment Method:</strong> {selectedOrder?.payment_method}
+                <strong>Payment Method:</strong> {selectedOrder.payment_method}
               </p>
               <p>
                 <strong>Order Time:</strong>{" "}
-                {new Date(selectedOrder?.order_time).toLocaleString()}
+                {new Date(selectedOrder.order_time).toLocaleString()}
               </p>
               <p>
-                <strong>Status:</strong> {selectedOrder?.status}
+                <strong>Status:</strong> {selectedOrder.status}
               </p>
 
               <button onClick={closeModal}>Close</button>

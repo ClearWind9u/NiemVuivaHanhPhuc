@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
-const dishSchema = new Schema({
+const foodSchema = new Schema({
     dish_name: { 
         type: String, 
         required: true, 
@@ -26,6 +26,6 @@ const dishSchema = new Schema({
     image_url: { 
         type: String },
   });
-const Dish = mongoose.model('dishes', dishSchema);
+const Food = mongoose.model('foods', foodSchema);
 
-export default Dish;
+export default Food;
