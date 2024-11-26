@@ -3,7 +3,7 @@ import mongoose, { mongo } from "mongoose"
 import dotenv from "dotenv"
 import cors from "cors";
 import Orders from "./routes/order.js";
-
+import Menu from "./routes/menu.routes.js";
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ mongoose
   .catch((error) => console.log(error));
 
 app.use("/", Orders);
-
+app.use("/menu", Menu);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT} `));
