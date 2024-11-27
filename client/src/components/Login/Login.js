@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 import './Login.css';
 
 const Login = () => {
@@ -8,22 +9,29 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('student'); // default role
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'admin' && role === 'admin') {
-      login('admin');
-    } else if (username === 'staff' && password === 'staff' && role === 'staff') {
-      login('staff');
-    } else if (username === 'student' && password === 'student' && role === 'student') {
-      login('student');
-    } else {
-      alert('Invalid credentials');
+  
+    try {
+      const response = await axios.post("http://localhost:8000/login", {
+        username,
+        password,
+        role,
+      });
+      const data = response.data;
+  
+      // Xử lý thành công
+      localStorage.setItem("token", data.token); // Lưu token
+      localStorage.setItem("userId", data.userId); // Lưu userId
+      login(data.userId, data.role); // Gọi hàm login từ context
+      alert("Login successful!");
+    } catch (error) {
+      // Xử lý lỗi
+      console.error("Error during login:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Error logging in. Please try again.");
     }
   };
-
   
-
   return (
     <div
       className="login-container"

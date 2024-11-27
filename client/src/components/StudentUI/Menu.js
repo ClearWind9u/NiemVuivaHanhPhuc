@@ -1,6 +1,6 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { foodList as initialfoodList } from "../../db/foodList";
-import axios from "axios";
 import "../css/Menu.css";
 
 const Menu = () => {
@@ -15,7 +15,7 @@ const Menu = () => {
   const [commentText, setCommentText] = useState("");
   const [sortOrder, setSortOrder] = useState(null);
   const [filterCategory, setFilterCategory] = useState("");
-  
+
   const fetchFoodList = async () => {
     try {
       const response = await axios.get("http://localhost:8000/menu/all");
@@ -67,7 +67,7 @@ const Menu = () => {
 
     const newReview = {
       username: "Current User",
-      avatar: "./image/avatar.jpg",
+      avatar: "../image/avatar.jpg",
       rating,
       review: reviewText,
       timestamp,
@@ -185,15 +185,15 @@ const Menu = () => {
   };
 
   const handleSort = (order) => {
-    if(order === "asc" || order === "desc") setSortOrder(order);
+    if (order === "asc" || order === "desc") setSortOrder(order);
     else setSortOrder("");
   };
-  
+
 
   const handleCategoryFilter = (category) => {
     setFilterCategory(category); // Cập nhật danh mục được chọn
   };
-  
+
   return (
     <div className="">
       <h2 style={{ textAlign: 'center' }}>Today Menu</h2>
@@ -279,7 +279,7 @@ const Menu = () => {
                 selectedFood.reviews.map((review, index) => (
                   <div key={index} className="review-item row">
                     <div className="user-avatar col-2">
-                      <img src={review.avatar || "./image/avatar.jpg"} alt="User Avatar" />
+                      <img src={review.avatar || "../image/avatar.jpg"} alt="User Avatar" />
                       <p className="user-name">{review.username}</p>
                       <p className="review-timestamp">{review.timestamp}</p>
                     </div>

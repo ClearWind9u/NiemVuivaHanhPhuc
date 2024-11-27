@@ -2,12 +2,13 @@ import express from "express"
 import mongoose, { mongo } from "mongoose"
 import dotenv from "dotenv"
 import cors from "cors";
-import Orders from "./routes/order.js";
+import Orders from "./routes/order.routes.js";
 import Menu from "./routes/menu.routes.js";
+import Login from "./routes/login.routes.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 7000;
+const PORT = process.env.PORT || 8000;
 const MONGOURL = process.env.MONGO_URL;
 
 
@@ -24,6 +25,7 @@ mongoose
   .catch((error) => console.log(error));
 
 app.use("/", Orders);
+app.use("/", Login);
 app.use("/menu", Menu);
 
 
