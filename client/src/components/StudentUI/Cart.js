@@ -78,6 +78,7 @@ const Cart = () => {
                     value={item.quantity}
                     min="1"
                     readOnly
+                    style={{ width: '3rem', textAlign: 'center' }}
                   />
                   <button
                     className="btn btn-secondary blue-btn quantity-increase"

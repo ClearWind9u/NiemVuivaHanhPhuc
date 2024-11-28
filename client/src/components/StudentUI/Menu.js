@@ -1,20 +1,22 @@
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 import React, { useEffect, useState } from "react";
-import { foodList as initialfoodList } from "../../db/foodList";
 import "../css/Menu.css";
 
 const Menu = () => {
+  const { userId } = useAuth();
   const [searchText, setSearchText] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
-  const [foodList, setFoodList] = useState(initialfoodList);
+  const [foodList, setFoodList] = useState([]);
   const [expandedReviewIndex, setExpandedReviewIndex] = useState(null); // Track the expanded comment section
   const [commentText, setCommentText] = useState("");
   const [sortOrder, setSortOrder] = useState(null);
   const [filterCategory, setFilterCategory] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
 
   const fetchFoodList = async () => {
     try {
@@ -24,10 +26,42 @@ const Menu = () => {
       console.error("Error fetching menu items:", error);
     }
   };
-
   useEffect(() => {
     fetchFoodList();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchFoodList();
+    }, 3000); //Làm mới mỗi 3 giây
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getUserInfo = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/user/${userId}`);
+      return response.data; // Trả về dữ liệu user
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null; // Xử lý lỗi bằng cách trả về null
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const data = await getUserInfo(userId);
+      if (data) {
+        setUserInfo(data);
+      } else {
+        console.error("Failed to fetch user info.");
+      }
+    };
+    if (userId) {
+      fetchUserInfo();
+    }
+  }, [userId]);
+
   const handleSearch = (e) => {
     setSearchText(e.target.value.toLowerCase());
   };
@@ -46,75 +80,113 @@ const Menu = () => {
     setSelectedFood(null);
   };
 
-  const handleSendReview = () => {
-    if (!selectedFood.buyed) {
-      alert("You must purchase this product before leaving a review.");
-      setRating(0);
-      setHoveredRating(0);
-      setReviewText("");
-      return;
+  const updateFoodReviews = async (foodId, updatedReviews) => {
+    try {
+      // Tìm món ăn cần cập nhật
+      const foodToUpdate = foodList.find((food) => food.id === foodId);
+      if (!foodToUpdate) return;
+      // Tạo object món ăn đã được cập nhật
+      const updatedFood = { ...foodToUpdate, reviews: updatedReviews };
+      // Gửi yêu cầu PUT với axios
+      const response = await axios.put(`http://localhost:8000/menu/update/${foodId}`, updatedFood, {
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.status !== 200) {
+        throw new Error("Failed to update reviews");
+      }
+      // Cập nhật danh sách món ăn
+      fetchFoodList();
+    } catch (error) {
+      console.error("Error updating food reviews:", error);
     }
-    // DD-MM-YYYY, HH:MM:SS
-    const timestamp = new Date().toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
+  };
 
+  const handleSendReview = async () => {
     const newReview = {
-      username: "Current User",
-      avatar: "../image/avatar.jpg",
+      username: userInfo?.username || "Unknown User",
+      avatar: userInfo?.avatar || "../image/avatar.jpg",
+      timestamp: new Date().toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      }),
       rating,
       review: reviewText,
-      timestamp,
+      review_id: userId,
+      likes: 0,
+      mylike: [], // Khởi tạo mảng mylike rỗng
+      comments: [],
     };
 
-    // Add to reviews of selectedFood
-    setSelectedFood(prevFood => ({
-      ...prevFood,
-      reviews: [...(prevFood.reviews || []), newReview],
-    }));
+    const updatedFood = { ...selectedFood, reviews: [...selectedFood.reviews, newReview] };
 
-    // Reset
-    setRating(0);
-    setHoveredRating(0);
-    setReviewText("");
-  };
+    try {
+      // Gửi yêu cầu cập nhật bằng axios
+      const response = await axios.put(
+        `http://localhost:8000/menu/update/${selectedFood.id}`,
+        updatedFood,
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-  const handleLikeReview = (foodId, reviewIndex) => {
-    setFoodList((prevList) =>
-      prevList.map((food) => {
-        if (food.id === foodId) {
-          const updatedReviews = food.reviews.map((review, index) => {
-            if (index === reviewIndex) {
-              // Check mylike and update likes 
-              const newLikeCount = review.mylike ? review.likes - 1 : review.likes + 1;
-              return {
-                ...review,
-                likes: newLikeCount,
-                mylike: !review.mylike,
-              };
-            }
-            return review;
-          });
-          return { ...food, reviews: updatedReviews };
-        }
-        return food;
-      })
-    );
-  };
-
-  // update selectedFood after change foodList
-  useEffect(() => {
-    if (selectedFood) {
-      const updatedFood = foodList.find((food) => food.id === selectedFood.id);
-      setSelectedFood(updatedFood);
+      if (response.status === 200) {
+        // Cập nhật trạng thái sau khi gửi thành công
+        setSelectedFood(updatedFood);
+        setReviewText(""); // Reset ô nhập
+        setRating(0); // Reset rating
+      } else {
+        alert(response.data.message || "Failed to send review.");
+      }
+    } catch (error) {
+      console.error("Error sending review:", error);
+      alert("Failed to send review.");
     }
-  }, [foodList, selectedFood]);
+  };
+
+  const handleLikeReview = async (foodId, reviewIndex) => {
+    const updatedFood = { ...selectedFood };
+    const review = updatedFood.reviews[reviewIndex];
+
+    // Đảm bảo `mylike` được khởi tạo là một mảng
+    review.mylike = review.mylike || [];
+
+    if (review.mylike.includes(userId)) {
+      // Nếu đã thích, gỡ like
+      review.mylike = review.mylike.filter((id) => id !== userId);
+      review.likes -= 1;
+    } else {
+      // Nếu chưa thích, thêm `userId` vào mảng `mylike`
+      review.mylike.push(userId);
+      review.likes += 1;
+    }
+
+    try {
+      // Cập nhật dữ liệu bằng axios
+      const response = await axios.put(
+        `http://localhost:8000/menu/update/${selectedFood.id}`,
+        updatedFood, // Truyền dữ liệu đã cập nhật
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      if (response.status === 200) {
+        // Cập nhật giao diện sau khi update thành công
+        setSelectedFood(updatedFood);
+        const updatedFoodList = foodList.map((food) =>
+          food.id === foodId ? updatedFood : food
+        );
+        setFoodList(updatedFoodList);
+        //setFilteredFoodList(updatedFoodList);
+      } else {
+        alert(response.data.message || "Failed to update review.");
+      }
+    } catch (error) {
+      console.error("Error updating review:", error);
+      alert("Failed to update review.");
+    }
+  };
 
   const applyFilters = () => {
     let filteredList = [...foodList];
@@ -147,12 +219,12 @@ const Menu = () => {
     setExpandedReviewIndex(index === expandedReviewIndex ? null : index);
   };
 
-  const handleSendComment = (reviewIndex) => {
+  const handleSendComment = async (reviewIndex) => {
     if (!commentText.trim()) return;
 
+    const updatedFood = { ...selectedFood };
     const newComment = {
-      username: "Current User",
-      comment: commentText,
+      username: userInfo?.username || "Unknown User", // Dùng thông tin từ userInfo
       timestamp: new Date().toLocaleString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -162,33 +234,34 @@ const Menu = () => {
         second: "2-digit",
         hour12: false,
       }),
+      comment: commentText,
+      comment_id: userId,
+      role: "student",
     };
+    updatedFood.reviews[reviewIndex].comments.push(newComment);
 
-    const updatedFood = {
-      ...selectedFood,
-      reviews: selectedFood.reviews.map((review, index) =>
-        index === reviewIndex
-          ? { ...review, comments: [...(review.comments || []), newComment] }
-          : review
-      ),
-    };
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/menu/update/${selectedFood.id}`,
+        updatedFood
+      );
 
-    setSelectedFood(updatedFood);
-
-    setFoodList((prevFoodList) =>
-      prevFoodList.map((food) =>
-        food.id === updatedFood.id ? updatedFood : food
-      )
-    );
-
-    setCommentText("");
+      if (response.status === 200) {
+        setSelectedFood(updatedFood); // Cập nhật dữ liệu trên giao diện
+        setCommentText(""); // Reset ô nhập
+      } else {
+        alert(response.data.message || "Failed to send comment.");
+      }
+    } catch (error) {
+      console.error("Error sending comment:", error);
+      alert("Failed to send comment.");
+    }
   };
 
   const handleSort = (order) => {
     if (order === "asc" || order === "desc") setSortOrder(order);
     else setSortOrder("");
   };
-
 
   const handleCategoryFilter = (category) => {
     setFilterCategory(category); // Cập nhật danh mục được chọn
@@ -247,7 +320,7 @@ const Menu = () => {
               <div className="card">
                 <img
                   src={food.image}
-                  className="card-img-top food-img"
+                  className={`card-img-top food-img ${!food.inStock ? "grayscale" : ""}`}
                   alt={food.name}
                 />
                 <div className="card-body">
@@ -297,7 +370,10 @@ const Menu = () => {
                       </div>
                       <div className="review-actions">
                         <button className="cmt-btn"
-                          style={{ color: review.mylike ? "white" : "initial", backgroundColor: review.mylike ? "black" : "initial" }}
+                          style={{
+                            color: review.mylike.includes(userId) ? "white" : "initial",
+                            backgroundColor: review.mylike.includes(userId) ? "black" : "initial"
+                          }}
                           onClick={() => handleLikeReview(selectedFood.id, index)}>
                           <i className="fas fa-thumbs-up"> Like</i> {review.likes}
                         </button>
@@ -313,7 +389,7 @@ const Menu = () => {
                           {review.comments?.map((comment, cIndex) => (
                             <div className="row" key={cIndex}>
                               <div className="col-3">
-                                <span><strong>{comment.username}</strong></span>
+                                <span style={{ color: comment.role === 'staff' ? 'red' : 'inherit' }}><strong>{comment.username}</strong></span>
                                 <p>{comment.timestamp}</p>
                               </div>
                               <p className="col-9">{comment.comment}</p>

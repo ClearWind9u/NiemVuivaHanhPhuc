@@ -20,6 +20,8 @@ export const addDish = async (req, res) => {
       preparation_time,
       image,
       category,
+      buyed,
+      inStock,
       reviews: [],
     });
 

@@ -2,10 +2,9 @@ import User from "../models/users.model.js";
 import jwt from "jsonwebtoken";
 
 // Đăng nhập
-export const login = async (req, res) => {
+export const Login = async (req, res) => {
   try {
     const { username, password, role } = req.body;
-
     // Kiểm tra nếu thiếu thông tin
     if (!username || !password || !role) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -16,20 +15,19 @@ export const login = async (req, res) => {
     if (!user || password !== user.password || role !== user.role) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-
+    console.log(user.email);
     // Tạo token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       "secretkey", // Đổi thành biến môi trường trong production
       { expiresIn: "1h" }
     );
-
     // Trả về thông tin người dùng
     res.status(200).json({ 
       message: "Login successful", 
       token, 
       role: user.role, 
-      userId: user._id 
+      userId: user._id,
     });
   } catch (error) {
     console.error("Error during login:", error.message);
