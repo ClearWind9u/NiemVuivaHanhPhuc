@@ -25,3 +25,23 @@ export const getUserInfo = async (req, res) => {
         });
     }
 };
+export const addBalance = async (req, res) => {
+    try {
+        const { id, money } = req.body;
+        let user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (money > 5000000) return res.status(500).json({ message: "Ban chi duoc nap toi da 500000 dong" })
+        const balance = user.balance + money;
+        await user.updateOne({balance: balance}, { new: true });
+        user = await User.findById(id);
+        res.status(200).json(user);
+
+
+    } catch (error) {
+        console.error("Error add fund:", error.message);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+}
+

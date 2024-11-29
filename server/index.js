@@ -6,7 +6,8 @@ import Orders from "./routes/orders.routes.js";
 import Menu from "./routes/menu.routes.js";
 import Login from "./routes/login.routes.js";
 import Users from "./routes/users.routes.js";
-
+import Cart from "./routes/cart.routes.js";
+import Wallet from "./routes/users.routes.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
@@ -28,6 +29,7 @@ app.use("/", Orders);
 app.use("/", Login);
 app.use("/menu", Menu);
 app.use("/user",Users);
-
+app.use("/cart",Cart );
+app.use("/wallet",Wallet);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT} `));

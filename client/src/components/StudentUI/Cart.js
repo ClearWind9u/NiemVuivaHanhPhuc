@@ -1,44 +1,136 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaCreditCard,
   FaShoppingCart,
   FaTicketAlt,
   FaTrashAlt,
 } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { cartItems as initialcartItems } from "../../db/cartItems";
 import "../css/Cart.css";
+import axios from "axios";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(initialcartItems);
+  const { userId } = useAuth();
+  const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
   const handleNavigation = (path, data) => {
     navigate(path, data);
   };
+  const fetchCartItem = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/cart/${userId}`);
+      setCartItems(response.data);
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
 
-  const handleQuantityChange = (id, delta) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id
-          ? {
-            ...item,
-            quantity: Math.max(1, item.quantity + delta),
+  useEffect(() => {
+    fetchCartItem();
+  }, [cartItems]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchCartItem();
+  //   }, 100); //Làm mới mỗi 3 giây
+
+  //   return () => clearInterval(interval);
+  // }, []);
+  const handleQuantityChange = async (id, delta) => {
+    if (delta === 1) {
+      // cartItems[id].quantity += 1;
+      // cartItems[id].total += cartItems[id].price;
+      // setCartItems(cartItems);
+      try {
+        const response = await axios.post("http://localhost:8000/cart/add",
+          {
+            id: id,
+            user_id: userId
+          },
+          {
+            headers: {
+              "Content-Type": "application/json", // Ensure the data is sent as JSON
+            }
           }
-          : item
-      )
-    );
+        )
+      } catch (error) {
+        console.error("Error increasing from cart:", error);
+      }
+    }
+    if (delta === -1) {
+      const itemInCart = cartItems.find((it) => {
+        return it.id === id && it.user_id === userId;
+      })
+      if (itemInCart.quantity === 0) {
+        handleRemove(itemInCart)
+      }
+      try {
+        const response = await axios.post("http://localhost:8000/cart/minus",
+          {
+            id: id,
+            user_id: userId
+          },
+          {
+            headers: {
+              "Content-Type": "application/json", // Ensure the data is sent as JSON
+            }
+          }
+        )
+      } catch (error) {
+        console.error("Error increasing from cart:", error);
+      }
+    }
   };
 
-  const handleBuyNowChange = (id) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id ? { ...item, buyNow: !item.buyNow } : item
+  const handleBuyNowChange = async (id) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/cart/buynow",
+        {
+          id: id,
+          user_id: userId
+        },
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure the data is sent as JSON
+          }
+        }
       )
-    );
+      if (response.status === 201) {
+        console.log('response: ', response);
+      }
+      else throw new Error("Failed to buy now food");
+    } catch (error) {
+      console.error("Failed to buy now food:", error);
+    }
   };
 
-  const handleRemove = (id) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
+  const handleRemove = async (item) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/cart/remove",
+        {
+          id: item.id,
+          user_id: userId
+        },
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure the data is sent as JSON
+          }
+        }
+      )
+      if (response.status === 201) {
+        const newCart = cartItems.filter((itemsInCart) => {
+          return itemsInCart.id !== item.id;
+        })
+        setCartItems(newCart);
+        alert(`${item.name} has been deleted to your cart!`);
+      }
+      else throw new Error("Failed to delete food");
+    } catch (error) {
+      console.error("Error delete from cart:", error);
+    }
   };
 
   const totalCost = cartItems
@@ -51,7 +143,7 @@ const Cart = () => {
 
       <div className="container mt-4">
         <div className="row d-flex">
-          {cartItems.map((item) => (
+          {cartItems && cartItems.map((item) => (
             <div
               key={item.id}
               className="col-12 d-flex align-items-center mb-3 cart-item"
@@ -68,22 +160,39 @@ const Cart = () => {
                   <button
                     className="btn btn-secondary blue-btn quantity-decrease"
                     style={{ fontSize: '1rem', justifyContent: 'center' }}
-                    onClick={() => handleQuantityChange(item.id, -1)}
+                    onClick={() => {
+                      cartItems.map((itemInCart) => {
+                        if (itemInCart.id === item.id) {
+                          itemInCart.quantity -= 1;
+                          itemInCart.total -= itemInCart.price;
+                        }
+                      })
+                      handleQuantityChange(item.id, -1)
+                    }}
                   >
                     -
                   </button>
-                  <input
+                  <p className="form-control mx-2">{item.quantity}</p>
+                  {/* <input
                     type="number"
                     className="form-control mx-2"
                     value={item.quantity}
                     min="1"
                     readOnly
                     style={{ width: '3rem', textAlign: 'center' }}
-                  />
+                  /> */}
                   <button
                     className="btn btn-secondary blue-btn quantity-increase"
                     style={{ fontSize: '1rem', justifyContent: 'center' }}
-                    onClick={() => handleQuantityChange(item.id, 1)}
+                    onClick={() => {
+                      cartItems.map((itemInCart) => {
+                        if (itemInCart.id === item.id) {
+                          itemInCart.quantity += 1;
+                          itemInCart.total += itemInCart.price;
+                        }
+                      })
+                      handleQuantityChange(item.id, 1)
+                    }}
                   >
                     +
                   </button>
@@ -107,7 +216,7 @@ const Cart = () => {
                 <button
                   className="btn red-btn"
                   style={{ fontSize: '1rem' }}
-                  onClick={() => handleRemove(item.id)}
+                  onClick={() => handleRemove(item)}
                 >
                   <FaTrashAlt className="me-1" /> Remove
                 </button>

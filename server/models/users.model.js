@@ -24,6 +24,10 @@ const userSchema = new Schema({
     email: { 
         type: String, 
         unique: true },
+    balance: {
+        type: Number,
+        unique: true
+    },
     role: {
       type: String,
       enum: ['student', 'staff', 'admin'],
