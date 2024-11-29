@@ -99,9 +99,8 @@ export const deleteDish = async (req, res) => {
   export const addCart = async (req, res) => {
     try {
       const { id , user_id} = req.body;
-      const addFood = await Cart.findOne({ id });
-      const user= await Cart.findOne({user_id});
-      if(addFood && user){
+      const addFood = await Cart.findOne({ id:id ,user_id:user_id});
+      if(addFood){
         const quantity = addFood.quantity + 1;
         const total = addFood.total + addFood.price;
         await addFood.updateOne({quantity: quantity,total: total})
