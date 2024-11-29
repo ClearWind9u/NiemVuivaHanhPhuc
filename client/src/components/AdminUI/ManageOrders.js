@@ -4,6 +4,7 @@ import { FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { staff as staffDB } from "../../db/staffUser";
 import { students as studentsDB } from "../../db/studentUser";
+
 const ManageOrder = () => {
   const [staffUsers, setStaffUsers] = useState(staffDB);
   const [studentUsers, setStudentUsers] = useState(studentsDB);
@@ -84,42 +85,59 @@ const ManageOrder = () => {
       return matchesSearch && matchesStartDate && matchesEndDate;
     });
 
-  const fetchOldOrders = () => {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-    const orders = staffUsers.flatMap((staff) =>
-      staff.orderHistory
-        .filter((order) => new Date(order.date) < sixMonthsAgo)
-        .map((order) => ({
-          ...order,
-          staffId: staff.id,
-          staffName: staff.name,
-        }))
-    );
-
-    setOldOrders(orders);
-    setIsOldOrdersModalOpen(true);
+    const fetchOldOrders = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/orders_old`);
+        console.log("API", response.data);
+        setOldOrders(response.data);
+        setIsOldOrdersModalOpen(true);
+      } catch (error) {
+        console.error("Error fetching old orders:", error);
+      }
+    };
+  const handleDelete = async (orderId) => {
+    try {
+      const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+      if (!confirmDelete) return;
+  
+      const response = await axios.delete(`http://localhost:8000/orders_old/${orderId}`);
+  
+      if (response.status === 200) {
+        alert("Order deleted successfully!");
+        // Cập nhật lại danh sách đơn hàng
+        setOldOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
+      }
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      alert("Failed to delete the order. Please try again later.");
+    }
   };
-  // Delete old order by ID
-  const deleteOldOrder = (orderId, staffId) => {
-    setStaffUsers((prevUsers) =>
-      prevUsers.map((staff) =>
-        staff.id === staffId
-          ? {
-              ...staff,
-              orderHistory: staff.orderHistory.filter(
-                (order) => order.id !== orderId
-              ),
-            }
-          : staff
-      )
-    );
-    setOldOrders((prevOrders) =>
-      prevOrders.filter((order) => order.id !== orderId)
-    );
-  };
+
   const closeOldOrdersModal = () => setIsOldOrdersModalOpen(false);
+  const [selectedOrder, setSelectedOrder] = useState(null); // Chứa thông tin chi tiết hóa đơn
+  const [isModalOpen, setIsModalOpen] = useState(false); // Điều khiển modal
+  const handleViewDetails = async (orderId) => {
+    if (!orderId) {
+      console.error("Invalid orderId:", orderId);  // In ra nếu orderId không hợp lệ
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/orders/${orderId}`
+      );
+  
+      setSelectedOrder(response.data); // Lưu chi tiết hóa đơn vào state
+      setIsModalOpen(true); // Mở modal
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
+  };
+
+  // Hàm để đóng modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
   return (
     <div className="user-management-page">
       <h2 style={{ textAlign: "center" }}>Order History</h2>
@@ -253,7 +271,7 @@ const ManageOrder = () => {
                     </thead>
                     <tbody>
                       {oldOrders.map((order) => (
-                        <tr key={order.id}>
+                        <tr key={order._id}>
                           <td>{order.staffName}</td>
                           <td>
                             {new Date(order.date).toLocaleDateString("en-GB")}
@@ -265,7 +283,7 @@ const ManageOrder = () => {
                             <button
                               className="btn red-btn"
                               onClick={() =>
-                                deleteOldOrder(order.id, order.staffId)
+                                handleDelete(order._id)
                               }
                               style={{
                                 backgroundColor: "#d9534f",
@@ -358,13 +376,126 @@ const ManageOrder = () => {
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td>
-
+                  <button
+                 className="button-small"
+                 onClick={() => handleViewDetails(purchase._id)}
+               >
+                View
+              </button>
                 </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+        {isModalOpen && selectedOrder && (
+          <div className="modal-overlay">
+            <div className="modal" style={{ height: "90vh", width: "40vw" }}>
+              <h3>Order Details</h3>
+              <p>
+                <strong>Order ID:</strong> {selectedOrder._id}
+              </p>
+              <p>
+                <strong>Student Name:</strong>{" "}
+                {selectedOrder.student}
+              </p>
+              <p>
+                <strong>Staff Name:</strong>{" "}
+                {selectedOrder.staff || "N/A"}
+              </p>
+              <p><strong>Order Details (Items)</strong></p>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  margin: "20px 0",
+                  fontSize: "16px",
+                  textAlign: "left",
+                  border: "1px solid #ddd",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      backgroundColor: "#f4f4f4",
+                      borderBottom: "2px solid #ddd",
+                    }}
+                  >
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Dish Name
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Price
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Quantity
+                    </th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedOrder.details.map((item, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        backgroundColor:
+                          index % 2 === 0 ? "#f9f9f9" : "#ffffff",
+                        transition: "background-color 0.3s",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.backgroundColor = "#e8f5e9")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.backgroundColor =
+                          index % 2 === 0 ? "#f9f9f9" : "#ffffff")
+                      }
+                    >
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        {item.name}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        ${item.price}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        {item.quantity}
+                      </td>
+                      <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                        ${item.total_price}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p>
+                <strong>Total Quantity:</strong> {selectedOrder.total_quantity}
+              </p>
+              <p>
+                <strong>Total Price:</strong> ${selectedOrder.total_price}
+              </p>
+              <p>
+                <strong>Discount:</strong> ${selectedOrder.discount}
+              </p>
+              <p>
+                <strong>Final Price:</strong> ${selectedOrder.final_price}
+              </p>
+              <p>
+                <strong>Payment Method:</strong> {selectedOrder.payment_method}
+              </p>
+              <p>
+                <strong>Order Time:</strong>{" "}
+                {new Date(selectedOrder.order_time).toLocaleString()}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedOrder.status}
+              </p>
+
+              <button onClick={closeModal}>Close</button>
+            </div>
+          </div>
+        )}
             </div>
           </div>
         )}
