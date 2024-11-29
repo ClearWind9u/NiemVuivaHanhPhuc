@@ -74,8 +74,21 @@ const Menu = () => {
     setSearchText(e.target.value.toLowerCase());
   };
 
-  const handleAddToCart = (foodName) => {
-    alert(`${foodName} has been added to your cart!`);
+  const handleAddToCart = async (food) => {
+    
+
+    try {
+      const response = await axios.post('http://localhost:8000/menu/add-cart',{
+        id: food.id,
+        user_id: userId
+      }
+      )
+      if(response.status===201) alert(`${food.name} has been added to your cart!`);
+      else throw new Error("Failed to update reviews");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+    
   };
 
   const handleShowReviews = (food) => {
@@ -446,7 +459,7 @@ const Menu = () => {
                 <div className="card-body">
                   <h5 className="card-title">{food.name}</h5>
                   <p className="card-text">{food.description}</p>
-                  <button className="btn blue-btn" onClick={() => handleAddToCart(food.name)} disabled={!food.inStock}>
+                  <button className="btn blue-btn" onClick={() => handleAddToCart(food)} disabled={!food.inStock}>
                     Add to Cart
                   </button>
                   <button className="btn blue-btn" onClick={() => handleShowReviews(food)}>

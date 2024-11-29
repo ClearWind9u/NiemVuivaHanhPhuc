@@ -1,5 +1,6 @@
 import Food from "../models/foods.model.js";
-
+import Cart from "../models/cart.model.js";
+import User from "../models/users.model.js";
 // Thêm món ăn
 export const addDish = async (req, res) => {
   try {
@@ -90,4 +91,48 @@ export const getAllDishes = async (req, res) => {
     console.error("Error fetching all dishes:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+export const addCart = async (req, res) => {
+  try {
+    const { id, user_id } = req.body;
+    const addFood = await Cart.findOne({ id: id, user_id: user_id });
+    if (addFood) {
+      const quantity = addFood.quantity + 1;
+      const total = addFood.total + addFood.price;
+      await addFood.updateOne({ quantity: quantity, total: total })
+      res.status(201).json({ message: "Dish added to cart successfully sss", cart: addFood });
+    }
+    else {
+      const dish = await Food.findOne({ id });
+      if (!dish) {
+        return res.status(404).json({ message: "Dish not found" });
+      }
+      const customer = await User.findOne({ _id: user_id });
+      if (!customer) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      const quantity = 1;
+      const price = dish.price;
+      const image = dish.image;
+      const total = dish.price;
+      const name = dish.name;
+      const newCart = new Cart({
+        id: id,
+        user_id: user_id,
+        name: name,
+        quantity: quantity,
+        price: price,
+        total: total,
+        image: image,
+        buyNow: false,
+      });
+      await newCart.save();
+      res.status(201).json({ message: "Dish added to cart successfully", cart: newCart });
+    }
+  } catch (error) {
+    console.error("Error adding dish to cart:", error.message);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+
 };

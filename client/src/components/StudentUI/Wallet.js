@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import "../css/Wallet.css";
-
+import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 const Wallet = () => {
+    const { userId } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [amount, setAmount] = useState("");
-    const [balance, setBalance] = useState(250.00);
-
+    const [balance, setBalance] = useState(0);
+    const fetchBalance = async () => {
+        try {
+          const response = await axios.get(`http://localhost:8000/user/${userId}`);
+          const customer = response.data;
+          const balance = customer.balance;
+          setBalance(balance);
+        } catch (error) {
+          console.error("Error fetching balance:", error);
+        }
+      };
+    
+      useEffect(() => {
+        fetchBalance();
+      }, [balance]);
     const handleAddFunds = () => {
         setShowModal(true);
     };
@@ -15,10 +30,28 @@ const Wallet = () => {
         setAmount("");
     };
 
-    const handleConfirmAddFunds = () => {
-        const newAmount = parseFloat(amount);
-        if (!isNaN(newAmount) && newAmount > 0) setBalance(balance + newAmount);
+    const handleConfirmAddFunds = async () => {
+        const newAmount = parseInt(amount);
+        if (!isNaN(newAmount) && newAmount > 0) {
+        try {
+            const response = await axios.post("http://localhost:8000/wallet",
+              {
+                id: userId,
+                money: newAmount
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json", // Ensure the data is sent as JSON
+                }
+              }
+            )
+          } catch (error) {
+            console.error("Error adding fund:", error);
+          }
         handleCloseModal();
+        setBalance(balance + newAmount);
+        }
+        
     };
 
     {/*Press enter to confirm */ }
@@ -37,7 +70,7 @@ const Wallet = () => {
                 <div className="balance-section d-flex justify-content-between align-items-center">
                     <div className="balance-info">
                         <h4>Your Balance</h4>
-                        <p className="balance-amount">${balance.toFixed(2)}</p>
+                        <p className="balance-amount">{balance} VND</p>
                     </div>
                     <button className="btn btn-secondary blue-btn" onClick={handleAddFunds}>Add Funds</button>
                 </div>

@@ -1,8 +1,8 @@
 import express from "express";
-import { getUserInfo } from "../controllers/users.controller.js";
+import { getUserInfo, addBalance } from "../controllers/users.controller.js";
 
 const router = express.Router();
 
 router.get("/:id", getUserInfo);
-
+router.post("/",addBalance)
 export default router;
