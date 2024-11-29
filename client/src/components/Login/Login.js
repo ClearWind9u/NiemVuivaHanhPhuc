@@ -11,7 +11,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     try {
       const response = await axios.post("http://localhost:8000/login", {
         username,
@@ -24,7 +23,7 @@ const Login = () => {
       localStorage.setItem("token", data.token); // Lưu token
       localStorage.setItem("userId", data.userId); // Lưu userId
       login(data.userId, data.role); // Gọi hàm login từ context
-      alert("Login successful!");
+      //alert("Login successful!");
     } catch (error) {
       // Xử lý lỗi
       console.error("Error during login:", error.response?.data || error.message);

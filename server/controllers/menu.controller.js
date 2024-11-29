@@ -33,7 +33,6 @@ export const addDish = async (req, res) => {
   }
 };
 
-
 // Sửa món ăn
 export const updateDish = async (req, res) => {
   try {
@@ -53,13 +52,10 @@ export const updateDish = async (req, res) => {
   }
 };
 
-
 // Xóa món ăn
 export const deleteDish = async (req, res) => {
   try {
-    console.log("Delete");
     const { id } = req.params;
-
     const deletedDish = await Food.findOneAndDelete({ id });
 
     if (!deletedDish) {
@@ -73,25 +69,25 @@ export const deleteDish = async (req, res) => {
   }
 };
 
+// Tìm kiếm món ăn
+export const searchDishes = async (req, res) => {
+  try {
+    const { name } = req.params;
+    const dishes = await Food.find({ name: { $regex: name, $options: "i" } });
+    res.status(200).json(dishes);
+  } catch (error) {
+    console.error("Error searching dishes:", error.message);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
 
-  // Tìm kiếm món ăn
-  export const searchDishes = async (req, res) => {
-    try {
-      const { name } = req.params;
-      const dishes = await Food.find({ name: { $regex: name, $options: "i" } });
-      res.status(200).json(dishes);
-    } catch (error) {
-      console.error("Error searching dishes:", error.message);
-      res.status(500).json({ message: "Internal server error", error: error.message });
-    }
-  };
-  
-  export const getAllDishes = async (req, res) => {
-    try {
-      const dishes = await Food.find();
-      res.status(200).json(dishes);
-    } catch (error) {
-      console.error("Error fetching all dishes:", error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  };
+//Xem tất cả món ăn
+export const getAllDishes = async (req, res) => {
+  try {
+    const dishes = await Food.find();
+    res.status(200).json(dishes);
+  } catch (error) {
+    console.error("Error fetching all dishes:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

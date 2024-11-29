@@ -15,7 +15,6 @@ export const Login = async (req, res) => {
     if (!user || password !== user.password || role !== user.role) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-    console.log(user.email);
     // Tạo token
     const token = jwt.sign(
       { id: user._id, role: user.role },

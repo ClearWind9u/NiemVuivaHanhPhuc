@@ -6,6 +6,7 @@ import Orders from "./routes/orders.routes.js";
 import Menu from "./routes/menu.routes.js";
 import Login from "./routes/login.routes.js";
 import Users from "./routes/users.routes.js";
+import Foods from "./routes/foods.routes.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/", Orders);
 app.use("/", Login);
 app.use("/menu", Menu);
 app.use("/user",Users);
+app.use("/foods", Foods);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT} `));

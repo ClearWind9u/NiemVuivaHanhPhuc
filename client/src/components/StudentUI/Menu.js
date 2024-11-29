@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import "../css/Menu.css";
 
 const Menu = () => {
@@ -17,10 +17,17 @@ const Menu = () => {
   const [sortOrder, setSortOrder] = useState(null);
   const [filterCategory, setFilterCategory] = useState("");
   const [userInfo, setUserInfo] = useState(null);
+  const [editingComment, setEditingComment] = useState(null); // Lưu thông tin comment đang chỉnh sửa
+  const [editedText, setEditedText] = useState(""); // Lưu nội dung chỉnh sửa
+
 
   const fetchFoodList = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/menu/all");
+      const response = await axios.get("http://localhost:8000/menu/all", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       setFoodList(response.data);
     } catch (error) {
       console.error("Error fetching menu items:", error);
@@ -30,17 +37,18 @@ const Menu = () => {
     fetchFoodList();
   }, []);
 
+  // useEffect sẽ gọi lại hàm fetchFoodList mỗi khi foodList thay đổi
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchFoodList();
-    }, 3000); //Làm mới mỗi 3 giây
-
-    return () => clearInterval(interval);
-  }, []);
+    fetchFoodList();
+  }, [foodList]);
 
   const getUserInfo = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/user/${userId}`);
+      const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       return response.data; // Trả về dữ liệu user
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -145,7 +153,6 @@ const Menu = () => {
       alert("Failed to send review.");
     }
   };
-
   const handleLikeReview = async (foodId, reviewIndex) => {
     const updatedFood = { ...selectedFood };
     const review = updatedFood.reviews[reviewIndex];
@@ -188,6 +195,36 @@ const Menu = () => {
     }
   };
 
+  const handleDeleteReview = async (foodId, reviewId) => {
+    try {
+      // Gọi API trước khi cập nhật state để đảm bảo dữ liệu nhất quán
+      const response = await axios.delete(
+        `http://localhost:8000/foods/${foodId}/reviews/${reviewId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Chỉ cập nhật state nếu API thành công
+        const updatedFood = { ...selectedFood };
+        if (updatedFood) {
+          updatedFood.reviews = updatedFood.reviews.filter(
+            (review) => review._id !== reviewId
+          );
+        }
+        setSelectedFood(updatedFood); // Cập nhật state sau khi xóa thành công
+      } else {
+        alert(response.data.message || "Failed to delete review.");
+      }
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      alert("Failed to delete review.");
+    }
+  };
+
   const applyFilters = () => {
     let filteredList = [...foodList];
 
@@ -214,7 +251,6 @@ const Menu = () => {
   };
 
   const displayedFoodList = applyFilters();
-
   const handleAddComment = (index) => {
     setExpandedReviewIndex(index === expandedReviewIndex ? null : index);
   };
@@ -238,15 +274,21 @@ const Menu = () => {
       comment_id: userId,
       role: "student",
     };
+
     updatedFood.reviews[reviewIndex].comments.push(newComment);
 
     try {
       const response = await axios.put(
-        `http://localhost:8000/menu/update/${selectedFood.id}`,
-        updatedFood
+        `http://localhost:8000/menu/update/${updatedFood.id}`,
+        updatedFood,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
-
       if (response.status === 200) {
+        updatedFood.reviews = response.data.dish.reviews;
         setSelectedFood(updatedFood); // Cập nhật dữ liệu trên giao diện
         setCommentText(""); // Reset ô nhập
       } else {
@@ -255,6 +297,84 @@ const Menu = () => {
     } catch (error) {
       console.error("Error sending comment:", error);
       alert("Failed to send comment.");
+    }
+  };
+
+  const handleDeleteComment = async (foodId, reviewId, commentId) => {
+    try {
+      // Gọi API trước khi cập nhật state để đảm bảo dữ liệu nhất quán
+      const response = await axios.delete(
+        `http://localhost:8000/foods/${foodId}/reviews/${reviewId}/comments/${commentId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Chỉ cập nhật state nếu API thành công
+        const updatedFood = { ...selectedFood };
+        const review = updatedFood.reviews.find((r) => r._id === reviewId);
+
+        if (review) {
+          review.comments = review.comments.filter(
+            (comment) => comment._id !== commentId
+          );
+        }
+        setSelectedFood(updatedFood); // Cập nhật state sau khi xóa thành công
+      } else {
+        alert(response.data.message || "Failed to delete comment.");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      alert("Failed to delete comment.");
+    }
+  };
+
+  const handleUpdateComment = async (foodId, reviewId, commentId, newComment) => {
+    try {
+      // Hiển thị thông báo "Đang cập nhật..." nếu cần
+      console.log("Updating comment...");
+
+      // Gửi yêu cầu cập nhật bình luận
+      const response = await axios.put(
+        `http://localhost:8000/foods/${foodId}/reviews/${reviewId}/comments/${commentId}`,
+        { newComment }, // Gửi nội dung bình luận mới
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Comment updated successfully");
+
+        // Lấy bình luận đã cập nhật từ API
+        const updatedComment = response.data.comment;
+
+        // Cập nhật state `selectedFood` với bình luận đã chỉnh sửa
+        const updatedFood = { ...selectedFood };
+        const review = updatedFood.reviews.find((r) => r._id === reviewId);
+
+        if (review) {
+          review.comments = review.comments.map((comment) =>
+            comment._id === commentId ? updatedComment : comment
+          );
+        }
+
+        // Lưu state mới
+        setSelectedFood(updatedFood);
+        setEditingComment(null); // Thoát chế độ chỉnh sửa
+      } else {
+        alert(response.data.message || "Failed to update comment.");
+      }
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      alert(
+        error.response?.data?.message || "An error occurred while updating the comment."
+      );
     }
   };
 
@@ -326,7 +446,7 @@ const Menu = () => {
                 <div className="card-body">
                   <h5 className="card-title">{food.name}</h5>
                   <p className="card-text">{food.description}</p>
-                  <button className="btn blue-btn" onClick={() => handleAddToCart(food.name)}>
+                  <button className="btn blue-btn" onClick={() => handleAddToCart(food.name)} disabled={!food.inStock}>
                     Add to Cart
                   </button>
                   <button className="btn blue-btn" onClick={() => handleShowReviews(food)}>
@@ -372,16 +492,30 @@ const Menu = () => {
                         <button className="cmt-btn"
                           style={{
                             color: review.mylike.includes(userId) ? "white" : "initial",
-                            backgroundColor: review.mylike.includes(userId) ? "black" : "initial"
+                            backgroundColor: review.mylike.includes(userId) ? "black" : "#f0f0f0"
                           }}
                           onClick={() => handleLikeReview(selectedFood.id, index)}>
                           <i className="fas fa-thumbs-up"> Like</i> {review.likes}
                         </button>
                         <button className="cmt-btn"
-                          style={{ color: expandedReviewIndex === index ? "white" : "initial", backgroundColor: expandedReviewIndex === index ? "black" : "initial" }}
+                          style={{ color: expandedReviewIndex === index ? "white" : "initial", backgroundColor: expandedReviewIndex === index ? "black" : "#f0f0f0" }}
                           onClick={() => handleAddComment(index)}>
                           <i className="fas fa-comment"> Comment</i>
                         </button>
+                        {/*Nút Edit chỉ hiện thị khi người dùng chính là người để lại review */}
+                        {review.review_id === userId && (
+                          <button className="cmt-btn">
+                            <i className="fas fa-pen"> Edit</i>
+                          </button>
+                        )}
+                        {/*Nút Delete chỉ hiện thị khi người dùng chính là người để lại review */}
+                        {review.review_id === userId && (
+                          <button className="cmt-btn"
+                            onClick={() => { handleDeleteReview(selectedFood._id, review._id) }}>
+                            <i className="fas fa-trash"> Delete</i>
+                          </button>
+                        )}
+
                       </div>
                       {/* Comments section */}
                       {expandedReviewIndex === index && (
@@ -392,7 +526,61 @@ const Menu = () => {
                                 <span style={{ color: comment.role === 'staff' ? 'red' : 'inherit' }}><strong>{comment.username}</strong></span>
                                 <p>{comment.timestamp}</p>
                               </div>
-                              <p className="col-9">{comment.comment}</p>
+                              {/* Edit comment */}
+                              {editingComment === comment._id ? (
+                                <div className="col-6" style={{ margin: 0, padding: 0 }}>
+                                  <textarea
+                                    value={editedText}
+                                    onChange={(e) => setEditedText(e.target.value)}
+                                    style={{ width: '100%' }}
+                                  />
+                                  <div>
+                                    <button
+                                      className="cmt-btn"
+                                      style={{ margin: '0 5px 5px 0' }}
+                                      onClick={() => {
+                                        handleUpdateComment(selectedFood._id, review._id, comment._id, editedText);
+                                      }}
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      className="cmt-btn"
+                                      style={{ margin: '0 5px 5px 0' }}
+                                      onClick={() => setEditingComment(null)} // Thoát chế độ chỉnh sửa
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="col-6" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                                  {comment.comment}
+                                </p>
+                              )}
+                              <div className="col-1">
+                                {/* Nút "Edit" chỉ hiển thị khi user chính là người comment */}
+                                {comment.comment_id === userId && (
+                                  <button
+                                    className="btn blue-btn"
+                                    onClick={() => {
+                                      setEditingComment(comment._id); // Ghi nhận ID của comment đang chỉnh sửa
+                                      setEditedText(comment.comment); // Đặt giá trị ban đầu vào editedText
+                                    }}>
+                                    Edit
+                                  </button>
+                                )}
+                              </div>
+                              <div className="col-1">
+                                {/* Nút "Delete" chỉ hiển thị khi user chính là người comment */}
+                                {comment.comment_id === userId && (
+                                  <button
+                                    className="btn red-btn"
+                                    onClick={() => { handleDeleteComment(selectedFood._id, review._id, comment._id) }}>
+                                    Delete
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           ))}
                           <input
@@ -401,7 +589,9 @@ const Menu = () => {
                             onChange={(e) => setCommentText(e.target.value)}
                             placeholder="Write a comment..."
                           />
-                          <button style={{ color: 'white', backgroundColor: 'black', marginLeft: '10px' }} onClick={() => handleSendComment(index)}><i className="fas">Send</i></button>
+                          <button style={{ color: 'white', backgroundColor: 'black', marginLeft: '10px' }} onClick={() => {
+                            handleSendComment(index)
+                          }}><i className="fas">Send</i></button>
                         </div>
                       )}
                     </div>

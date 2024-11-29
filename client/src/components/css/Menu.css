@@ -10,6 +10,11 @@
     filter: grayscale(100%);
 }
 
+.btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
 h2 {
     font-size: 22px;
     margin: 10px;
@@ -333,6 +338,7 @@ h2 {
 .cmt-btn {
     margin: 10px;
     border: none;
+    background-color: #f0f0f0;
 }
 
 .cmt-btn:hover {
