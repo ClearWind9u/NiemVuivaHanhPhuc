@@ -49,7 +49,7 @@ const OrderSchema = new Schema({
         required: true },
     payment_method: { 
         type: String, 
-        enum: ['cash', 'credit_card', 'e_wallet'], 
+        enum: ['cash', 'online'], 
         required: true 
     },
     order_time: { 

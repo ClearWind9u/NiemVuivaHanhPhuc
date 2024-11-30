@@ -49,3 +49,11 @@ Content-Type: application/json
     "id": "507f191e810c19729de860ea",
     "money": 200000
 }
+###
+POST http://localhost:8000/payment
+Content-Type: application/json
+
+{
+    "user_id": "673b7bef39457e645c4409c5",
+    "paymentMethod": "online"
+}
