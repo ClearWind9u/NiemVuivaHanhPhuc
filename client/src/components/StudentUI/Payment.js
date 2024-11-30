@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { FaCreditCard, FaMoneyBills } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "../css/Payment.css";
-
+import axios from "axios";
 const Payment = () => {
+    const { userId } = useAuth();
     const navigate = useNavigate();
     const handleNavigation = (path) => {
         navigate(path);
@@ -24,7 +26,27 @@ const Payment = () => {
     const handlePaymentChange = (event) => {
         setPaymentMethod(event.target.value);
     };
-
+    const handleOrder = async (paymentMethod) => {
+        try {
+            const response = await axios.post('http://localhost:8000/payment', {
+                user_id: userId,
+                paymentMethod: paymentMethod
+            },
+            {
+                headers: {
+                  "Content-Type": "application/json", // Ensure the data is sent as JSON
+                }
+              }
+            )
+            if (response.status === 200) {alert(`Order successfully`);
+                navigate("/");
+            }
+            if (response.status === 201) {alert(`Ban khong du tien vui long nap them`);
+            }
+        } catch (error) {
+            console.error("Error ordering:", error);
+        }
+    }
     return (
         <div className="">
             <h2 style={{ textAlign: 'center' }}>Your Invoice</h2>
@@ -80,7 +102,7 @@ const Payment = () => {
                         </div>
                         <div className="invoice-actions d-flex justify-content-between mt-3">
                             <button className="btn red-btn" onClick={() => handleNavigation("/cart")}>Cancel</button>
-                            <button className="btn blue-btn">Order</button>
+                            <button className="btn blue-btn" onClick={() => handleOrder(paymentMethod)}>Order</button>
                         </div>
                     </div>
                 ) : (
