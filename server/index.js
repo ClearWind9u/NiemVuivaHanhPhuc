@@ -8,6 +8,7 @@ import Login from "./routes/login.routes.js";
 import Menu from "./routes/menu.routes.js";
 import Orders from "./routes/orders.routes.js";
 import Payment from "./routes/payment.routes.js";
+import Coupons from "./routes/coupon.routes.js";
 import { default as Users, default as Wallet } from "./routes/users.routes.js";
 dotenv.config();
 
@@ -34,5 +35,5 @@ app.use("/foods", Foods);
 app.use("/cart",Cart );
 app.use("/wallet",Wallet);
 app.use("/payment",Payment);
-
+app.use("/coupons", Coupons);
 app.listen(PORT, () => console.log(`Server running on port ${PORT} `));

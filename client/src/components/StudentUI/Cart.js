@@ -14,11 +14,19 @@ import "../css/Cart.css";
 const Cart = () => {
   const { userId } = useAuth();
   const [cartItems, setCartItems] = useState([]);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [finalTotalCost, setFinalTotalCost] = useState(null);
+  const [voucherError, setVoucherError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState(null);
   const navigate = useNavigate();
+
   const handleNavigation = (path, data) => {
     navigate(path, data);
   };
-  const fetchCartItem = async () => {
+
+  const fetchCartItems = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/cart/${userId}`);
       setCartItems(response.data);
@@ -28,10 +36,9 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    fetchCartItem();
+    fetchCartItems();
   }, [cartItems]);
 
-  const [notification, setNotification] = useState(null);
   const showNotification = (message) => {
     setNotification(message);
     setTimeout(() => setNotification(null), 3000);
@@ -79,7 +86,6 @@ const Cart = () => {
       }
     }
   };
-
   const handleBuyNowChange = async (id) => {
     try {
       const response = await axios.post(
@@ -102,7 +108,6 @@ const Cart = () => {
       console.error("Failed to buy now food:", error);
     }
   };
-
   const handleRemove = async (item) => {
     try {
       const response = await axios.post(
@@ -130,13 +135,54 @@ const Cart = () => {
     }
   };
 
+
   const totalCost = cartItems
     .filter((item) => item.buyNow)
     .reduce((total, item) => total + item.price * item.quantity, 0);
 
+  useEffect(() => {
+    setFinalTotalCost(totalCost - voucherDiscount);
+  }, [totalCost, voucherDiscount]);
+
+  const handleVoucherClick = () => {
+    setShowModal(true);
+  };
+
+  const validateVoucher = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/coupons/validate/${voucherCode}`);
+      const coupon = response.data;
+
+      let discountedCost = totalCost;
+
+      // Apply percentage discount
+      if (coupon.percentDiscount) {
+        discountedCost -= (coupon.percentDiscount / 100) * totalCost;
+      }
+
+      // Apply monetary discount
+      if (coupon.moneyDiscount) {
+        discountedCost -= coupon.moneyDiscount;
+      }
+
+      // Ensure total does not go below zero
+      discountedCost = Math.max(0, discountedCost);
+
+      setVoucherDiscount(totalCost - discountedCost);
+      setFinalTotalCost(discountedCost);
+      setVoucherError(null);
+      setShowModal(false);
+      showNotification(`Voucher applied: ${totalCost - discountedCost} VNĐ off`);
+    } catch (error) {
+      setVoucherError("Invalid or expired voucher code.");
+    }
+  };
+
   return (
     <div className="">
-      <h2 style={{ textAlign: 'center' }}>Your Cart <FaShoppingCart /></h2>
+      <h2 style={{ textAlign: "center" }}>
+        Your Cart <FaShoppingCart />
+      </h2>
       <div className="container mt-4">
         <div className="row d-flex">
           {cartItems && cartItems.length > 0 ? (
@@ -156,32 +202,14 @@ const Cart = () => {
                   <div className="quantity-controls">
                     <button
                       className="btn blue-btn quantity-decrease"
-                      style={{ fontSize: "1rem", justifyContent: "center" }}
-                      onClick={() => {
-                        cartItems.map((itemInCart) => {
-                          if (itemInCart.id === item.id) {
-                            itemInCart.quantity -= 1;
-                            itemInCart.total -= itemInCart.price;
-                          }
-                        });
-                        handleQuantityChange(item.id, -1);
-                      }}
+                      onClick={() => handleQuantityChange(item.id, -1)}
                     >
                       -
                     </button>
                     <p className="form-control mx-2">{item.quantity}</p>
                     <button
                       className="btn blue-btn quantity-increase"
-                      style={{ fontSize: "1rem", justifyContent: "center" }}
-                      onClick={() => {
-                        cartItems.map((itemInCart) => {
-                          if (itemInCart.id === item.id) {
-                            itemInCart.quantity += 1;
-                            itemInCart.total += itemInCart.price;
-                          }
-                        });
-                        handleQuantityChange(item.id, 1);
-                      }}
+                      onClick={() => handleQuantityChange(item.id, 1)}
                     >
                       +
                     </button>
@@ -201,10 +229,8 @@ const Cart = () => {
                     />
                     <label className="form-check-label">Buy Now</label>
                   </div>
-
                   <button
                     className="btn red-btn"
-                    style={{ fontSize: "1rem" }}
                     onClick={() => handleRemove(item)}
                   >
                     <FaTrashAlt className="me-1" /> Remove
@@ -213,34 +239,51 @@ const Cart = () => {
               </div>
             ))
           ) : (
-            <div className="col-12 text-center" style={{ margin: '130px 0', }}>
+            <div className="col-12 text-center">
               <p className="text-muted">No items in your cart</p>
             </div>
           )}
           {cartItems && cartItems.length > 0 && (
             <div className="col-12 d-flex align-items-center mb-3">
               <div className="ms-auto me-3 text-end">
-                <p className="total-price">Total order: {totalCost} VNĐ</p>
-                <button
-                  className="btn btn-secondary blue-btn"
-                  style={{ fontSize: "1rem" }}
-                >
-                  <FaTicketAlt style={{ marginRight: "10px" }} /> Voucher
+                <p className="total-price">Total order: {finalTotalCost} VNĐ</p>
+                <button className="btn btn-secondary blue-btn" onClick={handleVoucherClick}>
+                  <FaTicketAlt /> Voucher
                 </button>
                 <button
                   className="btn btn-secondary blue-btn"
-                  style={{ fontSize: "1rem" }}
-                  onClick={() =>
-                    handleNavigation("/payment", { state: { cartItems } })
-                  }
+                  onClick={() => handleNavigation("/payment", { state: { cartItems, finalTotalCost } })}
                 >
-                  <FaCreditCard style={{ marginRight: "10px" }} /> Purchase
+                  <FaCreditCard /> Purchase
                 </button>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Voucher Modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>Enter Voucher Code</h4>
+            <input
+              type="text"
+              className="form-control"
+              value={voucherCode}
+              onChange={(e) => setVoucherCode(e.target.value)}
+            />
+            {voucherError && <p className="error-text">{voucherError}</p>}
+            <button className="btn blue-btn" onClick={validateVoucher}>
+              Apply
+            </button>
+            <button className="btn red-btn" onClick={() => setShowModal(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Notification */}
       {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
