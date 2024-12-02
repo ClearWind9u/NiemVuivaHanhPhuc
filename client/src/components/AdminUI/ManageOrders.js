@@ -312,7 +312,7 @@ const ManageOrder = () => {
 
         {showOrderHistory && selectedUser && (
           <div className="modal-overlay">
-            <div style={{ maxWidth: "800px" }}>
+            <div style={{ maxWidth: "800px",  maxHeight: "700px"}}>
               <div className="user-table mt-4">
                 <div
                   style={{

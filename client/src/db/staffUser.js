@@ -79,20 +79,11 @@ export const staff = [
     ]
   },
   {
-    id: 6,
-    name: "Fiona",
-    email: "fiona@domain.com",
-    role: "Staff",
-    orderHistory: [
-      { id: generateUniqueOrderId(), items: "Veggie Burger, Fries", totalAmount: 12.49, paymentMethod: "Debit Card", date: "10-10-2024" },
-      { id: generateUniqueOrderId(), items: "Pasta, Garlic Bread", totalAmount: 9.99, paymentMethod: "Credit Card", date: "5-12-2024" },
-      { id: generateUniqueOrderId(), items: "Caesar Salad, Breadsticks", totalAmount: 8.99, paymentMethod: "Cash", date: "8-18-2024" },
-      { id: generateUniqueOrderId(), items: "Pizza, Garlic Knots", totalAmount: 14.49, paymentMethod: "Debit Card", date: "6-23-2024" },
-      { id: generateUniqueOrderId(), items: "Tacos, Nachos", totalAmount: 11.99, paymentMethod: "Cash", date: "9-29-2024" }
-    ]
+    id: '673b7bef39457e645c4409c5',
+    name: 'test1',
   },
   {
     id: "507f191e810c19729de860eb",
-    name: "TestAPI",
+    name: 'test2'
   }
 ];

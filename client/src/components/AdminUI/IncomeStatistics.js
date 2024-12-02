@@ -1,3 +1,9 @@
+import React, { useState } from "react";
+import { staff as staffDB } from "../../db/staffUser";
+import { useNavigate } from "react-router-dom";
+import { Pie } from "react-chartjs-2";
+import axios from "axios";
+import { useEffect } from "react";
 import "chart.js/auto";
 import React, { useState } from "react";
 import { Pie } from "react-chartjs-2";
@@ -10,18 +16,67 @@ const IncomeStatistics = () => {
   const [endDate, setEndDate] = useState("");
   const [sortOrder, setSortOrder] = useState("asc"); // Default sorting order is ascending
   const navigate = useNavigate();
+  const [staffWithOrders, setStaffWithOrders] = useState([]);
 
+  const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
+    // Gọi API để lấy dữ liệu lịch sử mua hàng
+    const fetchPurchaseHistory = async (staffId) => {
+      try {
+        const response = await axios.get(`http://localhost:8000/staff/orders/${staffId}`);
+        console.log('API',response.data);
+        return response.data.formattedOrders || []; 
+        // Lưu dữ liệu vào state
+      } catch (error) {
+        console.error("Error fetching purchase history:", error);
+      }
+    };
+
+    const fetchAllPurchaseHistory = async () => {
+      const updatedStaffUsers = await Promise.all(
+        staffUsers.map(async (member) => {
+          const purchaseHistory = await fetchPurchaseHistory(member.id);
+          console.log("purchaseHistory for member", member.name, purchaseHistory); 
+          // Lọc đơn hàng theo ngày
+          const filteredOrders = Array.isArray(purchaseHistory) ? purchaseHistory.filter((order) => {
+            const orderDate = new Date(order.order_time.split("-").reverse().join("-"));
+            const start = startDate ? new Date(startDate) : null;
+            const end = endDate ? new Date(endDate) : null;
+            return (!start || orderDate >= start) && (!end || orderDate <= end);
+          }) : [];  // Nếu không phải mảng, trả về mảng rỗng
+          
+  
+          // Tính tổng số tiền của nhân viên
+          const total = filteredOrders.reduce((acc, order) => acc + order.final_price, 0);
+  
+          return { ...member, orderHistory: filteredOrders, total };
+        })
+      );
+      setStaffWithOrders(updatedStaffUsers);
+    };
+  
+    // Gọi hàm lấy dữ liệu khi ngày bắt đầu và kết thúc thay đổi
+    useEffect(() => {
+      fetchAllPurchaseHistory();
+    }, [startDate, endDate]);
+  
+    // Sắp xếp nhân viên theo tổng số tiền
+    const sortedStaffTotals = staffWithOrders
+      .filter((member) => member.total > 0)  // Loại bỏ nhân viên có tổng = 0
+      .sort((a, b) => (sortOrder === "asc" ? a.total - b.total : b.total - a.total));
+  
+    const overallTotal = sortedStaffTotals.reduce((acc, member) => acc + member.total, 0);
+  
   // Filter orders by date
-  const filteredStaffUsers = staffUsers.map((member) => {
-    const filteredOrders = member.orderHistory.filter((order) => {
-      const orderDate = new Date(order.date.split("-").reverse().join("-")); // Convert to YYYY-MM-DD format for Date parsing
+ /* const filteredStaffUsers = staffUsers.map((member) => {
+    const filteredOrders = fetchPurchaseHistory(member.id).filter((order) => {
+      const orderDate = new Date(order.order_time.split("-").reverse().join("-")); // Convert to YYYY-MM-DD format for Date parsing
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
       return (!start || orderDate >= start) && (!end || orderDate <= end);
     });
 
     const total = filteredOrders.reduce(
-      (acc, order) => acc + order.totalAmount,
+      (acc, order) => acc + order.final_price,
       0
     );
     return { ...member, orderHistory: filteredOrders, total };
@@ -35,7 +90,7 @@ const IncomeStatistics = () => {
   const overallTotal = sortedStaffTotals.reduce(
     (acc, member) => acc + member.total,
     0
-  );
+  );*/
 
   const data = {
     labels: sortedStaffTotals.map((member) => member.name),
