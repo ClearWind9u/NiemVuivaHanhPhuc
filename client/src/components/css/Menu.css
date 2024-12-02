@@ -151,9 +151,15 @@ h2 {
 }
 
 .card-title {
+    font-weight: bold; 
     font-size: 1.5rem;
-    margin-bottom: 10px;
     color: #333;
+}
+
+.card-price {
+    font-weight: bold;       
+    color: red;            
+    font-size: 1.5em;                
 }
 
 .card-text {

@@ -1,66 +1,64 @@
 import Order from "../models/orders.model.js";
-import User from "../models/users.model.js";
-
 import mongoose from "mongoose";
 
 export const getAllStudentOrders = async (req, res) => {
-    try {
-        const { studentId } = req.params;
-        // Truy vấn danh sách hóa đơn của sinh viên theo student_id
-        const orders = await Order.find({ student_id: studentId })
-          .select('order_time details final_price payment_method status') // Chỉ lấy các trường cần thiết
-          .lean();
-    
-        // Format lại dữ liệu trước khi gửi
-        const formattedOrders = orders.map((order) => ({
-          _id: order._id,
-          order_time: order.order_time,
-          dishes: order.details.map((dish) => dish.name).join(', '), // Lấy danh sách tên món ăn
-          final_price: order.final_price,
-          payment_method: order.payment_method,
-          status: order.status,
-          view: `/orders/${order._id}`, // Nút view để xem chi tiết hóa đơn
-        }));
-    
-        res.status(200).json({success: true, formattedOrders});
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).json({ message: 'Failed to fetch orders.' });
-      }
+  try {
+    const { studentId } = req.params;
+    // Truy vấn danh sách hóa đơn của sinh viên theo student_id
+    const orders = await Order.find({ student_id: studentId })
+      .select('order_time details final_price payment_method status') // Chỉ lấy các trường cần thiết
+      .lean();
+
+    // Format lại dữ liệu trước khi gửi
+    const formattedOrders = orders.map((order) => ({
+      _id: order._id,
+      order_time: order.order_time,
+      dishes: order.details.map((dish) => dish.name).join(', '), // Lấy danh sách tên món ăn
+      final_price: order.final_price,
+      payment_method: order.payment_method,
+      status: order.status,
+      view: `/orders/${order._id}`, // Nút view để xem chi tiết hóa đơn
+    }));
+
+    res.status(200).json({ success: true, formattedOrders });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Failed to fetch orders.' });
+  }
 };
 
 export const getAllStaffOrders = async (req, res) => {
-    try {
-        const { staffId } = req.params;
-        
-        const orders = await Order.find({ staff_id: staffId })
-          .select('order_time details final_price payment_method status') 
-          .lean();
-    
-        
-        const formattedOrders = orders.map((order) => ({
-          _id: order._id,
-          order_time: order.order_time,
-          dishes: order.details.map((dish) => dish.name).join(', '), 
-          final_price: order.final_price,
-          payment_method: order.payment_method,
-          status: order.status,
-          view: `/orders/${order._id}`, 
-        }));
-    
-        res.status(200).json({success: true, formattedOrders});
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).json({ message: 'Failed to fetch orders.' });
-      }
+  try {
+    const { staffId } = req.params;
+
+    const orders = await Order.find({ staff_id: staffId })
+      .select('order_time details final_price payment_method status')
+      .lean();
+
+
+    const formattedOrders = orders.map((order) => ({
+      _id: order._id,
+      order_time: order.order_time,
+      dishes: order.details.map((dish) => dish.name).join(', '),
+      final_price: order.final_price,
+      payment_method: order.payment_method,
+      status: order.status,
+      view: `/orders/${order._id}`,
+    }));
+
+    res.status(200).json({ success: true, formattedOrders });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ message: 'Failed to fetch orders.' });
+  }
 };
 
 export const getOrderDetail = async (req, res) => {
   try {
     const { orderId } = req.params;
     const order = await Order.findById(orderId)
-    .populate('student_id', 'name') // Chỉ lấy tên sinh viên
-    .populate('staff_id', 'name')   // Chỉ lấy tên nhân viên
+      .populate('student_id', 'name') // Chỉ lấy tên sinh viên
+      .populate('staff_id', 'name')   // Chỉ lấy tên nhân viên
     // Kiểm tra xem hóa đơn có tồn tại hay không
     if (!order) {
       console.log('No orders found with the provided ID');
@@ -142,5 +140,73 @@ export const deleteOldOrder = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error deleting order", error });
+  }
+};
+
+export const getOrdersWithoutStaff = async (req, res) => {
+  try {
+    // Truy vấn các hóa đơn không có staff_id hoặc staff_id là null (để đưa vào pendingInvoices)
+    const orders = await Order.find({ staff_id: { $in: [null, undefined] } })
+      .select('staff_id student_id order_time details final_price payment_method status') // Chỉ lấy các trường cần thiết
+      .lean();
+
+    // Format lại dữ liệu trước khi gửi
+    const formattedOrders = orders.map((order) => ({
+      _id: order._id,
+      order_time: order.order_time,
+      dishes: order.details.map((dish) => dish.name).join(', '), // Danh sách tên món ăn
+      final_price: order.final_price,
+      payment_method: order.payment_method,
+      status: order.status,
+      student_id: order.student_id,
+      staff_id: order.staff_id,
+      view: `/orders/${order._id}`, // Link xem chi tiết hóa đơn
+    }));
+
+    res.status(200).json({ success: true, orders: formattedOrders });
+  } catch (error) {
+    console.error('Error fetching orders without staff:', error);
+    res.status(500).json({ message: 'Failed to fetch orders without staff.' });
+  }
+};
+
+export const assignStaffToOrder = async (req, res) => {
+  try {
+    const { id } = req.params; // Lấy ID của hóa đơn
+    const { staff_id } = req.body; // Lấy staff_id từ body request
+
+    // Chuyển đổi staff_id từ string sang ObjectId
+    const staffObjectId = new mongoose.Types.ObjectId(staff_id);
+
+    // Cập nhật hóa đơn với staff_id
+    const updatedOrder = await Order.findByIdAndUpdate(
+      id,
+      { staff_id: staffObjectId },
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.status(200).json({ message: "Order assigned to staff successfully" });
+  } catch (error) {
+    console.error("Error assigning staff to order:", error);
+    res.status(500).json({ message: "Failed to assign staff to order" });
+  }
+};
+
+export const declineOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByIdAndDelete(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    res.status(500).json({ message: 'Failed to delete order' });
   }
 };

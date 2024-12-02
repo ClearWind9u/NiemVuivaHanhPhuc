@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import Notification from "../Notification";
 import "../css/Menu.css";
 
 const Menu = () => {
@@ -18,8 +19,14 @@ const Menu = () => {
   const [filterCategory, setFilterCategory] = useState("");
   const [userInfo, setUserInfo] = useState(null);
   const [editingComment, setEditingComment] = useState(null); // Lưu thông tin comment đang chỉnh sửa
-  const [editedText, setEditedText] = useState(""); // Lưu nội dung chỉnh sửa
-
+  const [editedCommentText, setEditedCommentText] = useState(""); // Lưu nội dung comment chỉnh sửa
+  const [editingReview, setEditingReview] = useState(null); // Lưu thông tin review đang chỉnh sửa
+  const [editedReviewText, setEditedReviewText] = useState(""); // Lưu nội dung review chỉnh sửa
+  const [notification, setNotification] = useState(null);
+  const showNotification = (message) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   const fetchFoodList = async () => {
     try {
@@ -75,20 +82,16 @@ const Menu = () => {
   };
 
   const handleAddToCart = async (food) => {
-    
-
     try {
-      const response = await axios.post('http://localhost:8000/menu/add-cart',{
+      const response = await axios.post('http://localhost:8000/menu/add-cart', {
         id: food.id,
         user_id: userId
-      }
-      )
-      if(response.status===201) alert(`${food.name} has been added to your cart!`);
+      })
+      if (response.status === 201) showNotification(`${food.name} has been added to your cart!`);
       else throw new Error("Failed to update reviews");
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
-    
   };
 
   const handleShowReviews = (food) => {
@@ -142,7 +145,6 @@ const Menu = () => {
       mylike: [], // Khởi tạo mảng mylike rỗng
       comments: [],
     };
-
     const updatedFood = { ...selectedFood, reviews: [...selectedFood.reviews, newReview] };
 
     try {
@@ -154,6 +156,7 @@ const Menu = () => {
       );
 
       if (response.status === 200) {
+        updatedFood.reviews = response.data.dish.reviews;
         // Cập nhật trạng thái sau khi gửi thành công
         setSelectedFood(updatedFood);
         setReviewText(""); // Reset ô nhập
@@ -198,7 +201,6 @@ const Menu = () => {
           food.id === foodId ? updatedFood : food
         );
         setFoodList(updatedFoodList);
-        //setFilteredFoodList(updatedFoodList);
       } else {
         alert(response.data.message || "Failed to update review.");
       }
@@ -229,12 +231,52 @@ const Menu = () => {
           );
         }
         setSelectedFood(updatedFood); // Cập nhật state sau khi xóa thành công
+        showNotification(`Review has been successfully deleted!`);
       } else {
         alert(response.data.message || "Failed to delete review.");
       }
     } catch (error) {
       console.error("Error deleting review:", error);
       alert("Failed to delete review.");
+    }
+  };
+
+  const handleUpdateReview = async (foodId, reviewId, newReview) => {
+    try {
+      // Gửi yêu cầu cập nhật bình luận
+      const response = await axios.put(
+        `http://localhost:8000/foods/${foodId}/reviews/${reviewId}`,
+        { newReview }, // Gửi nội dung bình luận mới
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Lấy bình luận đã cập nhật từ API
+        const updatedReview = response.data.review;
+
+        // Cập nhật state `selectedFood` với bình luận đã chỉnh sửa
+        const updatedFood = { ...selectedFood };
+        if (updatedFood) {
+          updatedFood.reviews = updatedFood.reviews.map((review) =>
+            review._id === reviewId ? updatedReview : review
+          );
+        }
+
+        // Lưu state mới
+        setSelectedFood(updatedFood);
+        setEditingReview(null); // Thoát chế độ chỉnh sửa
+      } else {
+        alert(response.data.message || "Failed to update review.");
+      }
+    } catch (error) {
+      console.error("Error updating review:", error);
+      alert(
+        error.response?.data?.message || "An error occurred while updating the review."
+      );
     }
   };
 
@@ -336,6 +378,7 @@ const Menu = () => {
           );
         }
         setSelectedFood(updatedFood); // Cập nhật state sau khi xóa thành công
+        showNotification(`Comment has been successfully deleted!`);
       } else {
         alert(response.data.message || "Failed to delete comment.");
       }
@@ -347,9 +390,6 @@ const Menu = () => {
 
   const handleUpdateComment = async (foodId, reviewId, commentId, newComment) => {
     try {
-      // Hiển thị thông báo "Đang cập nhật..." nếu cần
-      console.log("Updating comment...");
-
       // Gửi yêu cầu cập nhật bình luận
       const response = await axios.put(
         `http://localhost:8000/foods/${foodId}/reviews/${reviewId}/comments/${commentId}`,
@@ -362,8 +402,6 @@ const Menu = () => {
       );
 
       if (response.status === 200) {
-        console.log("Comment updated successfully");
-
         // Lấy bình luận đã cập nhật từ API
         const updatedComment = response.data.comment;
 
@@ -376,7 +414,6 @@ const Menu = () => {
             comment._id === commentId ? updatedComment : comment
           );
         }
-
         // Lưu state mới
         setSelectedFood(updatedFood);
         setEditingComment(null); // Thoát chế độ chỉnh sửa
@@ -457,7 +494,8 @@ const Menu = () => {
                   alt={food.name}
                 />
                 <div className="card-body">
-                  <h5 className="card-title">{food.name}</h5>
+                  <div className="card-title">{food.name}</div>
+                  <div className="card-price">{food.price} VNĐ</div>
                   <p className="card-text">{food.description}</p>
                   <button className="btn blue-btn" onClick={() => handleAddToCart(food)} disabled={!food.inStock}>
                     Add to Cart
@@ -498,113 +536,137 @@ const Menu = () => {
                           style={{ margin: '0 5px' }}
                         ></i>
                       ))}
-                      <div className="review-content">
-                        <p>{review.review}</p>
-                      </div>
-                      <div className="review-actions">
-                        <button className="cmt-btn"
-                          style={{
-                            color: review.mylike.includes(userId) ? "white" : "initial",
-                            backgroundColor: review.mylike.includes(userId) ? "black" : "#f0f0f0"
-                          }}
-                          onClick={() => handleLikeReview(selectedFood.id, index)}>
-                          <i className="fas fa-thumbs-up"> Like</i> {review.likes}
-                        </button>
-                        <button className="cmt-btn"
-                          style={{ color: expandedReviewIndex === index ? "white" : "initial", backgroundColor: expandedReviewIndex === index ? "black" : "#f0f0f0" }}
-                          onClick={() => handleAddComment(index)}>
-                          <i className="fas fa-comment"> Comment</i>
-                        </button>
-                        {/*Nút Edit chỉ hiện thị khi người dùng chính là người để lại review */}
-                        {review.review_id === userId && (
-                          <button className="cmt-btn">
-                            <i className="fas fa-pen"> Edit</i>
-                          </button>
-                        )}
-                        {/*Nút Delete chỉ hiện thị khi người dùng chính là người để lại review */}
-                        {review.review_id === userId && (
-                          <button className="cmt-btn"
-                            onClick={() => { handleDeleteReview(selectedFood._id, review._id) }}>
-                            <i className="fas fa-trash"> Delete</i>
-                          </button>
-                        )}
-
-                      </div>
+                      {/* Edit review */}
+                      {editingReview === review._id ? (
+                        <div className="review-section">
+                          <textarea
+                            className="review-content"
+                            value={editedReviewText}
+                            onChange={(e) => setEditedReviewText(e.target.value)}
+                            style={{ width: '100%' }}
+                          />
+                          <div className="review-actions">
+                            <button className="cmt-btn"
+                              onClick={() => handleUpdateReview(selectedFood._id, review._id, editedReviewText)}>
+                              <i className="fas"> Save</i>
+                            </button>
+                            <button className="cmt-btn"
+                              onClick={() => setEditingReview(null)}>
+                              <i className="fas"> Cancel</i>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="review-section">
+                          <div className="review-content">
+                            <p>{review.review}</p>
+                          </div>
+                          <div className="review-actions">
+                            <button className="cmt-btn"
+                              style={{
+                                color: review.mylike.includes(userId) ? "white" : "initial",
+                                backgroundColor: review.mylike.includes(userId) ? "black" : "#f0f0f0"
+                              }}
+                              onClick={() => handleLikeReview(selectedFood.id, index)}>
+                              <i className="fas fa-thumbs-up"> Like</i> {review.likes}
+                            </button>
+                            <button className="cmt-btn"
+                              style={{ color: expandedReviewIndex === index ? "white" : "initial", backgroundColor: expandedReviewIndex === index ? "black" : "#f0f0f0" }}
+                              onClick={() => handleAddComment(index)}>
+                              <i className="fas fa-comment"> Comment</i>
+                            </button>
+                              {/*Nút Edit và Delete chỉ hiện thị khi người dùng chính là người để lại review */}
+                              {review.review_id === userId && (
+                                <button className="cmt-btn"
+                                  onClick={() => {
+                                    setEditingReview(review._id); // Ghi nhận ID của comment đang chỉnh sửa
+                                    setEditedReviewText(review.review); // Đặt giá trị ban đầu vào editedCommentText
+                                    handleAddComment(-1); // Tắt các bình luận của review
+                                  }}>
+                                  <i className="fas fa-pen"> Edit</i>
+                                </button>
+                              )}
+                              {review.review_id === userId && (
+                                <button className="cmt-btn"
+                                  onClick={() => { handleDeleteReview(selectedFood._id, review._id) }}>
+                                  <i className="fas fa-trash"> Delete</i>
+                                </button>
+                              )}
+                            </div>
+                        </div>
+                      )}
                       {/* Comments section */}
                       {expandedReviewIndex === index && (
                         <div className="comments-section">
                           {review.comments?.map((comment, cIndex) => (
-                            <div className="row" key={cIndex}>
+                            <div className="row d-flex align-items-start justify-content-between mb-2" key={cIndex}>
                               <div className="col-3">
                                 <span style={{ color: comment.role === 'staff' ? 'red' : 'inherit' }}><strong>{comment.username}</strong></span>
                                 <p>{comment.timestamp}</p>
                               </div>
                               {/* Edit comment */}
                               {editingComment === comment._id ? (
-                                <div className="col-6" style={{ margin: 0, padding: 0 }}>
+                                <div className="col-9" style={{ margin: 0, padding: 0 }}>
                                   <textarea
-                                    value={editedText}
-                                    onChange={(e) => setEditedText(e.target.value)}
+                                    className=""
+                                    value={editedCommentText}
+                                    onChange={(e) => setEditedCommentText(e.target.value)}
                                     style={{ width: '100%' }}
                                   />
-                                  <div>
+                                  <div className="row">
                                     <button
-                                      className="cmt-btn"
+                                      className="col-2 me-2 btn blue-btn"
                                       style={{ margin: '0 5px 5px 0' }}
-                                      onClick={() => {
-                                        handleUpdateComment(selectedFood._id, review._id, comment._id, editedText);
-                                      }}
-                                    >
+                                      onClick={() => handleUpdateComment(selectedFood._id, review._id, comment._id, editedCommentText)}>
                                       Save
                                     </button>
                                     <button
-                                      className="cmt-btn"
+                                      className="col-2 btn red-btn"
                                       style={{ margin: '0 5px 5px 0' }}
-                                      onClick={() => setEditingComment(null)} // Thoát chế độ chỉnh sửa
-                                    >
+                                      onClick={() => setEditingComment(null)}>
                                       Cancel
                                     </button>
                                   </div>
                                 </div>
                               ) : (
-                                <p className="col-6" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-                                  {comment.comment}
-                                </p>
+                                <div className="col-9">
+                                  <p className="mb-0 text-break flex-grow-1" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                                    {comment.comment}
+                                  </p>
+                                  {/* Nút "Edit" và "Delete" chỉ hiển thị khi user chính là người comment */}
+                                  {comment.comment_id === userId && (
+                                    <div className="row">
+                                      <button
+                                        className="col-2 me-2 btn blue-btn"
+                                        onClick={() => {
+                                          setEditingComment(comment._id); // Ghi nhận ID của comment đang chỉnh sửa
+                                          setEditedCommentText(comment.comment); // Đặt giá trị ban đầu vào editedCommentText
+                                        }}>
+                                        Edit
+                                      </button>
+                                      <button
+                                        className="col-2 me-2 btn red-btn"
+                                        onClick={() => { handleDeleteComment(selectedFood._id, review._id, comment._id) }}>
+                                        Delete
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
                               )}
-                              <div className="col-1">
-                                {/* Nút "Edit" chỉ hiển thị khi user chính là người comment */}
-                                {comment.comment_id === userId && (
-                                  <button
-                                    className="btn blue-btn"
-                                    onClick={() => {
-                                      setEditingComment(comment._id); // Ghi nhận ID của comment đang chỉnh sửa
-                                      setEditedText(comment.comment); // Đặt giá trị ban đầu vào editedText
-                                    }}>
-                                    Edit
-                                  </button>
-                                )}
-                              </div>
-                              <div className="col-1">
-                                {/* Nút "Delete" chỉ hiển thị khi user chính là người comment */}
-                                {comment.comment_id === userId && (
-                                  <button
-                                    className="btn red-btn"
-                                    onClick={() => { handleDeleteComment(selectedFood._id, review._id, comment._id) }}>
-                                    Delete
-                                  </button>
-                                )}
-                              </div>
                             </div>
                           ))}
-                          <input
-                            type="text"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            placeholder="Write a comment..."
-                          />
-                          <button style={{ color: 'white', backgroundColor: 'black', marginLeft: '10px' }} onClick={() => {
-                            handleSendComment(index)
-                          }}><i className="fas">Send</i></button>
+                          <div className="col-12 d-flex align-items-center">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={commentText}
+                              onChange={(e) => setCommentText(e.target.value)}
+                              placeholder="Write a comment..."
+                            />
+                            <button className="blue-btn" style={{ color: 'white', backgroundColor: 'black', marginLeft: '10px' }} onClick={() => {
+                              handleSendComment(index)
+                            }}>Send</button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -668,6 +730,8 @@ const Menu = () => {
           </li>
         </ul>
       </nav>
+      {/* Notification */}
+      {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
   );
 };

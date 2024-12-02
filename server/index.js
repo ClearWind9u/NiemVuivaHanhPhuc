@@ -1,15 +1,14 @@
-import express from "express"
-import mongoose, { mongo } from "mongoose"
-import dotenv from "dotenv"
 import cors from "cors";
-import Orders from "./routes/orders.routes.js";
-import Menu from "./routes/menu.routes.js";
-import Login from "./routes/login.routes.js";
-import Users from "./routes/users.routes.js";
-import Foods from "./routes/foods.routes.js";
+import dotenv from "dotenv";
+import express from "express";
+import mongoose from "mongoose";
 import Cart from "./routes/cart.routes.js";
-import Wallet from "./routes/users.routes.js";
+import Foods from "./routes/foods.routes.js";
+import Login from "./routes/login.routes.js";
+import Menu from "./routes/menu.routes.js";
+import Orders from "./routes/orders.routes.js";
 import Payment from "./routes/payment.routes.js";
+import { default as Users, default as Wallet } from "./routes/users.routes.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;

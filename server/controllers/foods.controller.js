@@ -69,6 +69,37 @@ export const deleteComment = async (req, res) => {
     }
 };
 
+//Sửa nhận xét
+export const updateReview = async (req, res) => {
+    try {
+        const { foodId, reviewId} = req.params;
+        const { newReview } = req.body;  // Dữ liệu cần cập nhật, ví dụ như nội dung bình luận mới
+
+        // Tìm thực phẩm theo foodId
+        const food = await Food.findOne({ _id: foodId });
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+
+        // Tìm reviewIndex theo reviewId
+        const reviewIndex = food.reviews.findIndex((r) => r._id.toString() === reviewId);
+        if (!reviewIndex === -1) {
+            return res.status(404).json({ message: "Review not found" });
+        }
+
+        // Cập nhật nội dung của bình luận
+        food.reviews[reviewIndex].review = newReview;  // Cập nhật nội dung bình luận
+
+        // Lưu lại thực phẩm sau khi cập nhật
+        await food.save();
+
+        res.status(200).json({ message: "Review updated successfully", review: food.reviews[reviewIndex] });
+    } catch (error) {
+        console.error("Error updating review:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
 //Xóa nhận xét
 export const deleteReview = async (req, res) => {
     try {

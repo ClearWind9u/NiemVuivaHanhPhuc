@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { staff as staffDB } from "../../db/staffUser";
-import { useNavigate } from "react-router-dom";
-import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
+import React, { useState } from "react";
+import { Pie } from "react-chartjs-2";
+import { useNavigate } from "react-router-dom";
+import { staff as staffDB } from "../../db/staffUser";
 
 const IncomeStatistics = () => {
   const [staffUsers, setStaffUsers] = useState(staffDB);
@@ -126,7 +126,7 @@ const IncomeStatistics = () => {
                       <p className="user-email">{user.email}</p>
                     </div>
                     <div className="col-4">
-                      <p style={{ fontWeight: "bold", color: "#333", fontSize: "16px", margin: "0" }}>Total Order Amount: ${user.total.toFixed(2)}</p>
+                      <p style={{ fontWeight: "bold", color: "#333", fontSize: "16px", margin: "0" }}>Total Order Amount: {user.total} VNĐ</p>
                     </div>
                   </div>
                 ))}
@@ -137,7 +137,7 @@ const IncomeStatistics = () => {
           {/* Overall Statistics and Pie Chart */}
           <div className="user-table">
             <div className="overall-section">
-              <h2>Total Orders for All Staff: ${overallTotal.toFixed(2)}</h2>
+              <h2>Total Orders for All Staff: {overallTotal} VNĐ</h2>
               <Pie data={data} />
             </div>
           </div>

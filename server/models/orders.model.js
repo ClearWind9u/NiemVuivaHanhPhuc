@@ -31,7 +31,7 @@ const OrderSchema = new Schema({
     staff_id: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'users', 
-        required: true },
+        required: false },
     details: { 
         type: [OrderDetailSchema], 
         required: true },

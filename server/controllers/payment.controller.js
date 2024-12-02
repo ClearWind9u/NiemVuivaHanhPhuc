@@ -24,7 +24,7 @@ export const addCartToOrder = async (req, res) => {
         let id = new Types.ObjectId(user_id);
         const newOrder = new Order({
           student_id: id,
-          staff_id: id,
+          staff_id: null,
           details: OrderDetail,
           total_quantity: totalQuantity,
           total_price: totalPrice,
@@ -44,6 +44,4 @@ export const addCartToOrder = async (req, res) => {
         console.error("Error order:", error.message);
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
-
-
 }

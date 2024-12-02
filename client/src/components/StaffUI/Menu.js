@@ -1,6 +1,7 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import axios from "axios";
+import Notification from "../Notification";
 import "../css/Menu.css";
 
 const Menu = () => {
@@ -15,7 +16,12 @@ const Menu = () => {
   const [filterCategory, setFilterCategory] = useState("");
   const [userInfo, setUserInfo] = useState(null);
   const [editingComment, setEditingComment] = useState(null); // Lưu thông tin comment đang chỉnh sửa
-  const [editedText, setEditedText] = useState(""); // Lưu nội dung chỉnh sửa
+  const [editedCommentText, setEditedCommentText] = useState(""); // Lưu nội dung chỉnh sửa
+  const [notification, setNotification] = useState(null);
+  const showNotification = (message) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   const fetchFoodList = async () => {
     try {
@@ -37,7 +43,9 @@ const Menu = () => {
 
   const getUserInfo = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/user/${userId}`);
+      const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+        headers: { "Content-Type": "application/json" }
+      });
       return response.data; // Trả về dữ liệu user
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -190,12 +198,12 @@ const Menu = () => {
     try {
       const response = await axios.put(
         `http://localhost:8000/menu/update/${updatedFood.id}`,
-        updatedFood
+        updatedFood,
+        { headers: { "Content-Type": "application/json" } }
       );
 
       if (response.status === 200) {
         updatedFood.reviews = response.data.dish.reviews;
-        console.log("updatedFood: ", updatedFood.reviews);
         setSelectedFood(updatedFood); // Cập nhật dữ liệu trên giao diện
         setCommentText(""); // Reset ô nhập
       } else {
@@ -231,6 +239,7 @@ const Menu = () => {
         }
 
         setSelectedFood(updatedFood); // Cập nhật state sau khi xóa thành công
+        showNotification(`Comment has been successfully deleted!`);
       } else {
         alert(response.data.message || "Failed to delete comment.");
       }
@@ -306,8 +315,9 @@ const Menu = () => {
       // Gửi yêu cầu PUT tới API để lưu thay đổi vào database
       const response = await axios.put(
         `http://localhost:8000/menu/update/${foodId}`,
-        updatedStatus
-      );
+        updatedStatus, {
+        headers: { "Content-Type": "application/json" }
+      });
 
       if (response.status === 200) {
         // Cập nhật giao diện sau khi thành công
@@ -383,7 +393,8 @@ const Menu = () => {
                   alt={food.name}
                 />
                 <div className="card-body">
-                  <h5 className="card-title">{food.name}</h5>
+                  <div className="card-title">{food.name}</div>
+                  <div className="card-price">{food.price} VNĐ</div>
                   <p className="card-text">{food.description}</p>
                   <button
                     className={`btn ${food.inStock ? "blue-btn" : "red-btn"}`}
@@ -456,70 +467,67 @@ const Menu = () => {
                               </div>
                               {/* Edit comment */}
                               {editingComment === comment._id ? (
-                                <div className="col-6" style={{ margin: 0, padding: 0 }}>
+                                <div className="col-9" style={{ margin: 0, padding: 0 }}>
                                   <textarea
-                                    value={editedText}
-                                    onChange={(e) => setEditedText(e.target.value)}
+                                    className=""
+                                    value={editedCommentText}
+                                    onChange={(e) => setEditedCommentText(e.target.value)}
                                     style={{ width: '100%' }}
                                   />
-                                  <div>
+                                  <div className="row">
                                     <button
-                                      className="cmt-btn"
+                                      className="col-2 me-2 btn blue-btn"
                                       style={{ margin: '0 5px 5px 0' }}
-                                      onClick={() => {
-                                        handleUpdateComment(selectedFood._id, review._id, comment._id, editedText);
-                                      }}
-                                    >
+                                      onClick={() => handleUpdateComment(selectedFood._id, review._id, comment._id, editedCommentText)}>
                                       Save
                                     </button>
                                     <button
-                                      className="cmt-btn"
+                                      className="col-2 btn red-btn"
                                       style={{ margin: '0 5px 5px 0' }}
-                                      onClick={() => setEditingComment(null)} // Thoát chế độ chỉnh sửa
-                                    >
+                                      onClick={() => setEditingComment(null)}>
                                       Cancel
                                     </button>
                                   </div>
                                 </div>
                               ) : (
-                                <p className="col-6" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-                                  {comment.comment}
-                                </p>
+                                <div className="col-9">
+                                  <p className="mb-0 text-break flex-grow-1" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                                    {comment.comment}
+                                  </p>
+                                  {/* Nút "Edit" và "Delete" chỉ hiển thị khi user chính là người comment */}
+                                  {comment.comment_id === userId && (
+                                    <div className="row">
+                                      <button
+                                        className="col-2 me-2 btn blue-btn"
+                                        onClick={() => {
+                                          setEditingComment(comment._id); // Ghi nhận ID của comment đang chỉnh sửa
+                                          setEditedCommentText(comment.comment); // Đặt giá trị ban đầu vào editedCommentText
+                                        }}>
+                                        Edit
+                                      </button>
+                                      <button
+                                        className="col-2 me-2 btn red-btn"
+                                        onClick={() => { handleDeleteComment(selectedFood._id, review._id, comment._id) }}>
+                                        Delete
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
                               )}
-                              <div className="col-1">
-                                {/* Nút "Edit" chỉ hiển thị khi user chính là người comment */}
-                                {comment.comment_id === userId && (
-                                  <button
-                                    className="btn blue-btn"
-                                    onClick={() => {
-                                      setEditingComment(comment._id); // Ghi nhận ID của comment đang chỉnh sửa
-                                      setEditedText(comment.comment); // Đặt giá trị ban đầu vào editedText
-                                    }}>
-                                    Edit
-                                  </button>
-                                )}
-                              </div>
-                              <div className="col-1">
-                                {/* Nút "Delete" chỉ hiển thị khi user chính là người comment */}
-                                {comment.comment_id === userId && (
-                                  <button
-                                    className="btn red-btn"
-                                    onClick={() => { handleDeleteComment(selectedFood._id, review._id, comment._id) }}>
-                                    Delete
-                                  </button>
-                                )}
-                              </div>
                             </div>
                           ))}
-                          <input
-                            type="text"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            placeholder="Write a comment..."
-                          />
-                          <button style={{ color: 'white', backgroundColor: 'black', marginLeft: '10px' }} onClick={() => {
-                            handleSendComment(index)
-                          }}><i className="fas">Send</i></button>
+                          <div className="col-12 d-flex align-items-center">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={commentText}
+                              onChange={(e) => setCommentText(e.target.value)}
+                              placeholder="Write a comment..."
+                            />
+                            <button className="blue-btn" style={{ color: 'white', backgroundColor: 'black', marginLeft: '10px' }} onClick={() => {
+                              handleSendComment(index)
+                            }}>Send</button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -553,6 +561,8 @@ const Menu = () => {
           </li>
         </ul>
       </nav>
+      {/* Notification */}
+      {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
   );
 };

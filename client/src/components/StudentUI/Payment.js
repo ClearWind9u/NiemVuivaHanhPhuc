@@ -1,9 +1,9 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { FaCreditCard, FaMoneyBills } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "../css/Payment.css";
-import axios from "axios";
 const Payment = () => {
     const { userId } = useAuth();
     const navigate = useNavigate();
@@ -38,10 +38,10 @@ const Payment = () => {
                 }
               }
             )
-            if (response.status === 200) {alert(`Order successfully`);
+            if (response.status === 200) {alert(`Order successfully!`);
                 navigate("/");
             }
-            if (response.status === 201) {alert(`Ban khong du tien vui long nap them`);
+            if (response.status === 201) {alert(`You don't have enough funds. Please top up.`);
             }
         } catch (error) {
             console.error("Error ordering:", error);
@@ -58,16 +58,16 @@ const Payment = () => {
                         {selectedItems.map((item) => (
                             <div key={item.id} className="invoice-item d-flex justify-content-between">
                                 <span>{item.name} x {item.quantity}</span>
-                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                <span>{(item.price * item.quantity)} VNĐ</span>
                             </div>
                         ))}
                         <div className="invoice-item d-flex justify-content-between">
                             <span>Discount from voucher </span>
-                            <span>- $0.00</span>
+                            <span>- 0 VNĐ</span>
                         </div>
                         <div className="invoice-total d-flex justify-content-between">
                             <strong>Total:</strong>
-                            <strong>${totalCost.toFixed(2)}</strong>
+                            <strong>{totalCost} VNĐ</strong>
                         </div>
                         <div className="invoice-radio d-flex flex-column mt-3">
                             <p>Choose Payment Method:</p>
@@ -106,7 +106,7 @@ const Payment = () => {
                         </div>
                     </div>
                 ) : (
-                    <p className="center-container text-center">No items selected for purchase</p>
+                    <p className="center-container text-center text-muted">No items selected for purchase</p>
                 )}
             </div>
         </div>

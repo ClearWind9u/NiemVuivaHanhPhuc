@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
+import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { staff as staffDB } from "../../db/staffUser";
@@ -264,7 +264,7 @@ const ManageOrder = () => {
                         <th>Staff Name</th>
                         <th>Date</th>
                         <th>Items</th>
-                        <th>Total Amount ($)</th>
+                        <th>Total Amount (VNĐ)</th>
                         <th>Payment Method</th>
                         <th>Actions</th>
                       </tr>
@@ -277,7 +277,7 @@ const ManageOrder = () => {
                             {new Date(order.date).toLocaleDateString("en-GB")}
                           </td>
                           <td>{order.items}</td>
-                          <td>${order.totalAmount.toFixed(2)}</td>
+                          <td>{order.totalAmount} VNĐ</td>
                           <td>{order.paymentMethod}</td>
                           <td>
                             <button
@@ -361,7 +361,7 @@ const ManageOrder = () => {
                     <tr>
                       <th>Date</th>
                 <th>Items</th>
-                <th>Total Amount ($)</th>
+                <th>Total Amount (VNĐ)</th>
                 <th>Payment Method</th>
                 <th>Status</th>
                 <th>Details</th>
@@ -372,7 +372,7 @@ const ManageOrder = () => {
                       <tr key={purchase.id}>
                        <td>{new Date(purchase.order_time).toLocaleString()}</td>
                   <td>{purchase.dishes}</td>
-                  <td>${purchase.final_price.toFixed(2)}</td>
+                  <td>{purchase.final_price} VNĐ</td>
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td>
@@ -456,13 +456,13 @@ const ManageOrder = () => {
                         {item.name}
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                        ${item.price}
+                        {item.price} VNĐ
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
                         {item.quantity}
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                        ${item.total_price}
+                        {item.total_price} VNĐ
                       </td>
                     </tr>
                   ))}
@@ -473,13 +473,13 @@ const ManageOrder = () => {
                 <strong>Total Quantity:</strong> {selectedOrder.total_quantity}
               </p>
               <p>
-                <strong>Total Price:</strong> ${selectedOrder.total_price}
+                <strong>Total Price:</strong> {selectedOrder.total_price} VNĐ
               </p>
               <p>
-                <strong>Discount:</strong> ${selectedOrder.discount}
+                <strong>Discount:</strong> {selectedOrder.discount} VNĐ
               </p>
               <p>
-                <strong>Final Price:</strong> ${selectedOrder.final_price}
+                <strong>Final Price:</strong> {selectedOrder.final_price} VNĐ
               </p>
               <p>
                 <strong>Payment Method:</strong> {selectedOrder.payment_method}
