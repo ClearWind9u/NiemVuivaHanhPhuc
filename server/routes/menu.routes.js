@@ -8,6 +8,6 @@ router.put("/update/:id", updateDish);
 router.delete("/delete/:id", deleteDish);
 router.get("/search/:name", searchDishes);
 router.get("/all", getAllDishes);
-router.post("/add-cart/", addCart);
+router.post("/add-cart", addCart);
 
 export default router;

@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get("/students", getUserStudent);
 router.get("/:id", getUserInfo);
-router.post("/",addBalance);
-router.put('/:userId/refund', refundBalance);
+router.post('/add/:userId',addBalance);
+router.put('/refund/:userId', refundBalance);
 export default router;

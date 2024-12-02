@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Notification from "../Notification";
 import "../css/Wallet.css";
 
 const Wallet = () => {
@@ -9,12 +10,17 @@ const Wallet = () => {
     const [selectedWallet, setSelectedWallet] = useState(null);
     const [wallets, setWallets] = useState([]); // Lưu trữ danh sách từ API
     const [loading, setLoading] = useState(true);
+    const [notification, setNotification] = useState(null);
     const [error, setError] = useState(null);
 
     // Fetch danh sách student từ API
     const fetchWallets = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/user/students"); // Thay URL phù hợp
+            const response = await axios.get("http://localhost:8000/user/students", {
+                headers: {
+                    "Content-Type": "application/json",
+                  },
+            });
             setWallets(response.data);
             setLoading(false);
         } catch (err) {
@@ -26,6 +32,12 @@ const Wallet = () => {
     useEffect(() => {
         fetchWallets();
     }, []);
+
+    // Hiển thị thông báo
+    const showNotification = (message) => {
+        setNotification(message);
+        setTimeout(() => setNotification(null), 3000);
+    };
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
@@ -47,32 +59,45 @@ const Wallet = () => {
     };
 
     const handleConfirmAddFunds = async () => {
-        if (selectedWallet && amount) {
+        const newAmount = parseFloat(amount);
+        if (selectedWallet && !isNaN(newAmount) && newAmount > 0) {
             try {
-                // Gửi request để thêm số dư
-                const response = await axios.put(
-                    `http://localhost:8000/api/students/${selectedWallet.id}/add-funds`,
-                    { amount: parseFloat(amount) }
+                const response = await axios.post(
+                    `http://localhost:8000/wallet/add/${selectedWallet._id}`,
+                    { id: selectedWallet._id, money: newAmount }, // Sử dụng 'money' để đồng nhất với định dạng API
+                    {
+                        headers: {
+                            "Content-Type": "application/json", // Đảm bảo gửi dữ liệu dưới dạng JSON
+                        },
+                    }
                 );
-
                 if (response.status === 200) {
                     // Cập nhật số dư trên giao diện
                     setWallets((prevWallets) =>
                         prevWallets.map((wallet) =>
                             wallet.id === selectedWallet.id
-                                ? { ...wallet, balance: wallet.balance + parseFloat(amount) }
-                                : wallet
-                        )
+                                ? { ...wallet, balance: wallet.balance + newAmount }
+                                : wallet)
                     );
-                    alert(`Added ${amount} VNĐ to ${selectedWallet.username}'s wallet.`);
+                    showNotification(`Added ${newAmount} VNĐ to ${selectedWallet.username}'s wallet`);
+                } else {
+                    alert("Failed to add funds. Please check and try again.");
                 }
-                handleCloseModal(); // Đóng modal sau khi thêm số dư
-            } catch (err) {
-                console.error("Error adding funds:", err);
-                alert("Failed to add funds. Please try again.");
+                handleCloseModal(); // Đóng modal sau khi hoàn thành
+            } catch (error) {
+                if (error.response) {
+                    // Hiển thị lỗi từ server
+                    alert(error.response.data.message);
+                } else {
+                    console.error("Error adding funds:", error);
+                    alert("Failed to add funds due to an unexpected error.");
+                }
             }
+        } else {
+            alert("Please enter a valid amount.");
         }
     };
+    
 
     if (loading) return <p>Loading wallets...</p>;
     if (error) return <p>{error}</p>;
@@ -114,6 +139,8 @@ const Wallet = () => {
                         </tbody>
                     </table>
                 </div>
+                {/* Notification */}
+                {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
             </div>
 
             {/* Modal for adding funds */}

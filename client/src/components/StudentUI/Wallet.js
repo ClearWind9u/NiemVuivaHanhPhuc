@@ -9,20 +9,24 @@ const Wallet = () => {
     const [amount, setAmount] = useState("");
     const [notification, setNotification] = useState(null);
     const [balance, setBalance] = useState(0);
-    const fetchBalance = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8000/user/${userId}`);
-            const customer = response.data;
-            const balance = customer.balance;
-            setBalance(balance);
-        } catch (error) {
-            console.error("Error fetching balance:", error);
-        }
-    };
-
+    
     useEffect(() => {
+        const fetchBalance = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                      },
+                });
+                const customer = response.data;
+                const balance = customer.balance;
+                setBalance(balance);
+            } catch (error) {
+                console.error("Error fetching balance:", error);
+            }
+        };
         fetchBalance();
-    }, [balance]);
+    }, [balance, userId]);
 
     const handleAddFunds = () => {
         setShowModal(true);
@@ -43,7 +47,7 @@ const Wallet = () => {
         const newAmount = parseInt(amount);
         if (!isNaN(newAmount) && newAmount > 0) {
             try {
-                const response = await axios.post("http://localhost:8000/wallet",
+                const response = await axios.post(`http://localhost:8000/wallet/add/${userId}`,
                     {
                         id: userId,
                         money: newAmount
@@ -55,7 +59,7 @@ const Wallet = () => {
                     }
                 )
                 if (response.status === 200) {
-                    showNotification(`Added ${amount} VNĐ to your wallet.`);
+                    showNotification(`Added ${amount} VNĐ to your wallet`);
                 } else {
                     console.error("Failed to accept the users.");
                 }
@@ -69,7 +73,6 @@ const Wallet = () => {
             }
             handleCloseModal();
             setBalance(balance + newAmount);
-
         }
     };
 

@@ -5,10 +5,6 @@ import { Pie } from "react-chartjs-2";
 import axios from "axios";
 import { useEffect } from "react";
 import "chart.js/auto";
-import React, { useState } from "react";
-import { Pie } from "react-chartjs-2";
-import { useNavigate } from "react-router-dom";
-import { staff as staffDB } from "../../db/staffUser";
 
 const IncomeStatistics = () => {
   const [staffUsers, setStaffUsers] = useState(staffDB);

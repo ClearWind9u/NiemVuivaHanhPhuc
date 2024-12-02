@@ -85,13 +85,13 @@ const Invoices = () => {
             );
 
             if (response.status === 200) {
-                showNotification("Order accepted and assigned to you.");
+                showNotification("Order accepted and assigned to you!");
             } else {
                 console.error("Failed to accept the order.");
             }
         } catch (error) {
             console.error("Error accepting the order:", error);
-            showNotification("Failed to accept the order. Please try again.");
+            alert("Failed to accept the order. Please try again.");
         }
     };
 
@@ -101,7 +101,7 @@ const Invoices = () => {
         try {
             // Refund the student by making a PUT request to update their balance
             const refundResponse = await axios.put(
-                `http://localhost:8000/user/${pending.student_id}/refund`,
+                `http://localhost:8000/user/refund/${pending.student_id}`,
                 { amount: pending.final_price }, // Refund the total price
                 {
                     headers: {
@@ -124,18 +124,18 @@ const Invoices = () => {
                 if (deleteResponse.status === 200) {
                     // Xóa hóa đơn khỏi danh sách pendingInvoices
                     //setPendingInvoices((prev) => prev.filter((invoice) => invoice._id !== pending._id));
-                    showNotification("Order declined and refunded to the student.");
+                    showNotification("Order declined and refunded to the student!");
                 } else {
                     console.error("Failed to delete the order.");
-                    showNotification("Failed to decline the order.");
+                    alert("Failed to decline the order.");
                 }
             } else {
                 console.error("Failed to refund the student.");
-                showNotification("Failed to refund the student.");
+                alert("Failed to refund the student.");
             }
         } catch (error) {
             console.error("Error declining the order:", error);
-            showNotification("Failed to decline the order. Please try again.");
+            alert("Failed to decline the order. Please try again.");
         }
     };
 
