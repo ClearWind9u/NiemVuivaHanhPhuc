@@ -1,20 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
-import { coupons as couponDB } from "../../db/coupons";
+import axios from "axios";
 import "../css/ManageCoupon.css";
-const ManageCoupon = () => {
-  const [coupons, setCoupons] = useState(couponDB);
 
+const ManageCoupon = () => {
+  const [coupons, setCoupons] = useState([]);
   const [newCoupon, setNewCoupon] = useState({
     code: "",
-    startDay: "",
-    endDay: "",
+    startDate: "",
+    endDate: "",
     description: "",
-    icon: "",
+    percentDiscount: 0,
+    moneyDiscount: 0,
   });
   const [editingCoupon, setEditingCoupon] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [deleteCouponId, setDeleteCouponId] = useState(null);
+  const API_URL = "http://localhost:8000/coupons";
+
+  useEffect(() => {
+    // Fetch coupons on component mount
+    fetchCoupons();
+  }, []);
+
+  // Fetch coupons from backend
+  const fetchCoupons = async () => {
+    try {
+      const response = await axios.get(API_URL);
+      setCoupons(response.data);
+    } catch (error) {
+      console.error("Error fetching coupons:", error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,43 +43,93 @@ const ManageCoupon = () => {
     }
   };
 
-  const addCoupon = () => {
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const addCoupon = async () => {
     if (
       !newCoupon.code ||
-      !newCoupon.startDay ||
-      !newCoupon.endDay ||
-      !newCoupon.description ||
-      !newCoupon.icon
+      !newCoupon.startDate ||
+      !newCoupon.endDate ||
+      !newCoupon.description
     ) {
       alert("Please fill in all fields before adding a coupon.");
       return;
     }
 
-    const couponToAdd = { ...newCoupon, id: Date.now() };
-    setCoupons((prevCoupons) => [...prevCoupons, couponToAdd]);
+    if (new Date(newCoupon.startDate) > new Date(newCoupon.endDate)) {
+      alert("Start date cannot be after end date.");
+      return;
+    }
 
-    setNewCoupon({
-      code: "",
-      startDay: "",
-      endDay: "",
-      description: "",
-      icon: "",
-    });
-    setShowAddForm(false);
+    if (newCoupon.percentDiscount <= 0 && newCoupon.moneyDiscount <= 0) {
+      alert("At least one discount value must be greater than 0.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(API_URL, newCoupon);
+      setCoupons((prevCoupons) => [...prevCoupons, response.data]);
+      setNewCoupon({
+        code: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+        percentDiscount: 0,
+        moneyDiscount: 0,
+      });
+      setShowAddForm(false);
+    } catch (error) {
+      console.error("Error adding coupon:", error);
+    }
   };
 
-  const updateCoupon = () => {
-    setCoupons(
-      coupons.map((coupon) =>
-        coupon.id === editingCoupon.id ? editingCoupon : coupon
-      )
-    );
-    setEditingCoupon(null);
-    setShowEditForm(false);
+  const updateCoupon = async () => {
+    if (new Date(editingCoupon.startDate) > new Date(editingCoupon.endDate)) {
+      alert("Start date cannot be after end date.");
+      return;
+    }
+
+    if (
+      editingCoupon.percentDiscount <= 0 &&
+      editingCoupon.moneyDiscount <= 0
+    ) {
+      alert("At least one discount value must be greater than 0.");
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        `${API_URL}/${editingCoupon._id}`,
+        editingCoupon
+      );
+      setCoupons(
+        coupons.map((coupon) =>
+          coupon._id === editingCoupon._id ? response.data : coupon
+        )
+      );
+      setEditingCoupon(null);
+      setShowEditForm(false);
+    } catch (error) {
+      console.error("Error updating coupon:", error);
+    }
   };
 
-  const handleRemove = (id) => {
-    setCoupons((coupons) => coupons.filter((coupon) => coupon.id !== id));
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`${API_URL}/${deleteCouponId}`);
+      setCoupons((prevCoupons) =>
+        prevCoupons.filter((coupon) => coupon._id !== deleteCouponId)
+      );
+      setDeleteCouponId(null);
+    } catch (error) {
+      console.error("Error deleting coupon:", error);
+    }
   };
 
   const toggleAddForm = () => setShowAddForm(!showAddForm);
@@ -71,200 +139,239 @@ const ManageCoupon = () => {
   };
 
   return (
-        <div className="coupon-management-page">
-          <h2 style={{ textAlign: "center" }}>Manage Coupons</h2>
-          <div className="container mt-4">
-            {showAddForm ? (
-              <></>
-            ) : (
-              <button onClick={toggleAddForm} className="btn blue-btn">
-                Add New Coupon <FaPlus />
+    <div className="coupon-management-page">
+      <h2 style={{ textAlign: "center" }}>Manage Coupons</h2>
+      <div className="container mt-4">
+        {showAddForm ? (
+          <></>
+        ) : (
+          <button onClick={toggleAddForm} className="btn blue-btn">
+            Add New Coupon <FaPlus />
+          </button>
+        )}
+        {/* Add Coupon Form */}
+        {showAddForm && (
+          <div className="form-group mt-3">
+            <h3>Add Coupon</h3>
+            <label htmlFor="code">Code</label>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              value={newCoupon.code}
+              onChange={handleInputChange}
+              className="form-control mb-2"
+            />
+            <label htmlFor="startDate">Start Date</label>
+            <input
+              type="date"
+              id="startDate"
+              name="startDate"
+              value={newCoupon.startDate}
+              onChange={handleInputChange}
+              className="form-control mb-2"
+            />
+            <label htmlFor="endDate">End Date</label>
+            <input
+              type="date"
+              id="endDate"
+              name="endDate"
+              value={newCoupon.endDate}
+              onChange={handleInputChange}
+              className="form-control mb-2"
+            />
+            <label htmlFor="description">Description</label>
+            <input
+              type="text"
+              id="description"
+              name="description"
+              value={newCoupon.description}
+              onChange={handleInputChange}
+              className="form-control mb-2"
+            />
+            <label htmlFor="percentDiscount">Percent Discount</label>
+            <input
+              type="number"
+              id="percentDiscount"
+              name="percentDiscount"
+              value={newCoupon.percentDiscount}
+              onChange={handleInputChange}
+              className="form-control mb-2"
+            />
+            <label htmlFor="moneyDiscount">Money Discount</label>
+            <input
+              type="number"
+              id="moneyDiscount"
+              name="moneyDiscount"
+              value={newCoupon.moneyDiscount}
+              onChange={handleInputChange}
+              className="form-control mb-2"
+            />
+            <button onClick={addCoupon} className="btn blue-btn">
+              Add Coupon
+            </button>
+            <button
+              onClick={toggleAddForm}
+              className="btn red-btn"
+              style={{
+                backgroundColor: "#d9534f",
+                color: "#fff",
+                border: "none",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#c9302c")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#d9534f")}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+        {/* Edit Coupon Form */}
+        {showEditForm && editingCoupon && (
+          <div className="modal-overlay">
+            <div className="form-group mt-3">
+              <h3>Edit Coupon</h3>
+              <input
+                type="text"
+                placeholder="Code"
+                name="code"
+                value={editingCoupon.code}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="date"
+                name="startDate"
+                value={editingCoupon.startDate}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="date"
+                name="endDate"
+                value={editingCoupon.endDate}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="text"
+                placeholder="Description"
+                name="description"
+                value={editingCoupon.description}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="number"
+                placeholder="Percent Discount"
+                name="percentDiscount"
+                value={editingCoupon.percentDiscount}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="number"
+                placeholder="Money Discount"
+                name="moneyDiscount"
+                value={editingCoupon.moneyDiscount}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <button onClick={updateCoupon} className="btn blue-btn">
+                Update Coupon
               </button>
+            </div>
+          </div>
+        )}
+        {/* Delete Confirmation Modal */}
+        {deleteCouponId && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <p>Are you sure you want to delete this coupon?</p>
+              <button className="btn red-btn" onClick={confirmDelete}>
+                Confirm
+              </button>
+              <button
+                className="btn blue-btn"
+                onClick={() => setDeleteCouponId(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Coupons Table */}
+        <div className="container mt-4 coupon-section">
+          <div className="coupon-table">
+            {coupons.length === 0 ? (
+              <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+                No coupons available
+              </h3>
+            ) : (
+              <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+                Coupons
+              </h3>
             )}
-            {/* Add Coupon Form */}
-            {showAddForm && (
-              <div className="form-group mt-3">
-                <h3>Add Coupon</h3>
-                <input
-                  type="text"
-                  placeholder="Code"
-                  name="code"
-                  value={newCoupon.code}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="date"
-                  placeholder="Start Day"
-                  name="startDay"
-                  value={newCoupon.startDay}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="date"
-                  placeholder="End Day"
-                  name="endDay"
-                  value={newCoupon.endDay}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Description"
-                  name="description"
-                  value={newCoupon.description}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Icon"
-                  name="icon"
-                  value={newCoupon.icon}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <button onClick={addCoupon} className="btn blue-btn">
-                  Add Coupon
-                </button>
-                <button
-                  onClick={toggleAddForm}
-                  className="btn red-btn"
-                  style={{
-                    backgroundColor: "#d9534f",
-                    color: "#fff",
-                    border: "none",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#c9302c")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#d9534f")
-                  }
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-            {/* Edit Coupon Form */}
-            {showEditForm && editingCoupon && (
-              <div className="modal-overlay">
-              <div className="form-group mt-3">
-                <h3>Edit Coupon</h3>
-                <input
-                  type="text"
-                  placeholder="Code"
-                  name="code"
-                  value={editingCoupon.code}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="date"
-                  placeholder="Start Day"
-                  name="startDay"
-                  value={editingCoupon.startDay}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="date"
-                  placeholder="End Day"
-                  name="endDay"
-                  value={editingCoupon.endDay}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Description"
-                  name="description"
-                  value={editingCoupon.description}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Icon"
-                  name="icon"
-                  value={editingCoupon.icon}
-                  onChange={handleInputChange}
-                  className="form-control mb-2"
-                />
-                <button onClick={updateCoupon} className="btn blue-btn">
-                  Update Coupon
-                </button>
-              </div>
-              </div>
-            )}
-            {/* Coupons Table */}
-            <div className="container mt-4 coupon-section">
-              <div className="coupon-table">
-                {coupons.length === 0 ? (
-                  <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
-                    No coupons available
-                  </h3>
-                ) : (
-                  <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
-                    Coupons
-                  </h3>
-                )}
-                <div className="row">
-                  {coupons.map((coupon) => (
-                    <div key={coupon.id} className="col-md-4 mb-4">
-                      <div className="card shadow-sm h-100">
-                        <div className="card-body">
-                          <h5 className="coupon-code text-center">
-                            <span role="img" aria-label="icon">
-                              {coupon.icon}
-                            </span>{" "}
-                            {coupon.code}
-                          </h5>
-                          <p className="coupon-dates text-muted text-center">
-                            Start: {coupon.startDay}
-                          </p>
-                          <p className="coupon-dates text-muted text-center">
-                            End: {coupon.endDay}
-                          </p>
-                          <p className="coupon-description text-center">
-                            {coupon.description}
-                          </p>
-                          <div className="d-flex justify-content-center mt-3">
-                            <button
-                              className="btn red-btn"
-                              onClick={() => handleRemove(coupon.id)
-                              }
-                              style={{
-                                backgroundColor: "#d9534f",
-                                color: "#fff",
-                                border: "none",
-                              }}
-                              onMouseEnter={(e) =>
-                                (e.target.style.backgroundColor = "#c9302c")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.target.style.backgroundColor = "#d9534f")
-                              }
-                            >
-                              <FaTrashAlt /> Remove
-                            </button>
-                            <button
-                              className="btn blue-btn"
-                              onClick={() => toggleEditModal(coupon)}
-                            >
-                              <FaEdit /> Edit
-                            </button>
-                          </div>
-                        </div>
+            <div className="row">
+              {coupons.map((coupon) => (
+                <div key={coupon._id} className="col-md-4 mb-4">
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body">
+                      <h5 className="coupon-code text-center">
+                        <span role="img" aria-label="icon">
+                          {coupon.icon}
+                        </span>{" "}
+                        {coupon.code}
+                      </h5>
+                      <p className="coupon-dates text-muted text-center">
+                        Start: {formatDate(coupon.startDate)}
+                      </p>
+                      <p className="coupon-dates text-muted text-center">
+                        End: {formatDate(coupon.endDate)}
+                      </p>
+                      <p className="coupon-description text-center">
+                        {coupon.description}
+                      </p>
+                      <p className="coupon-discount text-center">
+                        Percent Discount:{" "}
+                        <strong>{coupon.percentDiscount}%</strong>
+                      </p>
+                      <p className="coupon-discount text-center">
+                        Money Discount: <strong>{coupon.moneyDiscount} VND</strong>
+                      </p>
+                      <div className="d-flex justify-content-center mt-3">
+                        <button
+                          className="btn red-btn"
+                          onClick={() => setDeleteCouponId(coupon._id)}
+                          style={{
+                            backgroundColor: "#d9534f",
+                            color: "#fff",
+                            border: "none",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.target.style.backgroundColor = "#c9302c")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.target.style.backgroundColor = "#d9534f")
+                          }
+                        >
+                          <FaTrashAlt /> Remove
+                        </button>
+                        <button
+                          className="btn blue-btn"
+                          onClick={() => toggleEditModal(coupon)}
+                        >
+                          <FaEdit /> Edit
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
+      </div>
+    </div>
   );
 };
 

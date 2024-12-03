@@ -210,7 +210,7 @@
   color: white;
   cursor: pointer;
   position: absolute;
-  margin-top: 15px;
+  margin: 0 15px;
   left: 50%;
   transform: translate(-50%, -50%);
 }

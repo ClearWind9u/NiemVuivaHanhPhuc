@@ -23,10 +23,10 @@ const PrivacyPolicy = () => {
         <div>The address of the unit responsible for collecting and managing information, including contact methods for consumers to inquire about activities involving the collection and processing of their personal data.</div>
       </ol>
       <div style={{ margin: '40px 20px' }}>
-        <div style={{ marginBottom: '10px' }}>JoHap</div>
-        <div style={{ marginBottom: '10px' }}>Address: Bach Khoa University - Di An Campus</div>
-        <div style={{ marginBottom: '10px' }}>Hotline: 0113 114 115</div>
-        <div>Email: johaphcmut@gmail.com</div>
+        <img src="../image/logo2.png" alt="JoHap" style={{ width: '10%', height: 'auto', display: 'block', marginBottom: '10px'}} />
+        <div style={{ marginBottom: '10px', marginLeft: '15px' }}>Address: Bach Khoa University - Di An Campus</div>
+        <div style={{ marginBottom: '10px', marginLeft: '15px' }}>Hotline: 0113 114 115</div>
+        <div style={{ marginLeft: '15px' }}>Email: johaphcmut@gmail.com</div>
       </div>
     </div>
   );

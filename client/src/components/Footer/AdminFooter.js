@@ -15,7 +15,7 @@ const AdminFooter = () => {
                 <div className="row">
                     <div className="col-lg-3 col-md-6 mb-4 mb-md-0">
                         <img
-                            src="./image/logo1-dark.png"
+                            src="../image/logo1-dark.png"
                             alt="Logo"
                             style={{ width: "300px", height: "180px" }}
                         />

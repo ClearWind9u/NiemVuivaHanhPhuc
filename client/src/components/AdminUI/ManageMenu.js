@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
 import "../css/ManageMenu.css";
 
 const ManageMenu = () => {
@@ -289,7 +289,7 @@ const ManageMenu = () => {
               </div>
               <div className="col-4">
                 <h5 className="card-title">{item.name}</h5>
-                <p className="price">Price: ${Number(item.price).toFixed(2)}</p>
+                <p className="price">Price: {Number(item.price)} VNĐ</p>
                 <p>Description: {item.description}</p>
                 <p>Category: {item.category}</p>
               </div>

@@ -1,0 +1,59 @@
+POST http://localhost:8000/menu/add-cart
+Content-Type: application/json
+
+{
+    "id": 5,
+    "user_id": "507f191e810c19729de860ea"
+}
+###
+GET http://localhost:8000/cart/507f191e810c19729de860ea
+###
+POST http://localhost:8000/cart/add
+Content-Type: application/json
+
+{
+    "id": 5,
+    "user_id": "507f191e810c19729de860ea"
+}
+###
+POST http://localhost:8000/cart/minus
+Content-Type: application/json
+
+{
+    "id": 5,
+    "user_id": "507f191e810c19729de860ea"
+}
+###
+POST http://localhost:8000/cart/remove
+Content-Type: application/json
+
+{
+    "id": 5,
+    "user_id": "507f191e810c19729de860ea"
+}
+###
+POST http://localhost:8000/cart/buynow
+Content-Type: application/json
+
+{
+    "id": 5,
+    "user_id": "507f191e810c19729de860ea"
+}
+###
+GET http://localhost:8000/user/507f191e810c19729de860ea
+###
+POST http://localhost:8000/wallet
+Content-Type: application/json
+
+{
+    "id": "507f191e810c19729de860ea",
+    "money": 200000
+}
+###
+POST http://localhost:8000/payment
+Content-Type: application/json
+
+{
+    "user_id": "673b7bef39457e645c4409c5",
+    "paymentMethod": "online"
+}

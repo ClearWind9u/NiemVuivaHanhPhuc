@@ -8,7 +8,7 @@ const MemberList = () => {
 
       {/* Member List */}
       <div className="container text-center my-4">
-        <img src="../image/goldon-ramsay.jpg" alt="Leader" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
+        <img src="../image/ThanhPhong.jpg" alt="Leader" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
         <div className="caption">
           <p>Leader: Phạm Thanh Phong</p>
           <p>MSSV: 2212564</p>
@@ -17,14 +17,14 @@ const MemberList = () => {
       <div className="container my-4">
         <div className="row">
           <div className="col-md-4 mb-4 text-center">
-            <img src="../image/goldon-ramsay.jpg" alt="Member 1" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
+            <img src="../image/NgocAnh.png" alt="Member 1" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
             <div className="caption">
               <p>Member: Hoàng Thị Ngọc Anh</p>
               <p>MSSV: 2210053</p>
             </div>
           </div>
           <div className="col-md-4 mb-4 text-center">
-            <img src="../image/goldon-ramsay.jpg" alt="Member 2" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
+            <img src="../image/TatLinh.jpg" alt="Member 2" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
             <div className="caption">
               <p>Member: Nguyễn Tất Linh</p>
               <p>MSSV: 2113915</p>
@@ -45,14 +45,14 @@ const MemberList = () => {
             </div>
           </div>
           <div className="col-md-4 mb-4 text-center">
-            <img src="../image/goldon-ramsay.jpg" alt="Member 5" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
+            <img src="../image/MinhPhuc.jpg" alt="Member 5" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
             <div className="caption">
               <p>Member: Phạm Minh Phúc</p>
               <p>MSSV: 2212645</p>
             </div>
           </div>
           <div className="col-md-4 mb-4 text-center">
-            <img src="../image/goldon-ramsay.jpg" alt="Member 6" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
+            <img src="../image/VietQuang.jpg" alt="Member 6" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
             <div className="caption">
               <p>Member: Nguyễn Bá Việt Quang</p>
               <p>MSSV: 2212741</p>

@@ -1,5 +1,5 @@
-import React, { useState , useEffect} from "react";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
 import "../css/UserProfile.css";
 const UserProfile = () => {
   const [user, setUser] = useState({
@@ -17,7 +17,7 @@ const UserProfile = () => {
     const fetchPurchaseHistory = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/staff/orders/${user._id}`);
-        console.log('API',response.data);
+        //console.log('API',response.data);
         setPurchaseHistory(response.data.formattedOrders); // Lưu dữ liệu vào state
       } catch (error) {
         console.error("Error fetching purchase history:", error);
@@ -242,7 +242,7 @@ const UserProfile = () => {
               <tr>
                 <th>Date</th>
                 <th>Items</th>
-                <th>Total Amount ($)</th>
+                <th>Total Amount (VNĐ)</th>
                 <th>Payment Method</th>
                 <th>Status</th>
                 <th>Details</th>
@@ -253,7 +253,7 @@ const UserProfile = () => {
                 <tr key={purchase._id}>
                   <td>{new Date(purchase.order_time).toLocaleString()}</td>
                   <td>{purchase.dishes}</td>
-                  <td>${purchase.final_price.toFixed(2)}</td>
+                  <td>{purchase.final_price} VNĐ</td>
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td><button
@@ -268,12 +268,12 @@ const UserProfile = () => {
             </tbody>
           </table>
           </div>
-        {console.log(
+        {/* console.log(
           "Modal Open:",
           isModalOpen,
           "Selected Order:",
           selectedOrder
-        )}
+        ) */}
         {isModalOpen && selectedOrder && (
           <div className="modal-overlay">
             <div className="modal" style={{ height: "90vh", width: "40vw" }}>
@@ -342,13 +342,13 @@ const UserProfile = () => {
                         {item.name}
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                        ${item.price}
+                        {item.price} VNĐ
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
                         {item.quantity}
                       </td>
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                        ${item.total_price}
+                        {item.total_price} VNĐ
                       </td>
                     </tr>
                   ))}
@@ -359,13 +359,13 @@ const UserProfile = () => {
                 <strong>Total Quantity:</strong> {selectedOrder.total_quantity}
               </p>
               <p>
-                <strong>Total Price:</strong> ${selectedOrder.total_price}
+                <strong>Total Price:</strong> {selectedOrder.total_price} VNĐ
               </p>
               <p>
-                <strong>Discount:</strong> ${selectedOrder.discount}
+                <strong>Discount:</strong> {selectedOrder.discount} VNĐ
               </p>
               <p>
-                <strong>Final Price:</strong> ${selectedOrder.final_price}
+                <strong>Final Price:</strong> {selectedOrder.final_price} VNĐ
               </p>
               <p>
                 <strong>Payment Method:</strong> {selectedOrder.payment_method}

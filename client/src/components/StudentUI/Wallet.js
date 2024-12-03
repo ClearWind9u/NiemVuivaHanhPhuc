@@ -1,10 +1,32 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import Notification from "../Notification";
 import "../css/Wallet.css";
-
 const Wallet = () => {
+    const { userId } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [amount, setAmount] = useState("");
-    const [balance, setBalance] = useState(250.00);
+    const [notification, setNotification] = useState(null);
+    const [balance, setBalance] = useState(0);
+    
+    useEffect(() => {
+        const fetchBalance = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                      },
+                });
+                const customer = response.data;
+                const balance = customer.balance;
+                setBalance(balance);
+            } catch (error) {
+                console.error("Error fetching balance:", error);
+            }
+        };
+        fetchBalance();
+    }, [balance, userId]);
 
     const handleAddFunds = () => {
         setShowModal(true);
@@ -15,10 +37,43 @@ const Wallet = () => {
         setAmount("");
     };
 
-    const handleConfirmAddFunds = () => {
-        const newAmount = parseFloat(amount);
-        if (!isNaN(newAmount) && newAmount > 0) setBalance(balance + newAmount);
-        handleCloseModal();
+    // Hiển thị thông báo
+    const showNotification = (message) => {
+        setNotification(message);
+        setTimeout(() => setNotification(null), 3000);
+    };
+
+    const handleConfirmAddFunds = async () => {
+        const newAmount = parseInt(amount);
+        if (!isNaN(newAmount) && newAmount > 0) {
+            try {
+                const response = await axios.post(`http://localhost:8000/wallet/add/${userId}`,
+                    {
+                        id: userId,
+                        money: newAmount
+                    },
+                    {
+                        headers: {
+                            "Content-Type": "application/json", // Ensure the data is sent as JSON
+                        }
+                    }
+                )
+                if (response.status === 200) {
+                    showNotification(`Added ${amount} VNĐ to your wallet`);
+                } else {
+                    console.error("Failed to accept the users.");
+                }
+            } catch (error) {
+                if (error.response) {
+                    // Hiển thị thông báo lỗi từ server
+                    alert(error.response.data.message);
+                } else {
+                    console.error("Error adding fund:", error);
+                }
+            }
+            handleCloseModal();
+            setBalance(balance + newAmount);
+        }
     };
 
     {/*Press enter to confirm */ }
@@ -37,7 +92,7 @@ const Wallet = () => {
                 <div className="balance-section d-flex justify-content-between align-items-center">
                     <div className="balance-info">
                         <h4>Your Balance</h4>
-                        <p className="balance-amount">${balance.toFixed(2)}</p>
+                        <p className="balance-amount">{balance} VNĐ</p>
                     </div>
                     <button className="btn btn-secondary blue-btn" onClick={handleAddFunds}>Add Funds</button>
                 </div>
@@ -63,20 +118,23 @@ const Wallet = () => {
                     </ul>
                     <button className="btn btn-secondary mt-2 blue-btn">Add New Card</button>
                 </div>
+                {/* Notification */}
+                {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
             </div>
 
             {/* Modal */}
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h3>Enter Amount to Add ($)</h3>
+                        <h3>Enter Amount to Add (VNĐ)</h3>
                         <input
                             type="number"
                             className="form-control amount-input"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="Enter amount"
-                            min="1"
+                            min="1000"
+                            step="1000"
                             onKeyDown={handleKeyDown}
                         />
                         <div className="modal-buttons">

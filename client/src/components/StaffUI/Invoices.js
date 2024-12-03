@@ -1,51 +1,149 @@
-import React, { useEffect, useState } from "react";
-import pendingList from "../../db/pendingList";
-import purchaseHistory from "../../db/purchaseHistory";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 import Notification from "../Notification";
+import axios from "axios";
 import "../css/Invoices.css";
-const Invoices = () => {
-    const [searchTerm, setSearchTerm] = useState("");
 
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
-    };
+const Invoices = () => {
+    const { userId } = useAuth();
+    const [searchTerm, setSearchTerm] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-
-    const handleStartDateChange = (e) => {
-        setStartDate(e.target.value);
-    };
-
-    const handleEndDateChange = (e) => {
-        setEndDate(e.target.value);
-    };
+    const [userInfo, setUserInfo] = useState(null);
+    const [pendingInvoices, setPendingInvoices] = useState([]); // Lưu trữ hóa đơn từ API
     const [notification, setNotification] = useState(null);
+
+    const fetchPendingInvoices = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8000/staff/pending_invoices`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.status === 200) {
+                setPendingInvoices(response.data.orders); // Lưu danh sách hóa đơn vào state
+            } else {
+                console.error("Failed to fetch pending invoices.");
+            }
+        } catch (error) {
+            console.error("Error fetching pending invoices:", error);
+        }
+    };
+    useEffect(() => {
+        fetchPendingInvoices();
+    }, []);
+
+    useEffect(() => {
+        fetchPendingInvoices();
+    }, [pendingInvoices]);
+
+    const getUserInfo = async (userId) => {
+        try {
+            const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            return response.data; // Trả về dữ liệu user
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            return null; // Xử lý lỗi bằng cách trả về null
+        }
+    };
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            const data = await getUserInfo(userId);
+            if (data) {
+                setUserInfo(data);
+            } else {
+                console.error("Failed to fetch user info.");
+            }
+        };
+        if (userId) {
+            fetchUserInfo();
+        }
+    }, [userId]);
+
+    // Hiển thị thông báo
     const showNotification = (message) => {
         setNotification(message);
         setTimeout(() => setNotification(null), 3000);
     };
 
-    const handleAccept = (pending) => {
-        purchaseHistory.push(pending);
-        const index = pendingList.indexOf(pending);
-        if (index > -1) pendingList.splice(index, 1);
-        showNotification("Order accepted and moved to purchase history.");
+    // Xử lý Accept
+    const handleAccept = async (pending) => {
+        try {
+            const response = await axios.put(
+                `http://localhost:8000/orders/${pending._id}/assign-staff`,
+                { staff_id: userId },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                showNotification("Order accepted and assigned to you!");
+            } else {
+                console.error("Failed to accept the order.");
+            }
+        } catch (error) {
+            console.error("Error accepting the order:", error);
+            alert("Failed to accept the order. Please try again.");
+        }
     };
 
-    const handleDecline = (pending) => {
-        const index = pendingList.indexOf(pending);
-        if (index > -1) pendingList.splice(index, 1);
-        showNotification("Order declined and removed from pending list.");
+    // Xử lý Decline
+    const handleDecline = async (pending) => {
+        console.log("Student ID:", pending.student_id);
+        try {
+            // Refund the student by making a PUT request to update their balance
+            const refundResponse = await axios.put(
+                `http://localhost:8000/user/refund/${pending.student_id}`,
+                { amount: pending.final_price }, // Refund the total price
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (refundResponse.status === 200) {
+                // Proceed with deleting the order after refund
+                const deleteResponse = await axios.delete(
+                    `http://localhost:8000/orders/${pending._id}/decline`,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                if (deleteResponse.status === 200) {
+                    // Xóa hóa đơn khỏi danh sách pendingInvoices
+                    //setPendingInvoices((prev) => prev.filter((invoice) => invoice._id !== pending._id));
+                    showNotification("Order declined and refunded to the student!");
+                } else {
+                    console.error("Failed to delete the order.");
+                    alert("Failed to decline the order.");
+                }
+            } else {
+                console.error("Failed to refund the student.");
+                alert("Failed to refund the student.");
+            }
+        } catch (error) {
+            console.error("Error declining the order:", error);
+            alert("Failed to decline the order. Please try again.");
+        }
     };
 
-    const filteredPendings = pendingList.filter((pending) => {
-        const purchaseDate = new Date(pending.date);
-        const matchesSearch = pending.items
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase());
-        const matchesStartDate = startDate
-            ? purchaseDate >= new Date(startDate)
-            : true;
+    // Lọc hóa đơn theo điều kiện tìm kiếm và ngày tháng
+    const filteredPendings = pendingInvoices.filter((pending) => {
+        const purchaseDate = new Date(pending.order_time);
+        const matchesSearch = pending.dishes.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStartDate = startDate ? purchaseDate >= new Date(startDate) : true;
         const matchesEndDate = endDate ? purchaseDate <= new Date(endDate) : true;
         return matchesSearch && matchesStartDate && matchesEndDate;
     });
@@ -59,7 +157,7 @@ const Invoices = () => {
                         type="text"
                         placeholder="Search by item name"
                         value={searchTerm}
-                        onChange={handleSearchChange}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ padding: "8px", marginBottom: "10px", width: "100%" }}
                     />
                     <div className="date-filter">
@@ -68,14 +166,14 @@ const Invoices = () => {
                             type="date"
                             id="start-date"
                             value={startDate}
-                            onChange={handleStartDateChange}
+                            onChange={(e) => setStartDate(e.target.value)}
                         />
                         <label htmlFor="end-date">End Date:</label>
                         <input
                             type="date"
                             id="end-date"
                             value={endDate}
-                            onChange={handleEndDateChange}
+                            onChange={(e) => setEndDate(e.target.value)}
                         />
                     </div>
                     <table className="list-invoice-table">
@@ -83,28 +181,28 @@ const Invoices = () => {
                             <tr>
                                 <th>Date</th>
                                 <th>Items</th>
-                                <th>Total Amount ($)</th>
+                                <th>Total Amount (VNĐ)</th>
                                 <th>Payment Method</th>
                                 <th style={{ width: '300px' }}>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredPendings.map((pending) => (
-                                <tr key={pending.id}>
-                                    <td>{pending.date}</td>
-                                    <td>{pending.items}</td>
-                                    <td>${pending.totalAmount.toFixed(2)}</td>
-                                    <td>{pending.paymentMethod}</td>
+                                <tr key={pending._id}>
+                                    <td>{new Date(pending.order_time).toLocaleDateString()}</td>
+                                    <td>{pending.dishes}</td>
+                                    <td>{pending.final_price} VNĐ</td>
+                                    <td>{pending.payment_method}</td>
                                     <td>
                                         <button className="btn blue-btn" onClick={() => handleAccept(pending)}>Accept</button>
-                                        <button className="btn red-btn" onClick={() => handleDecline(pending)}> Decline</button>
+                                        <button className="btn red-btn" onClick={() => handleDecline(pending)}>Decline</button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                     {/* Notification */}
-                    {notification && <Notification message={notification} onClose={() => setNotification(null)}/>}
+                    {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
                 </div>
             </div>
         </div>
