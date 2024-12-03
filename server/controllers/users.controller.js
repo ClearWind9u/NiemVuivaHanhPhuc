@@ -94,3 +94,31 @@ export const refundBalance = async (req, res) => {
         res.status(500).json({ message: 'Failed to process refund' });
     }
 };
+
+export const getAllUser = async (req, res) => {
+    try {
+      const Users = await User.find();
+      res.status(200).json(Users);
+    } catch (error) {
+      console.error("Error fetching all dishes:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+};
+ 
+export const getAllStaff = async (req, res) => {
+    try {
+        // Lấy danh sách nhân viên có role là 'staff'
+        const staffUsers = await User.find({ role: "staff" }, { _id: 1, name: 1});
+        
+        // Kiểm tra nếu không có nhân viên nào
+        if (!staffUsers.length) {
+          return res.status(404).json({ success: false, message: "No staff found" });
+        }
+    
+        // Trả về danh sách
+        res.status(200).json({ success: true, staff: staffUsers });
+      } catch (error) {
+        console.error("Error fetching staff users:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+      }
+};

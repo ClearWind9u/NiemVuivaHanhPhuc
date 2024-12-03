@@ -1,13 +1,12 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { staff as staffDB } from "../../db/staffUser";
-import { students as studentsDB } from "../../db/studentUser";
 
 const ManageOrder = () => {
-  const [staffUsers, setStaffUsers] = useState(staffDB);
-  const [studentUsers, setStudentUsers] = useState(studentsDB);
+  const [staffUsers, setStaffUsers] = useState([]);
+  const [studentUsers, setStudentUsers] = useState([]);
+
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +19,28 @@ const ManageOrder = () => {
   const handleNavigation = (path) => {
     navigate(path); // Programmatically navigate to the specified path
   };
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/user/admin/all", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Filter users into staff and students
+      const staff = response.data.filter((user) => user.role === "staff");
+      const students = response.data.filter((user) => user.role === "student");
+
+      setStaffUsers(staff);
+      setStudentUsers(students);
+    } catch (error) {
+      console.error("Error fetching user profiles:", error);
+    }
+  };
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
   const fetchOrderHistory = async (userId, isStaff) => {
     try {
@@ -40,7 +61,7 @@ const ManageOrder = () => {
   const handleUserClick = (user, isStaff) => {
     console.log("Clicked user:", user); 
     setSelectedUser(user);
-    fetchOrderHistory(user.id, isStaff);
+    fetchOrderHistory(user._id, isStaff);
   };
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -168,7 +189,7 @@ const ManageOrder = () => {
               <div className="row">
                 {staffUsers.map((user) => (
                   <div
-                    key={user.id}
+                    key={user._id}
                     className="col-12 d-flex align-items-center mb-3 user-item"
                   >
                     <div className="col-4">
@@ -204,7 +225,7 @@ const ManageOrder = () => {
               <div className="row">
                 {studentUsers.map((user) => (
                   <div
-                    key={user.id}
+                    key={user._id}
                     className="col-12 d-flex align-items-center mb-3 user-item"
                   >
                     <div className="col-4">

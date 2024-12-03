@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { staff as staffDB } from "../../db/staffUser";
 import { useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import axios from "axios";
@@ -7,7 +6,8 @@ import { useEffect } from "react";
 import "chart.js/auto";
 
 const IncomeStatistics = () => {
-  const [staffUsers, setStaffUsers] = useState(staffDB);
+  const [staffUsers, setStaffUsers] = useState([]);
+  
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sortOrder, setSortOrder] = useState("asc"); // Default sorting order is ascending
@@ -15,6 +15,20 @@ const IncomeStatistics = () => {
   const [staffWithOrders, setStaffWithOrders] = useState([]);
 
   const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
+
+
+  // Hàm gọi API lấy danh sách nhân viên có vai trò là 'staff'
+  const fetchStaffUsers = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/user/admin/staff");
+      setStaffUsers(response.data.staff);
+    } catch (error) {
+      console.error("Error fetching staff users:", error);
+    }
+  };
+  useEffect(() => {
+    fetchStaffUsers(); // Lấy danh sách nhân viên khi component được mount
+  }, []);
     // Gọi API để lấy dữ liệu lịch sử mua hàng
     const fetchPurchaseHistory = async (staffId) => {
       try {
@@ -30,7 +44,7 @@ const IncomeStatistics = () => {
     const fetchAllPurchaseHistory = async () => {
       const updatedStaffUsers = await Promise.all(
         staffUsers.map(async (member) => {
-          const purchaseHistory = await fetchPurchaseHistory(member.id);
+          const purchaseHistory = await fetchPurchaseHistory(member._id);
           console.log("purchaseHistory for member", member.name, purchaseHistory); 
           // Lọc đơn hàng theo ngày
           const filteredOrders = Array.isArray(purchaseHistory) ? purchaseHistory.filter((order) => {
@@ -49,12 +63,15 @@ const IncomeStatistics = () => {
       );
       setStaffWithOrders(updatedStaffUsers);
     };
-  
-    // Gọi hàm lấy dữ liệu khi ngày bắt đầu và kết thúc thay đổi
     useEffect(() => {
-      fetchAllPurchaseHistory();
-    }, [startDate, endDate]);
-  
+      if (staffUsers.length > 0) {
+        fetchAllPurchaseHistory();
+      }
+    }, [startDate, endDate, staffUsers]);
+    
+    
+    // Gọi hàm lấy dữ liệu khi ngày bắt đầu và kết thúc thay đổi
+    
     // Sắp xếp nhân viên theo tổng số tiền
     const sortedStaffTotals = staffWithOrders
       .filter((member) => member.total > 0)  // Loại bỏ nhân viên có tổng = 0
@@ -62,49 +79,29 @@ const IncomeStatistics = () => {
   
     const overallTotal = sortedStaffTotals.reduce((acc, member) => acc + member.total, 0);
   
-  // Filter orders by date
- /* const filteredStaffUsers = staffUsers.map((member) => {
-    const filteredOrders = fetchPurchaseHistory(member.id).filter((order) => {
-      const orderDate = new Date(order.order_time.split("-").reverse().join("-")); // Convert to YYYY-MM-DD format for Date parsing
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
-      return (!start || orderDate >= start) && (!end || orderDate <= end);
-    });
-
-    const total = filteredOrders.reduce(
-      (acc, order) => acc + order.final_price,
-      0
-    );
-    return { ...member, orderHistory: filteredOrders, total };
-  });
-
-  const sortedStaffTotals = filteredStaffUsers
-  .filter((member) => member.total > 0) // Exclude staff with total 0
-  .sort((a, b) => (sortOrder === "asc" ? a.total - b.total : b.total - a.total));
-
-
-  const overallTotal = sortedStaffTotals.reduce(
-    (acc, member) => acc + member.total,
-    0
-  );*/
-
-  const data = {
-    labels: sortedStaffTotals.map((member) => member.name),
-    datasets: [
-      {
-        label: "Total Amount per Staff",
-        data: sortedStaffTotals.map((member) => member.total),
-        backgroundColor: [
-          "#ff6384",
-          "#36a2eb",
-          "#ffce56",
-          "#4bc0c0",
-          "#9966ff",
-        ],
-      },
-    ],
-  };
-
+    const generateRandomColor = () => {
+      const letters = "0123456789ABCDEF";
+      let color = "#";
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    };
+    
+    // Tạo mảng màu động cho mỗi nhân viên
+    const dynamicColors = sortedStaffTotals.map(() => generateRandomColor());
+    
+    const data = {
+      labels: sortedStaffTotals.map((member) => member.name),
+      datasets: [
+        {
+          label: "Total Amount per Staff",
+          data: sortedStaffTotals.map((member) => member.total),
+          backgroundColor: dynamicColors,
+        },
+      ],
+    };
+    
   const handleNavigation = (path) => {
     navigate(path);
   };
