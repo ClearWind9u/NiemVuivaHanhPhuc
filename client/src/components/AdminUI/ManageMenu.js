@@ -10,6 +10,8 @@ const ManageMenu = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [confirmationAction, setConfirmationAction] = useState(null);
 
   // Fetch menu items from API
   const fetchMenuItems = async () => {
@@ -25,10 +27,11 @@ const ManageMenu = () => {
     fetchMenuItems();
   }, []);
 
-  const handleRemove = async (id) => {
+  const handleRemove = async () => {
     try {
-      await axios.delete(`http://localhost:8000/menu/delete/${id}`);
-      setMenuItems((items) => items.filter((item) => item.id !== id));
+      await axios.delete(`http://localhost:8000/menu/delete/${deleteTargetId}`);
+      setMenuItems((items) => items.filter((item) => item.id !== deleteTargetId));
+      setShowConfirmation(false);
     } catch (error) {
       console.error("Error removing item:", error);
     }
@@ -71,6 +74,7 @@ const ManageMenu = () => {
     } catch (error) {
       console.error("Error adding item:", error);
     }
+    setShowConfirmation(false);
   };
 
   const updateItem = async () => {
@@ -101,6 +105,19 @@ const ManageMenu = () => {
     setShowEditForm(!showEditForm);
   };
 
+  const confirmAction = (action, id = null) => {
+    setConfirmationAction(action);
+    setDeleteTargetId(id);
+    setShowConfirmation(true);
+  };
+
+  const executeConfirmationAction = () => {
+    if (confirmationAction === "add") {
+      addItem();
+    } else if (confirmationAction === "delete") {
+      handleRemove();
+    }
+  };
   return (
     <div className="manage-menu">
       <h2 style={{ textAlign: "center" }}>
@@ -156,7 +173,7 @@ const ManageMenu = () => {
               onChange={handleInputChange}
               className="form-control mb-2"
             />
-            <button onClick={() => setShowConfirmation(true)} className="btn blue-btn">
+            <button onClick={() => confirmAction("add")} className="btn blue-btn">
               Add Item
             </button>
             <button onClick={toggleAddForm} className="btn red-btn">
@@ -165,29 +182,30 @@ const ManageMenu = () => {
           </div>
         )}
       {showConfirmation && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h4>Bạn có chắc muốn lưu thay đổi?</h4>
-            <div className="modal-actions">
-              <button
-                onClick={() => {
-                  addItem();
-                  setShowConfirmation(false);
-                }}
-                className="btn blue-btn"
-              >
-                Có
-              </button>
-              <button
-                onClick={() => setShowConfirmation(false)}
-                className="btn red-btn"
-              >
-                Không
-              </button>
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h4>
+                {confirmationAction === "add"
+                  ? "Bạn có chắc muốn lưu thay đổi?"
+                  : "Bạn có chắc muốn xóa món này?"}
+              </h4>
+              <div className="modal-actions">
+                <button
+                  onClick={executeConfirmationAction}
+                  className="btn blue-btn"
+                >
+                  Có
+                </button>
+                <button
+                  onClick={() => setShowConfirmation(false)}
+                  className="btn red-btn"
+                >
+                  Không
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
         {/* Edit Form */}
         {showEditForm && editingItem && (
           <div className="modal-overlay">
@@ -278,7 +296,7 @@ const ManageMenu = () => {
               <div className="col-4 text-end ms-auto">
                 <button
                   className="btn red-btn"
-                  onClick={() => handleRemove(item.id)}
+                  onClick={() => confirmAction("delete", item.id)}
                   style={{
                     backgroundColor: "#d9534f",
                     color: "#fff",

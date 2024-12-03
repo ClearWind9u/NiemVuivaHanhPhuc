@@ -55,7 +55,6 @@ export const updateDish = async (req, res) => {
 // Xóa món ăn
 export const deleteDish = async (req, res) => {
   try {
-    console.log("Delete");
     const { id } = req.params;
 
     const deletedDish = await Food.findOneAndDelete({ id });
