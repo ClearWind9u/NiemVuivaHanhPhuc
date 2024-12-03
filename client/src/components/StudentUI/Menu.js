@@ -90,7 +90,12 @@ const Menu = () => {
       if (response.status === 201) showNotification(`${food.name} has been added to your cart!`);
       else throw new Error("Failed to update reviews");
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      if (error.response && error.response.status === 400 && error.response.data.message === "Đã hết món") {
+        showNotification("Món ăn này đã hết hàng.");
+      } else {
+        console.error("Error adding to cart:", error);
+        showNotification("Có lỗi xảy ra khi thêm vào giỏ hàng.");
+      }
     }
   };
 

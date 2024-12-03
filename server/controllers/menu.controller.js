@@ -21,8 +21,6 @@ export const addDish = async (req, res) => {
       preparation_time,
       image,
       category,
-      buyed,
-      inStock,
       reviews: [],
     });
 
@@ -96,6 +94,13 @@ export const getAllDishes = async (req, res) => {
 export const addCart = async (req, res) => {
   try {
     const { id, user_id } = req.body;
+    const dish = await Food.findOne({ id });
+      if (!dish) {
+        return res.status(404).json({ message: "Dish not found" });
+      }
+      if (dish.quantity === 0) {
+        return res.status(400).json({ message: "Đã hết món" });
+      }
     const addFood = await Cart.findOne({ id: id, user_id: user_id });
     if (addFood) {
       const quantity = addFood.quantity + 1;
@@ -104,10 +109,6 @@ export const addCart = async (req, res) => {
       res.status(201).json({ message: "Dish added to cart successfully sss", cart: addFood });
     }
     else {
-      const dish = await Food.findOne({ id });
-      if (!dish) {
-        return res.status(404).json({ message: "Dish not found" });
-      }
       const customer = await User.findOne({ _id: user_id });
       if (!customer) {
         return res.status(404).json({ message: "User not found" });
