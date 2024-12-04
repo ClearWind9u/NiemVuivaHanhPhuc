@@ -580,24 +580,24 @@ const Menu = () => {
                               onClick={() => handleAddComment(index)}>
                               <i className="fas fa-comment"> Comment</i>
                             </button>
-                              {/*Nút Edit và Delete chỉ hiện thị khi người dùng chính là người để lại review */}
-                              {review.review_id === userId && (
-                                <button className="cmt-btn"
-                                  onClick={() => {
-                                    setEditingReview(review._id); // Ghi nhận ID của comment đang chỉnh sửa
-                                    setEditedReviewText(review.review); // Đặt giá trị ban đầu vào editedCommentText
-                                    handleAddComment(-1); // Tắt các bình luận của review
-                                  }}>
-                                  <i className="fas fa-pen"> Edit</i>
-                                </button>
-                              )}
-                              {review.review_id === userId && (
-                                <button className="cmt-btn"
-                                  onClick={() => { handleDeleteReview(selectedFood._id, review._id) }}>
-                                  <i className="fas fa-trash"> Delete</i>
-                                </button>
-                              )}
-                            </div>
+                            {/*Nút Edit và Delete chỉ hiện thị khi người dùng chính là người để lại review */}
+                            {review.review_id === userId && (
+                              <button className="cmt-btn"
+                                onClick={() => {
+                                  setEditingReview(review._id); // Ghi nhận ID của comment đang chỉnh sửa
+                                  setEditedReviewText(review.review); // Đặt giá trị ban đầu vào editedCommentText
+                                  handleAddComment(-1); // Tắt các bình luận của review
+                                }}>
+                                <i className="fas fa-pen"> Edit</i>
+                              </button>
+                            )}
+                            {review.review_id === userId && (
+                              <button className="cmt-btn"
+                                onClick={() => { handleDeleteReview(selectedFood._id, review._id) }}>
+                                <i className="fas fa-trash"> Delete</i>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       )}
                       {/* Comments section */}

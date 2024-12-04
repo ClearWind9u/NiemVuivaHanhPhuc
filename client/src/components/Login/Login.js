@@ -94,15 +94,15 @@ const Login = () => {
       }}
     >
       <div className="login-form">
-        <div style={{ margin: "50px" }}>
+        <div style={{ margin: "20px 40px" }}>
           <h2 className="text-center mb-4">
             {isResetPassword
               ? "Reset Password"
               : isForgotPassword
-              ? "Forgot Password"
-              : isRegister
-              ? "Register"
-              : "Login"}
+                ? "Forgot Password"
+                : isRegister
+                  ? "Register"
+                  : "Login"}
           </h2>
           <form onSubmit={handleSubmit}>
             {isResetPassword ? (
@@ -166,89 +166,89 @@ const Login = () => {
                     />
                   </label>
                 </div>
-                            {isRegister && (
-              <>
-                <div>
-                  <label>
-                    Name:
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    Password:
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    Email:
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    Role:
-                    <input
-                      type="text"
-                      value="Student"
-                      readOnly
-                      style={{ backgroundColor: "#f0f0f0", color: "#555" }}
-                    />
-                  </label>
-                </div>
-              </>
-            )}
-            {!isRegister && (
-              <>
-                <div>
-                  <label>
-                    Password:
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    Role:
-                    <select value={role} onChange={(e) => setRole(e.target.value)}>
-                      <option value="student">Student</option>
-                      <option value="staff">Staff</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </label>
-                </div>
-              </>
-            )}
+                {isRegister && (
+                  <>
+                    <div>
+                      <label>
+                        Name:
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        Password:
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        Email:
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        Role:
+                        <input
+                          type="text"
+                          value="Student"
+                          readOnly
+                          style={{ backgroundColor: "#f0f0f0", color: "#555" }}
+                        />
+                      </label>
+                    </div>
+                  </>
+                )}
+                {!isRegister && (
+                  <>
+                    <div>
+                      <label>
+                        Password:
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        Role:
+                        <select value={role} onChange={(e) => setRole(e.target.value)}>
+                          <option value="student">Student</option>
+                          <option value="staff">Staff</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </label>
+                    </div>
+                  </>
+                )}
               </>
             )}
             <button type="submit">
               {isResetPassword
                 ? "Reset Password"
                 : isForgotPassword
-                ? "Send OTP"
-                : isRegister
-                ? "Register"
-                : "Login"}
+                  ? "Send OTP"
+                  : isRegister
+                    ? "Register"
+                    : "Login"}
             </button>
           </form>
           {message && <p style={{ color: "red" }}>{message}</p>}
@@ -263,8 +263,8 @@ const Login = () => {
             {isResetPassword || isForgotPassword
               ? "Back to Login"
               : isRegister
-              ? "Switch to Login"
-              : "Switch to Register"}
+                ? "Switch to Login"
+                : "Switch to Register"}
           </button>
           {!isRegister && !isForgotPassword && !isResetPassword && (
             <button

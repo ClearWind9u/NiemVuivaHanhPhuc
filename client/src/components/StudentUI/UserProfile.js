@@ -1,17 +1,38 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import "../css/UserProfile.css";
 
 const UserProfile = () => {
-  const [user, setUser] = useState({
-    _id: "507f191e810c19729de860ea",
-    username: "john_doe",
-    name: "John Doe",
-    dob: "15-05-1995",
-    gender: "Male",
-    email: "john.doe@example.com",
-    phone: "+1234567890",
-  });
+  const { userId } = useAuth();
+  const [user, setUser] = useState([]);
+
+  const getUser = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+        headers: { "Content-Type": "application/json" }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null; // Xử lý lỗi bằng cách trả về null
+    }
+  };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const data = await getUser(userId);
+      if (data) {
+        setUser(data);
+      } else {
+        console.error("Failed to fetch user info.");
+      }
+    };
+    if (userId) {
+      fetchUser();
+    }
+  }, [userId]);
+
   const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
   useEffect(() => {
     // Gọi API để lấy dữ liệu lịch sử mua hàng
@@ -98,7 +119,7 @@ const UserProfile = () => {
         <div className="user-profile">
           <h3>User Profile</h3>
           <div className="profile-picture">
-            <img src="./image/avatar.jpg" alt="User Avatar" />
+            <img src={user?.avatar || "../image/avatar.jpg"} alt="User Avatar" />
           </div>
 
           {!isEditing ? (
@@ -253,24 +274,16 @@ const UserProfile = () => {
             <tbody>
               {filteredPurchases.map((purchase) => (
                 <tr key={purchase._id}>
-                  {/* console.log(
-                    "Modal_id :",
-                    purchase._id
-                  ) */}
                   <td>{new Date(purchase.order_time).toLocaleString()}</td>
                   <td>{purchase.dishes}</td>
                   <td>{purchase.final_price} VNĐ</td>
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td>
-                    {/* console.log(
-                      "Modal :",
-                      purchase._id
-                    ) */}
                     <button
-                      className="button-small"
+                      className="btn button-small"
                       onClick={() => handleViewDetails(purchase._id)}
-                    >
+                      disabled={purchase.status === "pending"}>
                       View
                     </button>
                   </td>
@@ -279,12 +292,6 @@ const UserProfile = () => {
             </tbody>
           </table>
         </div>
-        {/* console.log(
-          "Modal Open:",
-          isModalOpen,
-          "Selected Order:",
-          selectedOrder
-        ) */}
         {isModalOpen && selectedOrder && (
           <div className="modal-overlay">
             <div className="modal" style={{ height: "90vh", width: "40vw" }}>

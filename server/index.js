@@ -31,10 +31,10 @@ mongoose
 app.use("/", Orders);
 app.use("/", Login);
 app.use("/menu", Menu);
-app.use("/user",Users);
+app.use("/user", Users);
 app.use("/foods", Foods);
-app.use("/cart",Cart );
-app.use("/wallet",Wallet);
-app.use("/payment",Payment);
+app.use("/cart", Cart);
+app.use("/wallet", Wallet);
+app.use("/payment", Payment);
 app.use("/coupons", Coupons);
 app.listen(PORT, () => console.log(`Server running on port ${PORT} `));

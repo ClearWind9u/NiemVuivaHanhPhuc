@@ -244,7 +244,7 @@ const Cart = () => {
             ))
           ) : (
             <div className="col-12 text-center">
-              <p className="text-muted">No items in your cart</p>
+              <p className="text-muted" style={{margin: '140px'}}>No items in your cart</p>
             </div>
           )}
           {cartItems && cartItems.length > 0 && (

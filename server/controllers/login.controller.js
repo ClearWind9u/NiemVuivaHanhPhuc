@@ -76,6 +76,7 @@ export const register = async (req, res) => {
       email,
       name,
       role,
+      avatar: "../image/avatar.jpg",
       balance: 0
     });
 
