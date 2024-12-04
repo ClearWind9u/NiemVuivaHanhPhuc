@@ -181,6 +181,17 @@ const Login = () => {
                 </div>
                 <div>
                   <label>
+                    Password:
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label>
                     Email:
                     <input
                       type="email"
