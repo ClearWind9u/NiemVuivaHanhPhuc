@@ -166,32 +166,45 @@ const Login = () => {
                     />
                   </label>
                 </div>
-                {isRegister && (
-                  <>
-                    <div>
-                      <label>
-                        Name:
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          required
-                        />
-                      </label>
-                    </div>
-                    <div>
-                      <label>
-                        Email:
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </label>
-                    </div>
-                  </>
-                )}
+                            {isRegister && (
+              <>
+                <div>
+                  <label>
+                    Name:
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label>
+                    Email:
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label>
+                    Role:
+                    <input
+                      type="text"
+                      value="Student"
+                      readOnly
+                      style={{ backgroundColor: "#f0f0f0", color: "#555" }}
+                    />
+                  </label>
+                </div>
+              </>
+            )}
+            {!isRegister && (
+              <>
                 <div>
                   <label>
                     Password:
@@ -213,6 +226,8 @@ const Login = () => {
                     </select>
                   </label>
                 </div>
+              </>
+            )}
               </>
             )}
             <button type="submit">
