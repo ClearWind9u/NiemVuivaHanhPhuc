@@ -14,18 +14,16 @@ import "../css/Cart.css";
 const Cart = () => {
   const { userId } = useAuth();
   const [cartItems, setCartItems] = useState([]);
-  const [voucherCode, setVoucherCode] = useState("");
   const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [coupons, setCoupons] = useState([]);
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [finalTotalCost, setFinalTotalCost] = useState(null);
   const [voucherError, setVoucherError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const navigate = useNavigate();
 
-  const handleNavigation = (path, data) => {
-    navigate(path, data);
-  };
-
+  // Fetch cart items for the user
   const fetchCartItems = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/cart/${userId}`);
@@ -35,27 +33,79 @@ const Cart = () => {
     }
   };
 
+  // Fetch valid coupons when modal opens
+  const fetchCoupons = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/coupons/valid");
+      setCoupons(response.data);
+    } catch (error) {
+      console.error("Error fetching valid coupons:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCartItems();
   }, [cartItems]);
 
+  useEffect(() => {
+    if (showModal) fetchCoupons();
+  }, [showModal]);
+
+  // Show notification
   const showNotification = (message) => {
     setNotification(message);
     setTimeout(() => setNotification(null), 3000);
   };
 
+  // Update total cost when voucher discount changes
+  const totalCost = cartItems
+    .filter((item) => item.buyNow)
+    .reduce((total, item) => total + item.price * item.quantity, 0);
+
+  useEffect(() => {
+    setFinalTotalCost(totalCost - voucherDiscount);
+  }, [totalCost, voucherDiscount]);
+
+  // Validate and apply selected coupon
+  const validateVoucher = async () => {
+    if (!selectedCoupon) {
+      setVoucherError("Please select a voucher to apply.");
+      return;
+    }
+  
+    try {
+      const response = await axios.post("http://localhost:8000/coupons/validate", {
+        code: selectedCoupon.code,  // Send coupon code
+        totalCost: totalCost,       // Send total cost for discount calculation
+      });
+  
+      const { discountedCost, voucherDiscount, message } = response.data;
+  
+      setVoucherDiscount(voucherDiscount);
+      setFinalTotalCost(discountedCost);  // Update the total cost with the discount
+      setVoucherError(null);
+      setShowModal(false);
+      showNotification(message || `${voucherDiscount} VNĐ off`);
+    } catch (error) {
+      console.error("Error validating voucher:", error);
+      setVoucherError("Failed to apply voucher. Please try again.");
+    }
+  };  
+  
+
   const handleQuantityChange = async (id, delta) => {
     if (delta === 1) {
       try {
-        const response = await axios.post("http://localhost:8000/cart/add",
+        const response = await axios.post(
+          "http://localhost:8000/cart/add",
           {
             id: id,
-            user_id: userId
+            user_id: userId,
           },
           {
             headers: {
               "Content-Type": "application/json", // Ensure the data is sent as JSON
-            }
+            },
           }
         );
       } catch (error) {
@@ -65,22 +115,23 @@ const Cart = () => {
     if (delta === -1) {
       const itemInCart = cartItems.find((it) => {
         return it.id === id && it.user_id === userId;
-      })
+      });
       if (itemInCart.quantity === 0) {
-        handleRemove(itemInCart)
+        handleRemove(itemInCart);
       }
       try {
-        const response = await axios.post("http://localhost:8000/cart/minus",
+        const response = await axios.post(
+          "http://localhost:8000/cart/minus",
           {
             id: id,
-            user_id: userId
+            user_id: userId,
           },
           {
             headers: {
               "Content-Type": "application/json", // Ensure the data is sent as JSON
-            }
+            },
           }
-        )
+        );
       } catch (error) {
         console.error("Error increasing from cart:", error);
       }
@@ -92,18 +143,17 @@ const Cart = () => {
         "http://localhost:8000/cart/buynow",
         {
           id: id,
-          user_id: userId
+          user_id: userId,
         },
         {
           headers: {
             "Content-Type": "application/json", // Ensure the data is sent as JSON
-          }
+          },
         }
-      )
+      );
       if (response.status === 201) {
-        console.log('response: ', response);
-      }
-      else throw new Error("Failed to buy now food");
+        console.log("response: ", response);
+      } else throw new Error("Failed to buy now food");
     } catch (error) {
       console.error("Failed to buy now food:", error);
     }
@@ -114,70 +164,25 @@ const Cart = () => {
         "http://localhost:8000/cart/remove",
         {
           id: item.id,
-          user_id: userId
+          user_id: userId,
         },
         {
           headers: {
             "Content-Type": "application/json", // Ensure the data is sent as JSON
-          }
+          },
         }
-      )
+      );
       if (response.status === 201) {
         const newCart = cartItems.filter((itemsInCart) => {
           return itemsInCart.id !== item.id;
-        })
+        });
         setCartItems(newCart);
         showNotification(`${item.name} has been deleted to your cart!`);
-      }
-      else throw new Error("Failed to delete food");
+      } else throw new Error("Failed to delete food");
     } catch (error) {
       console.error("Error delete from cart:", error);
     }
   };
-
-
-  const totalCost = cartItems
-    .filter((item) => item.buyNow)
-    .reduce((total, item) => total + item.price * item.quantity, 0);
-
-  useEffect(() => {
-    setFinalTotalCost(totalCost - voucherDiscount);
-  }, [totalCost, voucherDiscount]);
-
-  const handleVoucherClick = () => {
-    setShowModal(true);
-  };
-
-  const validateVoucher = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8000/coupons/validate/${voucherCode}`);
-      const coupon = response.data;
-
-      let discountedCost = totalCost;
-
-      // Apply percentage discount
-      if (coupon.percentDiscount) {
-        discountedCost -= (coupon.percentDiscount / 100) * totalCost;
-      }
-
-      // Apply monetary discount
-      if (coupon.moneyDiscount) {
-        discountedCost -= coupon.moneyDiscount;
-      }
-
-      // Ensure total does not go below zero
-      discountedCost = Math.max(0, discountedCost);
-
-      setVoucherDiscount(totalCost - discountedCost);
-      setFinalTotalCost(discountedCost);
-      setVoucherError(null);
-      setShowModal(false);
-      showNotification(`Voucher applied: ${totalCost - discountedCost} VNĐ off`);
-    } catch (error) {
-      setVoucherError("Invalid or expired voucher code.");
-    }
-  };
-
   return (
     <div className="">
       <h2 style={{ textAlign: "center" }}>
@@ -224,7 +229,6 @@ const Cart = () => {
                       className="form-check-input"
                       type="checkbox"
                       checked={item.buyNow}
-                      style={{ fontSize: "1rem" }}
                       onChange={() => handleBuyNowChange(item.id)}
                     />
                     <label className="form-check-label">Buy Now</label>
@@ -246,13 +250,21 @@ const Cart = () => {
           {cartItems && cartItems.length > 0 && (
             <div className="col-12 d-flex align-items-center mb-3">
               <div className="ms-auto me-3 text-end">
+              <p className="total-price" style={{color: "#28a745"}}>Discount: {totalCost - finalTotalCost} VNĐ</p>
                 <p className="total-price">Total order: {finalTotalCost} VNĐ</p>
-                <button className="btn btn-secondary blue-btn" onClick={handleVoucherClick}>
+                <button
+                  className="btn btn-secondary blue-btn"
+                  onClick={() => setShowModal(true)}
+                >
                   <FaTicketAlt /> Voucher
                 </button>
                 <button
                   className="btn btn-secondary blue-btn"
-                  onClick={() => handleNavigation("/payment", { state: { cartItems, finalTotalCost } })}
+                  onClick={() =>
+                    navigate("/payment", {
+                      state: { cartItems, finalTotalCost },
+                    })
+                  }
                 >
                   <FaCreditCard /> Purchase
                 </button>
@@ -266,26 +278,65 @@ const Cart = () => {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h4>Enter Voucher Code</h4>
-            <input
-              type="text"
-              className="form-control"
-              value={voucherCode}
-              onChange={(e) => setVoucherCode(e.target.value)}
-            />
-            {voucherError && <p className="error-text">{voucherError}</p>}
-            <button className="btn blue-btn" onClick={validateVoucher}>
-              Apply
-            </button>
-            <button className="btn red-btn" onClick={() => setShowModal(false)}>
-              Cancel
-            </button>
+            <div className="coupons-container">
+              <div className="coupons-header">
+                <h4>Select a Voucher</h4>
+              </div>
+              <div className="coupons-grid">
+                {coupons.length > 0 ? (
+                  coupons.map((coupon) => (
+                    <div
+                      key={coupon.code}
+                      className={`coupon-card ${
+                        selectedCoupon?.code === coupon.code ? "selected" : ""
+                      }`}
+                      onClick={() => setSelectedCoupon(coupon)}
+                    >
+                      <div className="coupon-content">
+                        <h5 className="coupon-code">{coupon.code}</h5>
+                        <p className="coupon-description">
+                          {coupon.description}
+                        </p>
+                        <div className="coupon-discount">
+                          {coupon.percentDiscount > 0 &&
+                            `${coupon.percentDiscount}% off`}
+                          {coupon.percentDiscount > 0 &&
+                            coupon.moneyDiscount > 0 &&
+                            `,`}
+                          {coupon.moneyDiscount > 0 &&
+                            ` ${coupon.moneyDiscount} VNĐ off`}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="no-coupons">No valid coupons available.</p>
+                )}
+              </div>
+              <div className="coupons-footer">
+                {voucherError && <p className="error-text">{voucherError}</p>}
+                <button className="btn blue-btn" onClick={validateVoucher}>
+                  Apply
+                </button>
+                <button
+                  className="btn red-btn"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Notification */}
-      {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
+      {notification && (
+        <Notification
+          message={notification}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 };
