@@ -10,6 +10,9 @@ const transporter = nodemailer.createTransport({
     user: "johapsystem@gmail.com",
     pass: "nkvc abxt enta ttwc", // App password
   },
+  tls: {
+    rejectUnauthorized: false // Bỏ qua kiểm tra chứng chỉ
+  }
 });
 
 // Hàm đăng nhập

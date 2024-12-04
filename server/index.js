@@ -24,6 +24,7 @@ mongoose
   .connect(MONGOURL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    tlsAllowInvalidCertificates: true,
   })
   .catch((error) => console.log(error));
 
