@@ -19,7 +19,7 @@ const Wallet = () => {
             const response = await axios.get("http://localhost:8000/user/students", {
                 headers: {
                     "Content-Type": "application/json",
-                  },
+                },
             });
             setWallets(response.data);
             setLoading(false);
@@ -97,7 +97,7 @@ const Wallet = () => {
             alert("Please enter a valid amount.");
         }
     };
-    
+
 
     if (loading) return <p>Loading wallets...</p>;
     if (error) return <p>{error}</p>;

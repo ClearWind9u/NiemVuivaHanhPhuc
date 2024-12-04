@@ -181,7 +181,8 @@ export const assignStaffToOrder = async (req, res) => {
     // Cập nhật hóa đơn với staff_id
     const updatedOrder = await Order.findByIdAndUpdate(
       id,
-      { staff_id: staffObjectId },
+      { staff_id: staffObjectId,
+        status: "completed"},
       { new: true } // Trả về document sau khi cập nhật
     );
 

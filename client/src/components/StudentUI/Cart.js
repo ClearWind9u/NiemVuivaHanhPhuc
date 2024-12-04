@@ -66,7 +66,7 @@ const Cart = () => {
       const itemInCart = cartItems.find((it) => {
         return it.id === id && it.user_id === userId;
       })
-      if (itemInCart.quantity === 0) {
+      if (itemInCart.quantity === 1) {
         handleRemove(itemInCart)
       }
       try {
@@ -240,7 +240,7 @@ const Cart = () => {
             ))
           ) : (
             <div className="col-12 text-center">
-              <p className="text-muted">No items in your cart</p>
+              <p className="text-muted" style={{margin: '140px'}}>No items in your cart</p>
             </div>
           )}
           {cartItems && cartItems.length > 0 && (

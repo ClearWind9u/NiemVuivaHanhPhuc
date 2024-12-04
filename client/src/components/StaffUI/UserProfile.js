@@ -1,16 +1,37 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import "../css/UserProfile.css";
 const UserProfile = () => {
-  const [user, setUser] = useState({
-    _id: "507f191e810c19729de860eb",
-    username: "john_doe",
-    name: "John Doe",
-    dob: "15-05-1995",
-    gender: "Male",
-    email: "john.doe@example.com",
-    phone: "+1234567890",
-  });
+  const { userId } = useAuth();
+  const [user, setUser] = useState([]);
+
+  const getUser = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+        headers: { "Content-Type": "application/json" }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null; // Xử lý lỗi bằng cách trả về null
+    }
+  };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const data = await getUser(userId);
+      if (data) {
+        setUser(data);
+      } else {
+        console.error("Failed to fetch user info.");
+      }
+    };
+    if (userId) {
+      fetchUser();
+    }
+  }, [userId]);
+
   const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
   useEffect(() => {
     // Gọi API để lấy dữ liệu lịch sử mua hàng
@@ -76,7 +97,7 @@ const UserProfile = () => {
       const response = await axios.get(
         `http://localhost:8000/orders/${orderId}`
       );
-  
+
       setSelectedOrder(response.data); // Lưu chi tiết hóa đơn vào state
       setIsModalOpen(true); // Mở modal
     } catch (error) {
@@ -96,7 +117,7 @@ const UserProfile = () => {
         <div className="user-profile">
           <h3>User Profile</h3>
           <div className="profile-picture">
-            <img src="../image/avatar.jpg" alt="User Avatar" />
+            <img src={user?.avatar || "../image/avatar.jpg"} alt="User Avatar" />
           </div>
 
           {!isEditing ? (
@@ -257,23 +278,17 @@ const UserProfile = () => {
                   <td>{purchase.payment_method}</td>
                   <td>{purchase.status}</td>
                   <td><button
-                 className="button-small"
-                 onClick={() => handleViewDetails(purchase._id)}
-               >
-                View
-              </button>
-              </td>
+                    className="button-small"
+                    onClick={() => handleViewDetails(purchase._id)}
+                    disabled={purchase.status === "pending"}>
+                    View
+                  </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          </div>
-        {/* console.log(
-          "Modal Open:",
-          isModalOpen,
-          "Selected Order:",
-          selectedOrder
-        ) */}
+        </div>
         {isModalOpen && selectedOrder && (
           <div className="modal-overlay">
             <div className="modal" style={{ height: "90vh", width: "40vw" }}>
@@ -334,8 +349,8 @@ const UserProfile = () => {
                         (e.currentTarget.style.backgroundColor = "#e8f5e9")
                       }
                       onMouseOut={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          index % 2 === 0 ? "#f9f9f9" : "#ffffff")
+                      (e.currentTarget.style.backgroundColor =
+                        index % 2 === 0 ? "#f9f9f9" : "#ffffff")
                       }
                     >
                       <td style={{ padding: "10px", border: "1px solid #ddd" }}>
@@ -382,8 +397,8 @@ const UserProfile = () => {
             </div>
           </div>
         )}
-        </div>
       </div>
+    </div>
   );
 };
 
