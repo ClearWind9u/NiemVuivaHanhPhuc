@@ -19,6 +19,7 @@ const userSchema = new Schema({
         type: String, 
         enum: ['Male', 'Female', 'Other'], 
         default: 'Other' },
+    resetOTP: String,
     phone: { 
         type: String },
     email: { 
@@ -26,7 +27,6 @@ const userSchema = new Schema({
         unique: true },
     balance: {
         type: Number,
-        unique: true
     },
     role: {
       type: String,
@@ -35,7 +35,7 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-        require: true,
+        require: false,
     },
   });
 const User = mongoose.model('users', userSchema);
