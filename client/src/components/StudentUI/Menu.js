@@ -23,31 +23,39 @@ const Menu = () => {
   const [editingReview, setEditingReview] = useState(null); // Lưu thông tin review đang chỉnh sửa
   const [editedReviewText, setEditedReviewText] = useState(""); // Lưu nội dung review chỉnh sửa
   const [notification, setNotification] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
   const showNotification = (message) => {
     setNotification(message);
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const fetchFoodList = async () => {
+  const fetchFoodList = async (page = 1, limit = 6) => {
     try {
-      const response = await axios.get("http://localhost:8000/menu/all", {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await axios.get(`http://localhost:8000/menu/all`, {
+        params: {
+          page,
+          limit,
+          search: searchText,
+          category: filterCategory,
+          sort: sortOrder
+        }
       });
-      setFoodList(response.data);
+      setFoodList(response.data.dishes);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Error fetching menu items:", error);
     }
   };
-  useEffect(() => {
-    fetchFoodList();
-  }, []);
 
-  // useEffect sẽ gọi lại hàm fetchFoodList mỗi khi foodList thay đổi
   useEffect(() => {
-    fetchFoodList();
-  }, [foodList]);
+    fetchFoodList(currentPage);
+  }, [currentPage, searchText, filterCategory, sortOrder]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   const getUserInfo = async (userId) => {
     try {
@@ -433,9 +441,9 @@ const Menu = () => {
     }
   };
 
+  
   const handleSort = (order) => {
-    if (order === "asc" || order === "desc") setSortOrder(order);
-    else setSortOrder("");
+    setSortOrder(order);
   };
 
   const handleCategoryFilter = (category) => {
@@ -717,24 +725,20 @@ const Menu = () => {
 
       {/* Pagination (Optional) */}
       <nav aria-label="Page navigation">
-        <ul className="pagination justify-content-center">
-          <li className="page-item">
-            <button className="page-link">&laquo; Prev</button>
-          </li>
-          <li className="page-item">
-            <button className="page-link">1</button>
-          </li>
-          <li className="page-item">
-            <button className="page-link">2</button>
-          </li>
-          <li className="page-item">
-            <button className="page-link">3</button>
-          </li>
-          <li className="page-item">
-            <button className="page-link">Next &raquo;</button>
-          </li>
-        </ul>
-      </nav>
+          <ul className="pagination justify-content-center">
+            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+              <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>&laquo; Prev</button>
+            </li>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                <button className="page-link" onClick={() => handlePageChange(index + 1)}>{index + 1}</button>
+              </li>
+            ))}
+            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+              <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next &raquo;</button>
+            </li>
+          </ul>
+        </nav>
       {/* Notification */}
       {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
