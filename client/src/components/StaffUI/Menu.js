@@ -18,28 +18,35 @@ const Menu = () => {
   const [editingComment, setEditingComment] = useState(null); // Lưu thông tin comment đang chỉnh sửa
   const [editedCommentText, setEditedCommentText] = useState(""); // Lưu nội dung chỉnh sửa
   const [notification, setNotification] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
   const showNotification = (message) => {
     setNotification(message);
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const fetchFoodList = async () => {
+  const fetchFoodList = async (page = 1, limit = 6) => {
     try {
-      const response = await axios.get("http://localhost:8000/menu/all");
-      setFoodList(response.data);
+      const response = await axios.get(`http://localhost:8000/menu/all`, {
+        params: {
+          page,
+          limit,
+          search: searchText,
+          category: filterCategory,
+          sort: sortOrder
+        }
+      });
+      setFoodList(response.data.dishes);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Error fetching menu items:", error);
     }
   };
 
   useEffect(() => {
-    fetchFoodList();
-  }, []);
-
-  // useEffect sẽ gọi lại hàm fetchFoodList mỗi khi foodList thay đổi
-  useEffect(() => {
-    fetchFoodList();
-  }, [foodList]);
+    fetchFoodList(currentPage);
+  }, [currentPage, searchText, filterCategory, sortOrder]);
 
   const getUserInfo = async (userId) => {
     try {
@@ -142,33 +149,6 @@ const Menu = () => {
       alert("Failed to update review.");
     }
   };
-
-  const applyFilters = () => {
-    let filteredList = [...foodList];
-
-    // Apply category filter
-    if (filterCategory) {
-      filteredList = filteredList.filter((food) => food.category === filterCategory);
-    }
-
-    // Apply search filter
-    if (searchText.trim()) {
-      filteredList = filteredList.filter((food) =>
-        food.name.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-
-    // Apply sort
-    if (sortOrder === "asc") {
-      filteredList.sort((a, b) => a.price - b.price);
-    } else if (sortOrder === "desc") {
-      filteredList.sort((a, b) => b.price - a.price);
-    }
-
-    return filteredList;
-  };
-
-  const displayedFoodList = applyFilters();
 
   const handleAddComment = (index) => {
     setExpandedReviewIndex(index === expandedReviewIndex ? null : index);
@@ -296,8 +276,7 @@ const Menu = () => {
   };
 
   const handleSort = (order) => {
-    if (order === "asc" || order === "desc") setSortOrder(order);
-    else setSortOrder("");
+    setSortOrder(order);
   };
 
   const handleCategoryFilter = (category) => {
@@ -333,6 +312,10 @@ const Menu = () => {
       console.error("Error updating food status:", error);
       alert("Failed to update food status. Please try again.");
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
   };
 
   return (
@@ -383,34 +366,34 @@ const Menu = () => {
 
       {/* Food Cards */}
       <div className="container mt-4">
-        <div className="row">
-          {displayedFoodList.map((food) => (
-            <div key={food.id} className="col-12 col-sm-6 col-md-4">
-              <div className="card">
-                <img
-                  src={food.image}
-                  className={`card-img-top food-img ${!food.inStock ? "grayscale" : ""}`}
-                  alt={food.name}
-                />
-                <div className="card-body">
-                  <div className="card-title">{food.name}</div>
-                  <div className="card-price">{food.price} VNĐ</div>
-                  <p className="card-text">{food.description}</p>
-                  <button
-                    className={`btn ${food.inStock ? "blue-btn" : "red-btn"}`}
-                    onClick={() => handleStatusChange(food.id)}
-                  >
-                    {food.inStock ? "In Stock" : "Out of Stock"}
-                  </button>
-                  <button className="btn blue-btn" onClick={() => handleShowReviews(food)}>
-                    Reviews
-                  </button>
-                </div>
+      <div className="row">
+        {foodList.map((food) => (
+          <div key={food.id} className="col-12 col-sm-6 col-md-4">
+            <div className="card">
+              <img
+                src={food.image}
+                className={`card-img-top food-img ${!food.inStock ? "grayscale" : ""}`}
+                alt={food.name}
+              />
+              <div className="card-body">
+                <div className="card-title">{food.name}</div>
+                <div className="card-price">{food.price} VNĐ</div>
+                <p className="card-text">{food.description}</p>
+                <button
+                  className={`btn ${food.inStock ? "blue-btn" : "red-btn"}`}
+                  onClick={() => handleStatusChange(food.id)}
+                >
+                  {food.inStock ? "In Stock" : "Out of Stock"}
+                </button>
+                <button className="btn blue-btn" onClick={() => handleShowReviews(food)}>
+                  Reviews
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
+    </div>
 
       {/* Modal Reviews */}
       {showModal && (
@@ -543,24 +526,20 @@ const Menu = () => {
 
       {/* Pagination (Optional) */}
       <nav aria-label="Page navigation">
-        <ul className="pagination justify-content-center">
-          <li className="page-item">
-            <button className="page-link">&laquo; Prev</button>
+      <ul className="pagination justify-content-center">
+        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+          <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>&laquo; Prev</button>
+        </li>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+            <button className="page-link" onClick={() => handlePageChange(index + 1)}>{index + 1}</button>
           </li>
-          <li className="page-item">
-            <button className="page-link">1</button>
-          </li>
-          <li className="page-item">
-            <button className="page-link">2</button>
-          </li>
-          <li className="page-item">
-            <button className="page-link">3</button>
-          </li>
-          <li className="page-item">
-            <button className="page-link">Next &raquo;</button>
-          </li>
-        </ul>
-      </nav>
+        ))}
+        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+          <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next &raquo;</button>
+        </li>
+      </ul>
+    </nav>
       {/* Notification */}
       {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>

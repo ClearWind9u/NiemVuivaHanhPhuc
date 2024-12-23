@@ -1,9 +1,10 @@
 import express from 'express';
-import { createCoupon, getCoupons, getCouponById, updateCoupon, deleteCoupon, validateCoupon } from '../controllers/coupon.controller.js';
+import { createCoupon, getCoupons, getCouponById, updateCoupon, deleteCoupon, validateCoupon, getValidCoupon } from '../controllers/coupon.controller.js';
 const router = express.Router();
 
 router.post('/', createCoupon);
-router.get('/validate/:code', validateCoupon);
+router.post('/validate', validateCoupon);
+router.get('/valid', getValidCoupon);
 router.get('/', getCoupons);
 router.get('/:id', getCouponById);
 router.put('/:id', updateCoupon);

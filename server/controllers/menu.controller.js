@@ -83,11 +83,29 @@ export const searchDishes = async (req, res) => {
 //Xem tất cả món ăn
 export const getAllDishes = async (req, res) => {
   try {
-    const dishes = await Food.find();
-    res.status(200).json(dishes);
+    const { page = 1, limit = 6, search, category, sort } = req.query;
+
+    const query = {};
+    if (category) query.category = category;
+    if (search) query.name = { $regex: search, $options: "i" };
+
+    const sortOption = sort === 'asc' ? { price: 1 } : sort === 'desc' ? { price: -1 } : {};
+
+    const totalDishes = await Food.countDocuments(query);
+    const dishes = await Food.find(query)
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
+    res.status(200).json({
+      totalDishes,
+      totalPages: Math.ceil(totalDishes / limit),
+      currentPage: parseInt(page),
+      dishes
+    });
   } catch (error) {
-    console.error("Error fetching all dishes:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error fetching dishes:", error.message);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 

@@ -109,7 +109,113 @@ h3 {
     margin-left: 80px;
     /* Reduce spacing between checkbox and label */
 }
-
+/* General modal container */
+.coupons-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: "Arial", sans-serif;
+  }
+  
+  .coupons-header h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .coupons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .coupon-card {
+    background-color: #f9f9f9;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .coupon-card:hover {
+    border-color: #ff5c00;
+    background-color: #ffe8d6;
+  }
+  
+  .coupon-card.selected {
+    border-color: #ff5c00;
+    background-color: #ffe8d6;
+  }
+  
+  .coupon-content .coupon-code {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff5c00;
+    margin-bottom: 8px;
+  }
+  
+  .coupon-content .coupon-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .coupon-content .coupon-discount {
+    font-size: 14px;
+    font-weight: bold;
+    color: #28a745;
+  }
+  
+  /* Footer buttons */
+  .coupons-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .coupons-footer .btn {
+    width: 48%;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .coupons-footer .btn.blue-btn {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .coupons-footer .btn.red-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* Error message */
+  .error-text {
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .no-coupons {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+  }
+  
+  
 /* Media query for smaller screens */
 @media (max-width: 768px) {
     .navbar-left {
