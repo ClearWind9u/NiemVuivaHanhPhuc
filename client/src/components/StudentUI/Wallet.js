@@ -2,31 +2,40 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Notification from "../Notification";
+import { QRCodeCanvas } from "qrcode.react";
 import "../css/Wallet.css";
+
 const Wallet = () => {
     const { userId } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [amount, setAmount] = useState("");
     const [notification, setNotification] = useState(null);
     const [balance, setBalance] = useState(0);
-    
+    const [showQRModal, setShowQRModal] = useState(false);
+    const [transactionInfo, setTransactionInfo] = useState(null);
+
+    // Fetch balance for the logged-in user
     useEffect(() => {
         const fetchBalance = async () => {
             try {
                 const response = await axios.get(`http://localhost:8000/user/${userId}`, {
                     headers: {
                         "Content-Type": "application/json",
-                      },
+                    },
                 });
                 const customer = response.data;
-                const balance = customer.balance;
-                setBalance(balance);
+                setBalance(customer.balance || 0);
             } catch (error) {
                 console.error("Error fetching balance:", error);
             }
         };
         fetchBalance();
-    }, [balance, userId]);
+    }, [userId]);
+
+    const showNotification = (message) => {
+        setNotification(message);
+        setTimeout(() => setNotification(null), 3000);
+    };
 
     const handleAddFunds = () => {
         setShowModal(true);
@@ -37,58 +46,62 @@ const Wallet = () => {
         setAmount("");
     };
 
-    // Hiển thị thông báo
-    const showNotification = (message) => {
-        setNotification(message);
-        setTimeout(() => setNotification(null), 3000);
-    };
-
-    const handleConfirmAddFunds = async () => {
+    const handleConfirmAddFunds = () => {
         const newAmount = parseInt(amount);
         if (!isNaN(newAmount) && newAmount > 0) {
-            try {
-                const response = await axios.post(`http://localhost:8000/wallet/add/${userId}`,
-                    {
-                        id: userId,
-                        money: newAmount
-                    },
-                    {
-                        headers: {
-                            "Content-Type": "application/json", // Ensure the data is sent as JSON
-                        }
-                    }
-                )
-                if (response.status === 200) {
-                    showNotification(`Added ${amount} VNĐ to your wallet`);
-                } else {
-                    console.error("Failed to accept the users.");
-                }
-            } catch (error) {
-                if (error.response) {
-                    // Hiển thị thông báo lỗi từ server
-                    alert(error.response.data.message);
-                } else {
-                    console.error("Error adding fund:", error);
-                }
-            }
+            setTransactionInfo({
+                userId,
+                amount: newAmount,
+                transactionId: `TXN-${Date.now()}`,
+                bankInfo: {
+                    accountNumber: "0004106868688006",
+                    accountHolder: "TRƯỜNG ĐẠI HỌC BÁCH KHOA",
+                    bankName: "OCB Bank - Orient Commercial Bank",
+                },
+            });
+            setShowQRModal(true);
             handleCloseModal();
-            setBalance(balance + newAmount);
         }
     };
 
-    {/*Press enter to confirm */ }
+    const handleConfirmTransaction = async () => {
+        if (transactionInfo) {
+            try {
+                const response = await axios.post(
+                    `http://localhost:8000/wallet/add/${userId}`,
+                    { id: transactionInfo.userId, money: transactionInfo.amount },
+                    { headers: { "Content-Type": "application/json" } }
+                );
+                if (response.status === 200) {
+                    setBalance((prevBalance) => prevBalance + transactionInfo.amount);
+                    showNotification(`Successfully added ${transactionInfo.amount} VNĐ to your wallet.`);
+                }
+            } catch (error) {
+                if (error.response) {
+                    alert(error.response.data.message);
+                } else {
+                    console.error("Error completing transaction:", error);
+                }
+            }
+            handleCloseQRModal();
+        }
+    };
+
     const handleKeyDown = (event) => {
         if (event.key === "Enter") handleConfirmAddFunds();
     };
 
+    const handleCloseQRModal = () => {
+        setShowQRModal(false);
+        setTransactionInfo(null);
+    };
+
     return (
-        <div className="">
+        <div className="wallet">
             <h2 style={{ textAlign: 'center' }}>My Wallet</h2>
             <div style={{ textAlign: 'center' }}>Save your credit and debit card details for faster checkout</div>
 
-            {/* Wallet Content */}
             <div className="wallet-content">
-                {/* Balance Section */}
                 <div className="balance-section d-flex justify-content-between align-items-center">
                     <div className="balance-info">
                         <h4>Your Balance</h4>
@@ -96,33 +109,10 @@ const Wallet = () => {
                     </div>
                     <button className="btn btn-secondary blue-btn" onClick={handleAddFunds}>Add Funds</button>
                 </div>
-                {/* Saved Cards Section */}
-                <div className="saved-cards">
-                    <h4 style={{ marginLeft: '20px' }}>Saved Cards:</h4>
-                    <ul className="card-list">
-                        <li className="card-item">
-                            <i className="fab fa-cc-visa card-icon"></i>
-                            <span>**** **** **** 1234</span>
-                            <button className="btn btn-secondary red-btn">Remove</button>
-                        </li>
-                        <li className="card-item">
-                            <i className="fab fa-cc-mastercard card-icon"></i>
-                            <span>**** **** **** 5678</span>
-                            <button className="btn btn-secondary red-btn">Remove</button>
-                        </li>
-                        <li className="card-item">
-                            <i className="fab fa-cc-amex card-icon"></i>
-                            <span>**** **** **** 9012</span>
-                            <button className="btn btn-secondary red-btn">Remove</button>
-                        </li>
-                    </ul>
-                    <button className="btn btn-secondary mt-2 blue-btn">Add New Card</button>
-                </div>
-                {/* Notification */}
+
                 {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
             </div>
 
-            {/* Modal */}
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -140,6 +130,40 @@ const Wallet = () => {
                         <div className="modal-buttons">
                             <button className="btn red-btn" onClick={handleCloseModal}>Cancel</button>
                             <button className="btn blue-btn" onClick={handleConfirmAddFunds}>Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showQRModal && transactionInfo && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Transaction QR Code</h3>
+                        <div className="row">
+                            <div className="col-md-6 text-center">
+                                <QRCodeCanvas
+                                    value={JSON.stringify({
+                                        transactionId: transactionInfo.transactionId,
+                                        amount: transactionInfo.amount,
+                                        bankInfo: transactionInfo.bankInfo,
+                                    })}
+                                    size={200}
+                                    includeMargin={true}
+                                />
+                            </div>
+                            <div className="col-md-6 text-start">
+                                <p><strong>Account Number:</strong> {transactionInfo.bankInfo.accountNumber}</p>
+                                <p><strong>Account Holder:</strong> {transactionInfo.bankInfo.accountHolder}</p>
+                                <p><strong>Bank Name:</strong> {transactionInfo.bankInfo.bankName}</p>
+                                <p><strong>Amount:</strong> {transactionInfo.amount.toLocaleString()} VNĐ</p>
+                            </div>
+                        </div>
+                        <p className="mt-3">
+                            Scan this QR code and transfer the specified amount to the above account to complete the transaction.
+                        </p>
+                        <div className="modal-buttons text-center">
+                            <button className="btn red-btn me-2" onClick={handleCloseQRModal}>Cancel</button>
+                            <button className="btn blue-btn" onClick={handleConfirmTransaction}>OK</button>
                         </div>
                     </div>
                 </div>

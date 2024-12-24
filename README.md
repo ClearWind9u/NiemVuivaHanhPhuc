@@ -65,6 +65,27 @@ JoHap/
 
 ---
 
+## 🔑 Tài khoản đăng nhập
+
+Hệ thống hỗ trợ ba role người dùng khác nhau, mỗi role có tài khoản và mật khẩu riêng:
+
+- Role: Student
+```plaintext
+Username: student
+Password: student
+```
+- Role: staff
+```plaintext
+Username: staff
+Password: staff
+```
+- Role: admin
+```plaintext
+Username: admin
+Password: admin
+```
+
+---
 ## 📞 Liên hệ hỗ trợ
 
 Nếu có bất kỳ câu hỏi hoặc vấn đề nào, vui lòng liên hệ với chúng tôi qua email: [johapsystem@gmail.com](mailto:support@johap.com).
