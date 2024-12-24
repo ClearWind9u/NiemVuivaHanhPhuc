@@ -74,22 +74,40 @@ Hệ thống hỗ trợ ba role người dùng khác nhau, mỗi role có tài k
 Username: student
 Password: student
 ```
-- Role: staff
+- Role: Staff
 ```plaintext
 Username: staff
 Password: staff
 ```
-- Role: admin
+- Role: Admin
 ```plaintext
 Username: admin
 Password: admin
 ```
+---
+## 💡 Công nghệ sử dụng
+
+- **Frontend:** React.js, Axios
+- **Backend:** Node.js, Express.js, MongoDB
+- **Authentication:** JWT (JSON Web Tokens)
+- **Các công cụ khác:** npm, Postman (kiểm thử API), Git
 
 ---
+
+## 🤝 Hướng dẫn đóng góp
+
+1. Fork dự án về máy cá nhân của bạn.
+2. Tạo nhánh mới cho tính năng hoặc sửa lỗi.
+3. Sau khi hoàn thành, gửi Pull Request mô tả chi tiết về các thay đổi.
+4. Các thay đổi sẽ được xem xét và merge vào nhánh chính.
+
+---
+
 ## 📞 Liên hệ hỗ trợ
 
-Nếu có bất kỳ câu hỏi hoặc vấn đề nào, vui lòng liên hệ với chúng tôi qua email: [johapsystem@gmail.com](mailto:support@johap.com).
+Nếu có bất kỳ câu hỏi hoặc vấn đề nào, vui lòng liên hệ với chúng tôi qua email: [johapsystem@gmail.com](mailto:johapsystem@gmail.com).
 
 ---
 
 🌟 **Cảm ơn bạn đã sử dụng JoHap - Nơi mang lại niềm vui và hạnh phúc trong từng bữa ăn!**
+
