@@ -3,27 +3,26 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import "../css/UserProfile.css";
 
+var av;
+
 const UserProfile = () => {
   const { userId } = useAuth();
   const [user, setUser] = useState([]);
 
-  const getUser = async (userId) => {
+  const fetchUserProfile = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/user/${userId}`, {
-        headers: { "Content-Type": "application/json" }
-      });
-      return response.data;
+      const response = await axios.get(`http://localhost:8000/user/${userId}`);
+      setUser(response.data);
+      av = response.data.avatar;
     } catch (error) {
-      console.error("Error fetching user data:", error);
-      return null; // Xử lý lỗi bằng cách trả về null
+      console.error("Error fetching user profilessss:", error);
     }
   };
 
   useEffect(() => {
     const fetchUser = async () => {
-      const data = await getUser(userId);
-      if (data) {
-        setUser(data);
+      if (userId) {
+        fetchUserProfile();
       } else {
         console.error("Failed to fetch user info.");
       }
@@ -88,6 +87,41 @@ const UserProfile = () => {
   const toggleEditForm = () => {
     setIsEditing(!isEditing);
   };
+
+
+  const updateUserProfile = async () => {
+    const updatedData = {
+      avatar: user.avatar,
+      username: user.username,
+      name: user.name,
+      dob: new Date(user.dob).toISOString(),
+      gender: user.gender,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    };
+
+    try {
+      console.log(updatedData);
+      av = response.data.avatar;
+      console.log("userId beinggg sent:", userId);
+      const response = await axios.put(`http://localhost:8000/user/update/${userId}`, 
+         updatedData ,
+        { 
+          headers: { "Content-Type": "application/json" } 
+        }
+      ); 
+      // Gửi thông tin user mới đến backend
+      console.log("User profile updated:", response.data);
+      setUser(response.data); // Cập nhật trạng thái user với dữ liệu mới từ backend
+      setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+    }
+  };
+
+
+
   const [selectedOrder, setSelectedOrder] = useState(null); // Chứa thông tin chi tiết hóa đơn
   const [isModalOpen, setIsModalOpen] = useState(false); // Điều khiển modal
   const handleViewDetails = async (orderId) => {
@@ -131,7 +165,7 @@ const UserProfile = () => {
                 <strong>Name:</strong> {user.name}
               </p>
               <p>
-                <strong>Date of Birth:</strong> {user.dob}
+                <strong>Date of Birth:</strong> {user.dob ? new Date(user.dob).toISOString().split('T')[0] : "N/A"}
               </p>
               <p>
                 <strong>Gender:</strong> {user.gender}
@@ -151,6 +185,19 @@ const UserProfile = () => {
             </div>
           ) : (
             <form className="profile-form">
+               <div className="form-group">
+                <label htmlFor="avatar">Avatar:</label>
+                <input
+                  type="string"
+                  id="avatar"
+                  name="avatar"
+                  value={user.avatar}
+                  onChange={handleChange}
+                  className="form-control"
+                  placeholder="Enter your URL to your avatar"
+                />
+              </div>
+
               <div className="form-group">
                 <label htmlFor="username">Username:</label>
                 <input
@@ -163,6 +210,7 @@ const UserProfile = () => {
                   placeholder="Enter your username"
                 />
               </div>
+
               <div className="form-group">
                 <label htmlFor="name">Name:</label>
                 <input
@@ -228,7 +276,7 @@ const UserProfile = () => {
                 type="button"
                 className="btn btn-secondary blue-btn"
                 style={{ backgroundColor: "#007bff" }}
-                onClick={toggleEditForm}
+                onClick={updateUserProfile}
               >
                 Save
               </button>
@@ -405,3 +453,9 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
+
+export const getAv = () => av;
+
+export const setAv = (newAv) => {
+    av = newAv;
+};

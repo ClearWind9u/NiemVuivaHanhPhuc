@@ -68,7 +68,7 @@ const Wallet = () => {
         if (transactionInfo) {
             try {
                 const response = await axios.post(
-                    `http://localhost:8000/wallet/add/${userId}`,
+                    "http://localhost:8000/wallet",
                     { id: transactionInfo.userId, money: transactionInfo.amount },
                     { headers: { "Content-Type": "application/json" } }
                 );

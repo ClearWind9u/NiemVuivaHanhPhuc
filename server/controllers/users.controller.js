@@ -1,4 +1,5 @@
 import User from "../models/users.model.js";
+import bcrypt from "bcryptjs";
 
 // Lấy thông tin người dùng bằng ID
 export const getUserInfo = async (req, res) => {
@@ -26,31 +27,37 @@ export const getUserInfo = async (req, res) => {
     }
 };
 
-// Lấy danh sách người dùng có role là student
-export const getUserStudent = async (req, res) => {
-    try {
-        // Tìm tất cả người dùng có role là "student"
-        const students = await User.find({ role: "student" });
+// 
+export const Editprofile = async (req, res) => {
+    try{
+    const { id } = req.params;
+    const  updatedData = req.body;
 
-        // Kiểm tra nếu không có student nào
-        if (students.length === 0) {
-            return res.status(404).json({ message: "No students found" });
+
+    const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found', id }); // Trường hợp không tìm thấy user
         }
 
-        // Loại bỏ trường password khỏi kết quả
-        const safeStudents = students.map((student) => {
-            const { password, ...safeStudent } = student.toObject();
-            return safeStudent;
-        });
-
-        // Trả về danh sách student
-        res.status(200).json(safeStudents);
+        // Kiểm tra nếu mật khẩu mới được thay đổi
+        if (updatedData.password && updatedData.password !== user.password) {
+         
+            updatedData.password = await bcrypt.hash(updatedData.password, 10); // Mã hóa mật khẩu mới
+        } else {
+            // Nếu không thay đổi mật khẩu, có thể xóa mật khẩu khỏi updatedData để tránh ghi đè
+            delete updatedData.password;
+        }
+         
+      const updatedUser = await User.findByIdAndUpdate( id , updatedData, { new: true });
+  //    console.log("AFTER THE UPDATE: ", id);
+      if (!updatedUser) {
+        return res.status(404).json({ error: 'User not found keke', id }); // Trường hợp không tìm thấy user
+      }
+  
+      res.status(200).json(updatedUser);
     } catch (error) {
-        console.error("Error fetching students:", error.message);
-        res.status(500).json({
-            message: "Internal server error",
-            error: error.message,
-        });
+      console.error("Error updating user:", error); // Log chi tiết lỗi
+      res.status(500).json({ error: 'Error updating user profile', details: error.message });
     }
 };
 
@@ -74,24 +81,21 @@ export const addBalance = async (req, res) => {
     }
 }
 
-export const refundBalance = async (req, res) => {
+export const deleteUser = async (req, res) => {
     try {
-        const { userId } = req.params;
-        const { amount } = req.body;
-        const user = await User.findById(userId);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Assuming `balance` is a field in the User model
-        user.balance += amount; // Refund the user
-        await user.save();
-
-        res.status(200).json({ message: 'Refund successful' });
+      const { id } = req.params; 
+  
+      
+      const user = await User.findByIdAndDelete(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+  
+      res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
-        console.error('Error processing refund:', error);
-        res.status(500).json({ message: 'Failed to process refund' });
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
@@ -105,20 +109,73 @@ export const getAllUser = async (req, res) => {
     }
 };
 
-export const getAllStaff = async (req, res) => {
+export const createUser = async (req, res) => {
     try {
-        // Lấy danh sách nhân viên có role là 'staff'
-        const staffUsers = await User.find({ role: "staff" }, { _id: 1, name: 1 });
+        const { username, name, email, password, role } = req.body;
 
-        // Kiểm tra nếu không có nhân viên nào
-        if (!staffUsers.length) {
-            return res.status(404).json({ success: false, message: "No staff found" });
+        if (!name || !email || !password || !role) {
+          return res.status(400).json({ message: "Please provide all required fields" });
+        }
+    
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+          return res.status(400).json({ message: "User already exists with this email" });
         }
 
-        // Trả về danh sách
-        res.status(200).json({ success: true, staff: staffUsers });
-    } catch (error) {
-        console.error("Error fetching staff users:", error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        const hashedPassword = await bcrypt.hash(password, 10);
+    
+        const newUser = new User({
+          name,
+          username,
+          email,
+          password: hashedPassword,  
+          role,
+        });
+        
+        console.log(role);
+        await newUser.save();
+    
+        res.status(201).json({
+          message: "User created successfully",
+          user: {
+            id: newUser._id,
+            name: newUser.name,
+            username: newUser.username,
+            email: newUser.email,
+            role: newUser.role,
+          },
+        });
     }
+    catch(err){
+        console.error("Error creating user:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+export const getUser = async (req, res) => {
+  try {
+    const Users = await User.find();
+    res.status(200).json(Users);
+  } catch (error) {
+    console.error("Error fetching all user balance:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const Addfunds = async (req, res) => {
+  try{
+  const { id } = req.params;
+  const  updatedData = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate( id , updatedData, { new: true });
+//    console.log("AFTER THE UPDATE: ", id);
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found keke', id }); // Trường hợp không tìm thấy user
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error); // Log chi tiết lỗi
+    res.status(500).json({ error: 'Error updating user profile', details: error.message });
+  }
 };
