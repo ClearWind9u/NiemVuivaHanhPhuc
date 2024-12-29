@@ -16,29 +16,29 @@ const Wallet = () => {
     const [transactionInfo, setTransactionInfo] = useState(null);
     const [showQRModal, setShowQRModal] = useState(false);
 
+    const [user, setUser] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+
     // Fetch danh sách student từ API
-    const fetchWallets = async () => {
-        try {
-            const response = await axios.get("http://localhost:8000/user/students", {
+    const fetchUser = async () => {
+        try{
+            const response = await axios.get("http://localhost:8000/user/wallet/all", {
                 headers: {
-                    "Content-Type": "application/json",
+                  "Content-Type": "application/json",
                 },
-            });
-            const walletsWithDefaults = response.data.map((wallet) => ({
-                ...wallet,
-                balance: wallet.balance || 0, // Gán giá trị mặc định là 0 nếu balance undefined
-            }));
-            setWallets(walletsWithDefaults);
-            setLoading(false);
-        } catch (err) {
-            console.error("Error fetching wallets:", err);
-            setError("Failed to fetch wallet data.");
+              });
+              console.log(response.data);
+              setUser(response.data);
+              setLoading(false);
+        }
+        catch(err){
+            console.error("Error fetching user profiles:", err);
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchWallets();
+        fetchUser();
     }, []);
 
     // Hiển thị thông báo
@@ -56,21 +56,21 @@ const Wallet = () => {
     });
 
     // Khi nhấn "Add Funds", chỉ hiển thị QR modal
-    const handleAddFundsClick = (wallet) => {
-        setSelectedWallet(wallet);
+    const handleAddFundsClick = (user) => {
+        setSelectedUser(user);
         setShowModal(true);
     };
 
     const handleCloseModal = () => {
         setShowModal(false);
         setAmount("");
-        setSelectedWallet(null);
+        setSelectedUser(null);
     };
 
     // Khi nhấn "Confirm" trong modal nhập số tiền, chỉ hiển thị QR Modal
     const handleConfirmAddFunds = () => {
         const newAmount = parseFloat(amount);
-        if (selectedWallet && !isNaN(newAmount) && newAmount > 0) {
+        if (selectedWallet ||!isNaN(newAmount) && newAmount > 0) {
             setTransactionInfo({
                 amount: newAmount,
                 bankInfo: {
@@ -88,27 +88,23 @@ const Wallet = () => {
     // Xử lý khi nhấn "OK" trong QR modal
     const handleConfirmQR = async () => {
         const newAmount = transactionInfo?.amount;
-        if (selectedWallet && newAmount > 0) {
+        if (selectedWallet || newAmount > 0) {
+            const updatedData = {
+                balance: parseFloat(amount) + parseFloat(selectedUser.balance ? selectedUser.balance : 0),
+            };
+            console.log(selectedUser._id, " this is balance");
             try {
-                const response = await axios.post(
-                    `http://localhost:8000/wallet/add/${selectedWallet._id}`,
-                    { id: selectedWallet._id, money: newAmount },
+                const response = await axios.put(
+                    `http://localhost:8000/user/wallet/${selectedUser._id}`,
+                    updatedData,
                     {
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
+                        headers: { "Content-Type": "application/json" },
                     }
                 );
+                fetchUser();
                 if (response.status === 200) {
-                    setWallets((prevWallets) =>
-                        prevWallets.map((wallet) =>
-                            wallet._id === selectedWallet._id
-                                ? { ...wallet, balance: wallet.balance + newAmount }
-                                : wallet
-                        )
-                    );
                     showNotification(
-                        `Added ${newAmount.toLocaleString()} VNĐ to ${selectedWallet.username}'s wallet`
+                        `Added ${newAmount.toLocaleString()} VNĐ to ${selectedUser.username}'s wallet`
                     );
                     setShowQRModal(false); // Đóng modal QR sau khi thêm tiền thành công
                     handleCloseModal(); // Đóng modal nhập tiền
@@ -155,18 +151,15 @@ const Wallet = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredWallets.map((wallet) => (
-                                <tr key={wallet.id}>
-                                    <td>{wallet.username}</td>
-                                    <td>{wallet.balance ? wallet.balance.toLocaleString() : "0"} VNĐ</td>
-                                    <td>
-                                        <button
-                                            className="btn blue-btn"
-                                            onClick={() => handleAddFundsClick(wallet)}>
-                                            Add Funds
-                                        </button>
-                                    </td>
-                                </tr>
+                        {user.filter((us) => us.role !== "admin" && us.role !== "staff").map((us) => (
+                                <tr key={us.id}>
+                                <td>{us.username}</td>
+                                <td>{us.role.charAt(0).toUpperCase() + us.role.slice(1)}</td>
+                                <td>${us.balance || 0 }</td>
+                                <td>
+                                    <button className="btn blue-btn" onClick={() => handleAddFundsClick(us)}>Add Funds</button>
+                                </td>
+                            </tr>
                             ))}
                         </tbody>
                     </table>
