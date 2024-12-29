@@ -31,14 +31,14 @@ const MemberList = () => {
             </div>
           </div>
           <div className="col-md-4 mb-4 text-center">
-            <img src="../image/goldon-ramsay.jpg" alt="Member 3" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
+            <img src="../image/CongMinh.jpg" alt="Member 3" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
             <div className="caption">
               <p>Member: Lê Công Minh</p>
               <p>MSSV: 2212044</p>
             </div>
           </div>
           <div className="col-md-4 mb-4 text-center">
-            <img src="../image/goldon-ramsay.jpg" alt="Member 4" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
+            <img src="../image/DucPhat.png" alt="Member 4" className="img-fluid rounded" style={{ width: '256px', height: '256px' }} />
             <div className="caption">
               <p>Member: Võ Nguyễn Đức Phát</p>
               <p>MSSV: 2212540</p>
