@@ -109,7 +109,6 @@ const Wallet = () => {
                     </div>
                     <button className="btn btn-secondary blue-btn" onClick={handleAddFunds}>Add Funds</button>
                 </div>
-
                 {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
             </div>
 

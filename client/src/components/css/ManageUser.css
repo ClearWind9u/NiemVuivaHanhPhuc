@@ -5,10 +5,14 @@
 
 .user-table {
   flex: 1;
-  padding: 20px;
+  min-width: 300px;
+  padding: 10px;
+  margin: 0 0 20px 0; 
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 520px; /* Limit the height of the table */
+  overflow-y: auto; /* Enable scrolling within each table */
 }
 
 .user-item {
@@ -63,6 +67,14 @@
   cursor: pointer;
 }
 
-/* .red-btn{
-    background-color: aqua;
-  } */
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .user-section {
+    flex-direction: column; /* Stack user tables on smaller screens */
+    gap: 10px;
+  }
+
+  .user-table {
+    max-height: 300px; /* Reduce the height for smaller screens */
+  }
+}

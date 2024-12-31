@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
+import Notification from "../Notification";
 import "../css/ManageMenu.css";
 
 const ManageMenu = () => {
@@ -10,10 +11,11 @@ const ManageMenu = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [confirmationAction, setConfirmationAction] = useState(null);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [notification, setNotification] = useState(null);
 
   // Fetch menu items from API
   const fetchMenuItems = async (page = 1, limit = 5) => {
@@ -40,6 +42,7 @@ const ManageMenu = () => {
       await axios.delete(`http://localhost:8000/menu/delete/${deleteTargetId}`);
       setMenuItems((items) => items.filter((item) => item.id !== deleteTargetId));
       setShowConfirmation(false);
+      setNotification("Remove food successfully!");
     } catch (error) {
       console.error("Error removing item:", error);
     }
@@ -60,10 +63,10 @@ const ManageMenu = () => {
       return;
     }
     const itemExists = menuItems.some((item) => item.name.toLowerCase() === newItem.name.toLowerCase());
-  if (itemExists) {
-    alert("Tên món ăn đã tồn tại");
-    return;
-  }
+    if (itemExists) {
+      alert("The item name already exists.");
+      return;
+    }
 
     try {
       const response = await axios.post("http://localhost:8000/menu/add", {
@@ -79,6 +82,7 @@ const ManageMenu = () => {
       setMenuItems((prevItems) => [...prevItems, response.data.dish]);
       setNewItem({ name: "", price: "", image: "", category: "" });
       setShowAddForm(false);
+      setNotification("Add food successfully!");
     } catch (error) {
       console.error("Error adding item:", error);
     }
@@ -102,6 +106,7 @@ const ManageMenu = () => {
       );
       setEditingItem(null);
       setShowEditForm(false);
+      setNotification("Update food successfully!");
     } catch (error) {
       console.error("Error updating item:", error);
     }
@@ -139,7 +144,7 @@ const ManageMenu = () => {
       <div className="container mt-4">
         {!showAddForm && (
           <button onClick={toggleAddForm} className="btn blue-btn">
-            Add New Item <FaPlus />
+            Add New Item <FaPlus className="ms-2"/>
           </button>
         )}
         {/* Add Form */}
@@ -194,26 +199,26 @@ const ManageMenu = () => {
             </button>
           </div>
         )}
-      {showConfirmation && (
+        {showConfirmation && (
           <div className="modal-overlay">
             <div className="modal-content">
               <h4>
                 {confirmationAction === "add"
-                  ? "Bạn có chắc muốn lưu thay đổi?"
-                  : "Bạn có chắc muốn xóa món này?"}
+                  ? "Are you sure you want to save changes?"
+                  : "Are you sure you want to delete this item?"}
               </h4>
               <div className="modal-actions">
                 <button
                   onClick={executeConfirmationAction}
                   className="btn blue-btn"
                 >
-                  Có
+                  Yes
                 </button>
                 <button
                   onClick={() => setShowConfirmation(false)}
                   className="btn red-btn"
                 >
-                  Không
+                  No
                 </button>
               </div>
             </div>
@@ -258,7 +263,7 @@ const ManageMenu = () => {
               />
               <input
                 type="text"
-                placeholder="Preparation_time"
+                placeholder="Preparation Time"
                 name="preparation_time"
                 value={editingItem.preparation_time}
                 onChange={handleInputChange}
@@ -283,7 +288,7 @@ const ManageMenu = () => {
               <button onClick={updateItem} className="btn blue-btn">
                 Update Item
               </button>
-              <button onClick={toggleEditForm}className="btn blue-btn">
+              <button onClick={toggleEditForm} className="btn blue-btn">
                 Cancel
               </button>
             </div>
@@ -322,13 +327,13 @@ const ManageMenu = () => {
                     (e.target.style.backgroundColor = "#d9534f")
                   }
                 >
-                  <FaTrashAlt /> Remove
+                  <FaTrashAlt className="me-2"/> Remove
                 </button>
                 <button
                   className="btn blue-btn"
                   onClick={() => toggleEditForm(item)}
                 >
-                  <FaEdit /> Edit
+                  <FaEdit className="me-2"/> Edit
                 </button>
               </div>
             </div>
@@ -337,20 +342,22 @@ const ManageMenu = () => {
       </div>
       {/* Pagination (Optional) */}
       <nav aria-label="Page navigation">
-      <ul className="pagination justify-content-center">
-        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-          <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>&laquo; Prev</button>
-        </li>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-            <button className="page-link" onClick={() => handlePageChange(index + 1)}>{index + 1}</button>
+        <ul className="pagination justify-content-center">
+          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+            <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>&laquo; Prev</button>
           </li>
-        ))}
-        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-          <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next &raquo;</button>
-        </li>
-      </ul>
-    </nav>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+              <button className="page-link" onClick={() => handlePageChange(index + 1)}>{index + 1}</button>
+            </li>
+          ))}
+          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+            <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next &raquo;</button>
+          </li>
+        </ul>
+      </nav>
+      {/* Notification */}
+      {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
   );
 };

@@ -1,33 +1,37 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import Notification from "../Notification";
 import "../css/UserProfile.css";
-const UserProfile = () => {
-  const { userId } = useAuth();
-  const [user, setUser] = useState([]);
 
+const UserProfile = () => {
+  const { userId, avatar, setAvatar } = useAuth(); // Sử dụng context
+  const [user, setUser] = useState([]);
+  
+  // Fetch user profile and set avatar
   const fetchUserProfile = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/user/${userId}`);
-      console.log("----------",response.data);
       setUser(response.data);
+      setAvatar(response.data.avatar);  // Cập nhật avatar vào context
     } catch (error) {
       console.error("Error fetching user profile:", error);
     }
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      if (userId) {
-        fetchUserProfile();
-      } else {
-        console.error("Failed to fetch user info.");
-      }
-    };
     if (userId) {
-      fetchUser();
+      fetchUserProfile();
+    } else {
+      console.error("Failed to fetch user info.");
     }
   }, [userId]);
+
+  const handleAvatarChange = (e) => {
+    const newAvatar = e.target.value;
+    setAvatar(newAvatar);  // Cập nhật avatar trong context
+    // Cập nhật avatar trong database hoặc gửi tới backend nếu cần thiết
+  };
 
   const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
   useEffect(() => {
@@ -86,6 +90,10 @@ const UserProfile = () => {
 
 
   const updateUserProfile = async () => {
+    if (!user.name || !user.username || !user.email || !user.email || !user.phone) {
+      alert("Please provide all required fields");
+      return;
+    }
     const updatedData = {
       avatar: user.avatar,
       username: user.username,
@@ -97,25 +105,17 @@ const UserProfile = () => {
       role: user.role,
     };
 
-    console.log("Sending userId:", userId); // Log userId
-    console.log("Sending payload:", updatedData); // Log payload
-    console.log("userId being sent:", userId);
-    
-    const fullUrl = `http://localhost:8000/user/update/${userId}`;
-    console.log("Full URL:", fullUrl);
-
     try {
       console.log(updatedData);
       console.log("userId beinggg sent:", userId);
-      const response = await axios.put(`http://localhost:8000/user/update/${userId}`, 
-         updatedData ,
-        { 
-          headers: { "Content-Type": "application/json" } 
+      const response = await axios.put(`http://localhost:8000/user/update/${userId}`,
+        updatedData,
+        {
+          headers: { "Content-Type": "application/json" }
         }
-      ); 
+      );
+      setNotification("Update your profile successfully!");
       // Gửi thông tin user mới đến backend
-
-      console.log("User profile updated:", response.data);
       setUser(response.data); // Cập nhật trạng thái user với dữ liệu mới từ backend
       setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
     } catch (error) {
@@ -123,8 +123,7 @@ const UserProfile = () => {
     }
   };
 
-
-
+  const [notification, setNotification] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null); // Chứa thông tin chi tiết hóa đơn
   const [isModalOpen, setIsModalOpen] = useState(false); // Điều khiển modal
   const handleViewDetails = async (orderId) => {
@@ -195,7 +194,10 @@ const UserProfile = () => {
                   id="avatar"
                   name="avatar"
                   value={user.avatar}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e); 
+                    handleAvatarChange(e);
+                  }}
                   className="form-control"
                   placeholder="Enter your URL to your avatar"
                 />
@@ -444,12 +446,13 @@ const UserProfile = () => {
               <p>
                 <strong>Status:</strong> {selectedOrder.status}
               </p>
-
               <button onClick={closeModal}>Close</button>
             </div>
           </div>
         )}
       </div>
+      {/* Notification */}
+      {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
   );
 };

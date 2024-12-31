@@ -39,7 +39,7 @@ export const Login = async (req, res) => {
 
     // Tạo token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, avatar: user.avatar },
       "secretkey", // Đổi thành biến môi trường trong production
       { expiresIn: "1h" }
     );
@@ -50,6 +50,7 @@ export const Login = async (req, res) => {
       token,
       role: user.role,
       userId: user._id,
+      avatar: user.avatar,
     });
   } catch (error) {
     console.error("Error during login:", error.message);
@@ -59,6 +60,7 @@ export const Login = async (req, res) => {
     });
   }
 };
+
 // Hàm đăng ký
 export const register = async (req, res) => {
   const { username, password, email, name, role } = req.body;
@@ -70,13 +72,17 @@ export const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Chọn avatar dựa vào role
+    const avatar = role === 'admin' ? "../image/admin-avatar.jpg" : "../image/avatar.jpg";
+
     const newUser = new User({
       username,
       password: hashedPassword,
       email,
       name,
       role,
-      avatar: "../image/avatar.jpg",
+      avatar,  // Dùng avatar tương ứng với role
       balance: 0
     });
 

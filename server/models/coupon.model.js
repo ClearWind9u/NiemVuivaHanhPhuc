@@ -30,6 +30,6 @@ const couponSchema = new Schema({
     }
 });
 
-const Coupon = mongoose.model('Coupon', couponSchema);
+const Coupon = mongoose.model('coupons', couponSchema);
 
 export default Coupon;

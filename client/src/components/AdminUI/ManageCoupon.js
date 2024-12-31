@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 import axios from "axios";
+import Notification from "../Notification";
 import "../css/ManageCoupon.css";
 
 const ManageCoupon = () => {
@@ -17,6 +18,7 @@ const ManageCoupon = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [deleteCouponId, setDeleteCouponId] = useState(null);
+  const [notification, setNotification] = useState(null);
   const API_URL = "http://localhost:8000/coupons";
 
   useEffect(() => {
@@ -84,6 +86,7 @@ const ManageCoupon = () => {
         moneyDiscount: 0,
       });
       setShowAddForm(false);
+      setNotification("Add coupon successfully!");
     } catch (error) {
       console.error("Error adding coupon:", error);
     }
@@ -115,6 +118,7 @@ const ManageCoupon = () => {
       );
       setEditingCoupon(null);
       setShowEditForm(false);
+      setNotification("Update coupon successfully!");
     } catch (error) {
       console.error("Error updating coupon:", error);
     }
@@ -127,6 +131,7 @@ const ManageCoupon = () => {
         prevCoupons.filter((coupon) => coupon._id !== deleteCouponId)
       );
       setDeleteCouponId(null);
+      setNotification("Delete coupon successfully!");
     } catch (error) {
       console.error("Error deleting coupon:", error);
     }
@@ -146,7 +151,7 @@ const ManageCoupon = () => {
           <></>
         ) : (
           <button onClick={toggleAddForm} className="btn blue-btn">
-            Add New Coupon <FaPlus />
+            Add New Coupon <FaPlus className="ms-2"/>
           </button>
         )}
         {/* Add Coupon Form */}
@@ -281,7 +286,78 @@ const ManageCoupon = () => {
               </button>
             </div>
           </div>
-        )}
+        )}{/* Edit Coupon Form */}
+        {showEditForm && editingCoupon && (
+          <div className="modal-overlay">
+            <div className="form-group mt-3">
+              <h3>Edit Coupon</h3>
+              <input
+                type="text"
+                placeholder="Code"
+                name="code"
+                value={editingCoupon.code}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="date"
+                name="startDate"
+                value={editingCoupon.startDate}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="date"
+                name="endDate"
+                value={editingCoupon.endDate}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="text"
+                placeholder="Description"
+                name="description"
+                value={editingCoupon.description}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="number"
+                placeholder="Percent Discount"
+                name="percentDiscount"
+                value={editingCoupon.percentDiscount}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <input
+                type="number"
+                placeholder="Money Discount"
+                name="moneyDiscount"
+                value={editingCoupon.moneyDiscount}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <div className="d-flex justify-content-center mt-3">
+                <button onClick={updateCoupon} className="btn blue-btn">
+                  Update Coupon
+                </button>
+                <button
+                  className="btn red-btn ms-2"
+                  style={{
+                    backgroundColor: "#d9534f",
+                    color: "#fff",
+                    border: "none",
+                  }}
+                  onClick={() => setShowEditForm(false)}  // Hủy chỉnh sửa
+                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#c9302c")}
+                  onMouseLeave={(e) => (e.target.style.backgroundColor = "#d9534f")}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}        
         {/* Delete Confirmation Modal */}
         {deleteCouponId && (
           <div className="modal-overlay">
@@ -354,13 +430,13 @@ const ManageCoupon = () => {
                             (e.target.style.backgroundColor = "#d9534f")
                           }
                         >
-                          <FaTrashAlt /> Remove
+                          <FaTrashAlt className="me-2"/> Remove
                         </button>
                         <button
                           className="btn blue-btn"
                           onClick={() => toggleEditModal(coupon)}
                         >
-                          <FaEdit /> Edit
+                          <FaEdit className="me-2"/> Edit
                         </button>
                       </div>
                     </div>
@@ -371,6 +447,8 @@ const ManageCoupon = () => {
           </div>
         </div>
       </div>
+      {/* Notification */}
+      {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
   );
 };

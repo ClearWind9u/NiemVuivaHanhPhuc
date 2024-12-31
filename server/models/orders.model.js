@@ -57,7 +57,7 @@ const OrderSchema = new Schema({
         default: Date.now },
     status: { 
         type: String, 
-        enum: ['pending', 'processing', 'completed', 'cancelled'], 
+        enum: ['pending', 'completed'], 
         default: 'pending' 
     }
 });

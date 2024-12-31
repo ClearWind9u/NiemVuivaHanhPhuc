@@ -68,11 +68,10 @@ const Login = () => {
           role,
         });
         const data = response.data;
-        console.log(data)
         // Handle success
         localStorage.setItem("token", data.token); // Lưu token
         localStorage.setItem("userId", data.userId); // Lưu userId
-        login(data.userId, data.role); // Gọi hàm login từ context
+        login(data.userId, data.role, data.avatar); // Gọi hàm login từ context
       }
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);

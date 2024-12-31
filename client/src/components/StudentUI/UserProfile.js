@@ -1,36 +1,37 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import Notification from "../Notification";
 import "../css/UserProfile.css";
 
-var av;
-
 const UserProfile = () => {
-  const { userId } = useAuth();
+  const { userId, avatar, setAvatar } = useAuth(); // Sử dụng context
   const [user, setUser] = useState([]);
-
+  
+  // Fetch user profile and set avatar
   const fetchUserProfile = async () => {
     try {
       const response = await axios.get(`http://localhost:8000/user/${userId}`);
       setUser(response.data);
-      av = response.data.avatar;
+      setAvatar(response.data.avatar);  // Cập nhật avatar vào context
     } catch (error) {
-      console.error("Error fetching user profilessss:", error);
+      console.error("Error fetching user profile:", error);
     }
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      if (userId) {
-        fetchUserProfile();
-      } else {
-        console.error("Failed to fetch user info.");
-      }
-    };
     if (userId) {
-      fetchUser();
+      fetchUserProfile();
+    } else {
+      console.error("Failed to fetch user info.");
     }
   }, [userId]);
+
+  const handleAvatarChange = (e) => {
+    const newAvatar = e.target.value;
+    setAvatar(newAvatar);  // Cập nhật avatar trong context
+    // Cập nhật avatar trong database hoặc gửi tới backend nếu cần thiết
+  };
 
   const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
   useEffect(() => {
@@ -90,6 +91,10 @@ const UserProfile = () => {
 
 
   const updateUserProfile = async () => {
+    if (!user.name || !user.username || !user.email || !user.email || !user.phone) {
+      alert("Please provide all required fields" );
+      return;
+    }
     const updatedData = {
       avatar: user.avatar,
       username: user.username,
@@ -100,27 +105,21 @@ const UserProfile = () => {
       phone: user.phone,
       role: user.role,
     };
-
     try {
-      console.log(updatedData);
-      av = response.data.avatar;
-      console.log("userId beinggg sent:", userId);
-      const response = await axios.put(`http://localhost:8000/user/update/${userId}`, 
-         updatedData ,
-        { 
-          headers: { "Content-Type": "application/json" } 
+      const response = await axios.put(`http://localhost:8000/user/update/${userId}`,
+        updatedData,
+        {
+          headers: { "Content-Type": "application/json" }
         }
-      ); 
+      );
+      setNotification("Update your profile successfully!");
       // Gửi thông tin user mới đến backend
-      console.log("User profile updated:", response.data);
       setUser(response.data); // Cập nhật trạng thái user với dữ liệu mới từ backend
       setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
     } catch (error) {
       console.error("Error updating user profile:", error);
     }
   };
-
-
 
   const [selectedOrder, setSelectedOrder] = useState(null); // Chứa thông tin chi tiết hóa đơn
   const [isModalOpen, setIsModalOpen] = useState(false); // Điều khiển modal
@@ -140,6 +139,8 @@ const UserProfile = () => {
       console.error("Error fetching order details:", error);
     }
   };
+
+  const [notification, setNotification] = useState(null);
 
   // Hàm để đóng modal
   const closeModal = () => {
@@ -185,14 +186,17 @@ const UserProfile = () => {
             </div>
           ) : (
             <form className="profile-form">
-               <div className="form-group">
+              <div className="form-group">
                 <label htmlFor="avatar">Avatar:</label>
                 <input
                   type="string"
                   id="avatar"
                   name="avatar"
                   value={user.avatar}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e); 
+                    handleAvatarChange(e);
+                  }}
                   className="form-control"
                   placeholder="Enter your URL to your avatar"
                 />
@@ -448,14 +452,10 @@ const UserProfile = () => {
           </div>
         )}
       </div>
+      {/* Notification */}
+      {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
     </div>
   );
 };
 
 export default UserProfile;
-
-export const getAv = () => av;
-
-export const setAv = (newAv) => {
-    av = newAv;
-};
