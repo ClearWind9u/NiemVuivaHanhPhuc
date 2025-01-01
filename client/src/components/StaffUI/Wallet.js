@@ -145,7 +145,7 @@ const Wallet = () => {
                     <table className="list-invoice-table">
                         <thead>
                             <tr>
-                                <th>Name</th>
+                                <th>User Name</th>
                                 <th>Balance (VNĐ)</th>
                                 <th style={{ width: "300px" }}>Add Funds</th>
                             </tr>
@@ -154,7 +154,7 @@ const Wallet = () => {
                         {user.filter((us) => us.role !== "admin" && us.role !== "staff").map((us) => (
                                 <tr key={us.id}>
                                 <td>{us.username}</td>
-                                <td>{us.role.charAt(0).toUpperCase() + us.role.slice(1)}</td>
+                                {/* <td>{us.role.charAt(0).toUpperCase() + us.role.slice(1)}</td> */}
                                 <td>${us.balance || 0 }</td>
                                 <td>
                                     <button className="btn blue-btn" onClick={() => handleAddFundsClick(us)}>Add Funds</button>

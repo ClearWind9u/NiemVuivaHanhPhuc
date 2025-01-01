@@ -116,7 +116,7 @@ const Cart = () => {
       const itemInCart = cartItems.find((it) => {
         return it.id === id && it.user_id === userId;
       });
-      if (itemInCart.quantity === 0) {
+      if (itemInCart.quantity === 1) {
         handleRemove(itemInCart);
       }
       try {
@@ -329,7 +329,6 @@ const Cart = () => {
           </div>
         </div>
       )}
-
       {/* Notification */}
       {notification && (
         <Notification
