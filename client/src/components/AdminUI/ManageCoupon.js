@@ -338,10 +338,7 @@ const ManageCoupon = () => {
                 className="form-control mb-2"
               />
               <div className="d-flex justify-content-center mt-3">
-                <button onClick={updateCoupon} className="btn blue-btn">
-                  Update Coupon
-                </button>
-                <button
+              <button
                   className="btn red-btn ms-2"
                   style={{
                     backgroundColor: "#d9534f",
@@ -353,6 +350,9 @@ const ManageCoupon = () => {
                   onMouseLeave={(e) => (e.target.style.backgroundColor = "#d9534f")}
                 >
                   Cancel
+                </button>
+                <button onClick={updateCoupon} className="btn blue-btn">
+                  Update Coupon
                 </button>
               </div>
             </div>

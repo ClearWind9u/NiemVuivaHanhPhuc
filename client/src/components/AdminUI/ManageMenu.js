@@ -6,7 +6,7 @@ import "../css/ManageMenu.css";
 
 const ManageMenu = () => {
   const [menuItems, setMenuItems] = useState([]);
-  const [newItem, setNewItem] = useState({ name: "", price: "", image: "", category: "" });
+  const [newItem, setNewItem] = useState({ name: "", price: "", image: "", category: "food" });
   const [editingItem, setEditingItem] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -58,7 +58,7 @@ const ManageMenu = () => {
   };
 
   const addItem = async () => {
-    if (!newItem.name || !newItem.price || !newItem.image || !newItem.category) {
+    if (!newItem.name || !newItem.price || !newItem.image) {  
       alert("Please fill in all fields before adding an item.");
       return;
     }
@@ -144,7 +144,7 @@ const ManageMenu = () => {
       <div className="container mt-4">
         {!showAddForm && (
           <button onClick={toggleAddForm} className="btn blue-btn">
-            Add New Item <FaPlus className="ms-2"/>
+            Add New Item <FaPlus className="ms-2" />
           </button>
         )}
         {/* Add Form */}
@@ -183,14 +183,15 @@ const ManageMenu = () => {
               onChange={handleInputChange}
               className="form-control mb-2"
             />
-            <input
-              type="text"
-              placeholder="Category"
+            <select
               name="category"
               value={newItem.category}
               onChange={handleInputChange}
-              className="form-control mb-2"
-            />
+              className="form-control mb-2">
+              <option value="food">food</option>
+              <option value="drink">drink</option>
+              <option value="snack">snack</option>
+            </select>
             <button onClick={() => confirmAction("add")} className="btn blue-btn">
               Add Item
             </button>
@@ -229,67 +230,83 @@ const ManageMenu = () => {
           <div className="modal-overlay">
             <div className="form-group mt-3">
               <h3>Edit Form</h3>
+              <label htmlFor="name" className="form-label">Name:</label>
               <input
                 type="text"
+                id="name"
                 placeholder="Name"
                 name="name"
                 value={editingItem.name}
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
+              <label htmlFor="quantity" className="form-label">Quantity:</label>
               <input
                 type="text"
+                id="quantity"
                 placeholder="Quantity"
                 name="quantity"
                 value={editingItem.quantity}
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
+              <label htmlFor="price" className="form-label">Price:</label>
               <input
                 type="text"
+                id="price"
                 placeholder="Price"
                 name="price"
                 value={editingItem.price}
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
+              <label htmlFor="description" className="form-label">Description:</label>
               <input
                 type="text"
+                id="description"
                 placeholder="Description"
                 name="description"
                 value={editingItem.description}
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
+              <label htmlFor="preparation_time" className="form-label">Preparation Time (minutes):</label>
               <input
                 type="text"
+                id="preparation_time"
                 placeholder="Preparation Time"
                 name="preparation_time"
                 value={editingItem.preparation_time}
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
+              <label htmlFor="image" className="form-label">Image URL:</label>
               <input
                 type="text"
+                id="image"
                 placeholder="Image URL"
                 name="image"
                 value={editingItem.image}
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
-              <input
-                type="text"
-                placeholder="Category"
+              <label htmlFor="category" className="form-label">Category:</label>
+              <select
+                id="category"
                 name="category"
-                value={editingItem.category}
+                value={editingItem.category || "food"}
                 onChange={handleInputChange}
                 className="form-control mb-2"
-              />
+              >
+                <option value="food">food</option>
+                <option value="drink">drink</option>
+                <option value="snack">snack</option>
+              </select>
+              <button onClick={toggleEditForm} className="btn red-btn">
+                Cancel
+              </button>
               <button onClick={updateItem} className="btn blue-btn">
                 Update Item
-              </button>
-              <button onClick={toggleEditForm} className="btn blue-btn">
-                Cancel
               </button>
             </div>
           </div>
@@ -300,14 +317,18 @@ const ManageMenu = () => {
           {menuItems.map((item) => (
             <div
               key={item.id}
-              className="col-12 d-flex align-items-center mb-3 cart-item"
-            >
+              className="col-12 d-flex align-items-center mb-3 cart-item">
               <div className="col-2 img-container">
-                <img src={item.image} className="food-img" alt={item.name} />
+                <img
+                  src={item.image}
+                  className="food-img"
+                  alt={item.name}
+                  style={{ maxWidth: "100%", height: "auto", objectFit: "cover", borderRadius: "5px", }}
+                />
               </div>
               <div className="col-4">
                 <h5 className="card-title">{item.name}</h5>
-                <p className="price">Price: {Number(item.price)} VNĐ</p>
+                <p className="price" style={{ color: 'red' }}>Price: {Number(item.price)} VNĐ</p>
                 <p>Description: {item.description}</p>
                 <p>Category: {item.category}</p>
               </div>
@@ -327,13 +348,13 @@ const ManageMenu = () => {
                     (e.target.style.backgroundColor = "#d9534f")
                   }
                 >
-                  <FaTrashAlt className="me-2"/> Remove
+                  <FaTrashAlt className="me-2" /> Remove
                 </button>
                 <button
                   className="btn blue-btn"
                   onClick={() => toggleEditForm(item)}
                 >
-                  <FaEdit className="me-2"/> Edit
+                  <FaEdit className="me-2" /> Edit
                 </button>
               </div>
             </div>

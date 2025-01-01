@@ -2,9 +2,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px 0 0;
+    padding: 10px 20px;
     background-color: #f8f9fa;
     border-bottom: 2px solid #ddd;
+    position: relative;
+    animation: fadeIn 1s ease-in-out;
 }
 
 .avatar img {
@@ -12,10 +14,84 @@
     height: 40px;
     border-radius: 50%;
     margin-left: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 }
 
-.logo h1 {
+.avatar img:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.avatar img:active {
+    transform: scale(0.9);
+}
+
+.logo img {
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.logo img:hover {
+    transform: scale(1.05);
+}
+
+/* Modal for full-size avatar */
+.avatar-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeInModal 0.5s ease-in-out;
+}
+
+.avatar-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+}
+
+.avatar-modal .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #fff;
     color: #000;
-    font-size: 2rem;
-    font-weight: bold;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 5px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-modal .close-btn:hover {
+    background: #ddd;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInModal {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }

@@ -78,29 +78,19 @@ h3 {
 }
 
 .img-container {
-    width: 100px;
-    /* Set a fixed width for the image container */
-    height: 100px;
-    /* Set a fixed height for the image container */
-    overflow: hidden;
-    /* Hide overflow to ensure uniformity */
+    width: 100%; /* Chiếm toàn bộ chiều rộng của khung */
+    height: auto; /* Đảm bảo giữ tỷ lệ của hình ảnh */
     display: flex;
-    /* Center the image vertically */
     justify-content: center;
-    /* Center the image horizontally */
     align-items: center;
-    /* Align the image */
+    overflow: hidden; /* Loại bỏ phần thừa nếu cần */
 }
 
 .food-image {
-    width: 100%;
-    /* Image takes up full width of container */
-    height: 100%;
-    /* Image takes up full height of container */
-    object-fit: cover;
-    /* Maintain aspect ratio while filling container */
-    border-radius: 5px;
-    /* Add slight rounding for a smooth look */
+    max-width: 100%; /* Đảm bảo hình ảnh không vượt quá khung */
+    height: auto; /* Giữ tỷ lệ hình ảnh */
+    object-fit: cover; /* Đảm bảo hình ảnh bao phủ toàn bộ khung */
+    border-radius: 5px; /* Bo tròn góc hình ảnh nếu cần */
 }
 
 /* Improved cart item styling */

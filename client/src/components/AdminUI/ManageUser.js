@@ -269,10 +269,6 @@ const ManageUser = () => {
                 <option value="staff">Staff</option>
                 <option value="student">Student</option>
               </select>
-              <button onClick={() => updateUserProfile(editingUser._id)} className="btn blue-btn">
-                Update User
-              </button>
-              {/* Cancel Button */}
               <button
                 onClick={() => setShowEditForm(false)}
                 className="btn red-btn"
@@ -289,6 +285,9 @@ const ManageUser = () => {
                 }
               >
                 Cancel
+              </button>
+              <button onClick={() => updateUserProfile(editingUser._id)} className="btn blue-btn">
+                Update User
               </button>
             </div>
           </div>
