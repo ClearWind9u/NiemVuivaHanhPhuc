@@ -10,7 +10,7 @@ const AdminFooter = () => {
     };
 
     return (
-        <footer className="bg-dark text-white text-center text-lg-start">
+        <footer className="bg-dark text-white text-center text-lg-start fade-in">
             <div className="container p-4">
                 <div className="row">
                     <div className="col-lg-3 col-md-6 mb-4 mb-md-0">

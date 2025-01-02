@@ -17,12 +17,12 @@ const Header = () => {
 
     return (
         <>
-            <header className="header-section">
-                <div className="logo">
+            <header className="header-section fade-in">
+                <div className="logo slide-in-left">
                     <img src="../image/logo2.png" alt="JoHap" style={{ width: '150px', height: '90px' }} />
                 </div>
                 <Tooltip anchorSelect=".logo" place="right"> Joy and Happiness Canteen </Tooltip>
-                <div className="avatar">
+                <div className="avatar slide-in-right">
                     <img
                         src={avatar || "../image/avatar.jpg"}
                         alt="User Avatar"

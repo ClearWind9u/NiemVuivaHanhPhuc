@@ -63,8 +63,10 @@ const Cart = () => {
     .reduce((total, item) => total + item.price * item.quantity, 0);
 
   useEffect(() => {
-    setFinalTotalCost(totalCost - voucherDiscount);
+    const updatedTotalCost = totalCost - voucherDiscount;
+    setFinalTotalCost(updatedTotalCost < 0 ? 0 : updatedTotalCost); // Nếu nhỏ hơn 0, đặt bằng 0
   }, [totalCost, voucherDiscount]);
+
 
   // Validate and apply selected coupon
   const validateVoucher = async () => {
@@ -72,15 +74,15 @@ const Cart = () => {
       setVoucherError("Please select a voucher to apply.");
       return;
     }
-  
+
     try {
       const response = await axios.post("http://localhost:8000/coupons/validate", {
         code: selectedCoupon.code,  // Send coupon code
         totalCost: totalCost,       // Send total cost for discount calculation
       });
-  
+
       const { discountedCost, voucherDiscount, message } = response.data;
-  
+
       setVoucherDiscount(voucherDiscount);
       setFinalTotalCost(discountedCost);  // Update the total cost with the discount
       setVoucherError(null);
@@ -90,8 +92,8 @@ const Cart = () => {
       console.error("Error validating voucher:", error);
       setVoucherError("Failed to apply voucher. Please try again.");
     }
-  };  
-  
+  };
+
 
   const handleQuantityChange = async (id, delta) => {
     if (delta === 1) {
@@ -197,7 +199,12 @@ const Cart = () => {
                 className="col-12 d-flex align-items-center mb-3 cart-item"
               >
                 <div className="col-2 img-container">
-                  <img src={item.image} className="food-img" alt={item.name} />
+                <img
+                  src={item.image}
+                  className="food-img"
+                  alt={item.name}
+                  style={{ maxWidth: "100%", height: "auto", objectFit: "cover", borderRadius: "5px", }}
+                />
                 </div>
                 <div className="col-4">
                   <h5 className="card-title">{item.name}</h5>
@@ -244,19 +251,19 @@ const Cart = () => {
             ))
           ) : (
             <div className="col-12 text-center">
-              <p className="text-muted" style={{margin: '140px'}}>No items in your cart</p>
+              <p className="text-muted" style={{ margin: '140px' }}>No items in your cart</p>
             </div>
           )}
           {cartItems && cartItems.length > 0 && (
             <div className="col-12 d-flex align-items-center mb-3">
               <div className="ms-auto me-3 text-end">
-              <p className="total-price" style={{color: "#28a745"}}>Discount: {totalCost - finalTotalCost} VNĐ</p>
+                <p className="total-price" style={{ color: "#28a745" }}>Discount: {totalCost - finalTotalCost} VNĐ</p>
                 <p className="total-price">Total order: {finalTotalCost} VNĐ</p>
                 <button
                   className="btn btn-secondary blue-btn"
                   onClick={() => setShowModal(true)}
                 >
-                  <FaTicketAlt /> Voucher
+                  <FaTicketAlt className="me-2"/> Voucher
                 </button>
                 <button
                   className="btn btn-secondary blue-btn"
@@ -266,7 +273,7 @@ const Cart = () => {
                     })
                   }
                 >
-                  <FaCreditCard /> Purchase
+                  <FaCreditCard className="me-2"/> Purchase
                 </button>
               </div>
             </div>
@@ -287,11 +294,9 @@ const Cart = () => {
                   coupons.map((coupon) => (
                     <div
                       key={coupon.code}
-                      className={`coupon-card ${
-                        selectedCoupon?.code === coupon.code ? "selected" : ""
-                      }`}
-                      onClick={() => setSelectedCoupon(coupon)}
-                    >
+                      className={`coupon-card ${selectedCoupon?.code === coupon.code ? "selected" : ""
+                        }`}
+                      onClick={() => setSelectedCoupon(coupon)}>
                       <div className="coupon-content">
                         <h5 className="coupon-code">{coupon.code}</h5>
                         <p className="coupon-description">

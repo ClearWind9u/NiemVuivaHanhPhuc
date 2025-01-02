@@ -137,20 +137,20 @@ const ManageMenu = () => {
   };
 
   return (
-    <div className="manage-menu">
-      <h2 style={{ textAlign: "center" }}>
+    <div className="manage-menu fade-in">
+      <h2 style={{ textAlign: "center" }} className="fade-in">
         Manage Menu <i id="menu" className="fas fa-book"></i>
       </h2>
       <div className="container mt-4">
         {!showAddForm && (
-          <button onClick={toggleAddForm} className="btn blue-btn">
+          <button onClick={toggleAddForm} className="btn blue-btn slide-in-right">
             Add New Item <FaPlus className="ms-2" />
           </button>
         )}
         {/* Add Form */}
         {showAddForm && (
-          <div className="form-group mt-3">
-            <h3>Add Form</h3>
+          <div className="form-group mt-3 slide-in-left">
+            <h3>Add Food</h3>
             <input
               type="text"
               placeholder="Name"
@@ -227,7 +227,7 @@ const ManageMenu = () => {
         )}
         {/* Edit Form */}
         {showEditForm && editingItem && (
-          <div className="modal-overlay">
+          <div className="modal-overlay zoom-in">
             <div className="form-group mt-3">
               <h3>Edit Form</h3>
               <label htmlFor="name" className="form-label">Name:</label>
@@ -317,11 +317,11 @@ const ManageMenu = () => {
           {menuItems.map((item) => (
             <div
               key={item.id}
-              className="col-12 d-flex align-items-center mb-3 cart-item">
+              className="col-12 d-flex align-items-center mb-3 cart-item fade-in">
               <div className="col-2 img-container">
                 <img
                   src={item.image}
-                  className="food-img"
+                  className="food-img zoom-in"
                   alt={item.name}
                   style={{ maxWidth: "100%", height: "auto", objectFit: "cover", borderRadius: "5px", }}
                 />
@@ -334,7 +334,7 @@ const ManageMenu = () => {
               </div>
               <div className="col-4 text-end ms-auto">
                 <button
-                  className="btn red-btn"
+                  className="btn red-btn slide-in-left"
                   onClick={() => confirmAction("delete", item.id)}
                   style={{
                     backgroundColor: "#d9534f",
@@ -351,7 +351,7 @@ const ManageMenu = () => {
                   <FaTrashAlt className="me-2" /> Remove
                 </button>
                 <button
-                  className="btn blue-btn"
+                  className="btn blue-btn slide-in-right"
                   onClick={() => toggleEditForm(item)}
                 >
                   <FaEdit className="me-2" /> Edit

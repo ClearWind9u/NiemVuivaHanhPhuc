@@ -98,12 +98,13 @@ export const getOldOrders = async (req, res) => {
 
     // Truy vấn các hóa đơn có `order_time` nằm trong khoảng 6 tháng
     const oldOrders = await Order.find({
-      order_time: { $lte: sixMonthsAgo }, // Tìm hóa đơn có `order_time` lớn hơn 6 tháng trước
+      order_time: { $gte: sixMonthsAgo }, // Tìm hóa đơn có `order_time` lớn hơn 6 tháng trước
+      staff_id: { $exists: true, $ne: null } 
     })
       .sort({ order_time: -1 }) // Sắp xếp theo ngày mới nhất
       .populate('staff_id', 'name') // Lấy thông tin tên nhân viên
-      .select(' _id staff_id order_time details final_price payment_method'); // Chỉ lấy các trường cần thiết
-
+      .populate('student_id', 'name')
+      .select(' _id staff_id student_id order_time details final_price payment_method'); // Chỉ lấy các trường cần thiết
     // Kiểm tra nếu không có hóa đơn nào được tìm thấy
     if (!oldOrders || oldOrders.length === 0) {
       return res.status(404).json({ message: 'No old orders found' });
@@ -113,6 +114,7 @@ export const getOldOrders = async (req, res) => {
     const formattedOldOrders = oldOrders.map(order => ({
       _id: order._id,
       staffName: order.staff_id.name,
+      studentName: order.student_id.name,
       date: order.order_time,
       items: order.details.map(item => item.name).join(', '), // Danh sách tên món
       totalAmount: order.final_price,

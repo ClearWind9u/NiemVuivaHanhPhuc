@@ -50,13 +50,6 @@ const ManageUser = () => {
   };
 
   const addUser = async () => {
-    if (!newUser.name || !newUser.email || !newUser.role || !newUser.password) {
-      alert("Please fill in all fields before adding a user.");
-      return;
-    }
-    const hashedPa = await bcrypt.hash(newUser.password, 10);
-
-    newUser.password = hashedPa;
     try {
       const response = await axios.post("http://localhost:8000/user/admin/create", newUser, {
         headers: {
@@ -72,7 +65,7 @@ const ManageUser = () => {
       }
     } catch (error) {
       console.error("Error adding user:", error);
-      alert("There was an error adding the user.");
+      alert(error.response.data.message);
     }
     setShowConfirmation(false);
   };
@@ -100,6 +93,7 @@ const ManageUser = () => {
       // Cập nhật trạng thái user với dữ liệu mới từ backend
     } catch (error) {
       console.error("Error updating user profile:", error);
+      alert(error.message);
     }
   };
 
@@ -153,19 +147,19 @@ const ManageUser = () => {
   var index = 0;
 
   return (
-    <div className="user-management-page">
-      <h2 style={{ textAlign: "center" }}>Manage Users</h2>
+    <div className="user-management-page fade-in">
+      <h2 style={{ textAlign: "center" }} className="fade-in">Manage Users</h2>
       <div className="container mt-4">
         {showAddForm ? (
           <></>
         ) : (
-          <button onClick={toggleAddForm} className="btn blue-btn">
+          <button onClick={toggleAddForm} className="btn blue-btn slide-in-right">
             Add New User <FaPlus className="ms-2" />
           </button>
         )}
         {/* Add User Form */}
         {showAddForm && (
-          <div className="form-group mt-3">
+          <div className="form-group mt-3 slide-in-left">
             <h3>Add User</h3>
             <label htmlFor="name">Name:</label>
             <input
@@ -176,7 +170,7 @@ const ManageUser = () => {
               onChange={handleInputChange}
               className="form-control mb-2"
             />
-            <label htmlFor="username">Userame:</label>
+            <label htmlFor="username">Username:</label>
             <input
               type="username"
               placeholder="Username"
@@ -238,7 +232,7 @@ const ManageUser = () => {
         )}
         {/* Edit User Form */}
         {showEditForm && editingUser && (
-          <div className="modal-overlay">
+          <div className="modal-overlay zoom-in">
             <div className="form-group mt-3">
               <h3>Edit User</h3>
               <label htmlFor="name">Name:</label>
@@ -247,6 +241,15 @@ const ManageUser = () => {
                 placeholder="Name"
                 name="name"
                 value={editingUser.name}
+                onChange={handleInputChange}
+                className="form-control mb-2"
+              />
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                placeholder="Username"
+                name="username"
+                value={editingUser.username}
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
@@ -259,16 +262,6 @@ const ManageUser = () => {
                 onChange={handleInputChange}
                 className="form-control mb-2"
               />
-              <label htmlFor="role">Role:</label>
-              <select
-                name="role"
-                value={editingUser.role}
-                onChange={handleInputChange}
-                className="form-control mb-2"
-              >
-                <option value="staff">Staff</option>
-                <option value="student">Student</option>
-              </select>
               <button
                 onClick={() => setShowEditForm(false)}
                 className="btn red-btn"
@@ -293,6 +286,7 @@ const ManageUser = () => {
           </div>
         )}
 
+
         <div className="container mt-4 user-section">
           {/* Staff Users Table */}
           <div className="user-table">
@@ -302,7 +296,7 @@ const ManageUser = () => {
                 {staffUsers.map((user) => (
                   <div
                     key={user.id || `staff-${index++}`}
-                    className="col-12 d-flex align-items-center mb-3 user-item"
+                    className="col-12 d-flex align-items-center mb-3 user-item fade-in"
                   >
                     <div className="col-4">
                       <h5 className="user-name">
@@ -313,7 +307,7 @@ const ManageUser = () => {
                     </div>
                     <div className="col-6" style={{ display: "flex" }}>
                       <button
-                        className="btn red-btn"
+                        className="btn red-btn slide-in-left"
                         onClick={() => confirmAction("delete", user._id, "staff")}
                         style={{
                           backgroundColor: "#d9534f",
@@ -330,7 +324,7 @@ const ManageUser = () => {
                         <FaTrashAlt className="me-2" /> Remove
                       </button>
                       <button
-                        className="btn blue-btn"
+                        className="btn blue-btn slide-in-right"
                         onClick={() => toggleEditForm(user)}
                       >
                         <FaEdit className="me-2" /> Edit
@@ -350,7 +344,7 @@ const ManageUser = () => {
                 {studentUsers.map((user) => (
                   <div
                     key={user.id}
-                    className="col-12 d-flex align-items-center mb-3 user-item"
+                    className="col-12 d-flex align-items-center mb-3 user-item fade-in"
                   >
                     <div className="col-4">
                       <h5 className="user-name">
@@ -360,7 +354,7 @@ const ManageUser = () => {
                     </div>
                     <div className="col-6" style={{ display: "flex" }}>
                       <button
-                        className="btn red-btn"
+                        className="btn red-btn slide-in-left"
                         onClick={() => confirmAction("delete", user._id, "student")}
                         style={{
                           backgroundColor: "#d9534f",
@@ -377,7 +371,7 @@ const ManageUser = () => {
                         <FaTrashAlt className="me-2" /> Remove
                       </button>
                       <button
-                        className="btn blue-btn"
+                        className="btn blue-btn slide-in-right"
                         onClick={() => toggleEditForm(user)}
                       >
                         <FaEdit className="me-2" /> Edit

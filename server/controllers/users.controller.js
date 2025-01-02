@@ -27,21 +27,19 @@ export const getUserInfo = async (req, res) => {
   }
 };
 
-// 
 export const Editprofile = async (req, res) => {
   try {
     const { id } = req.params;
     const updatedData = req.body;
 
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found', id }); // Trường hợp không tìm thấy user
-    }
-
     const updatedUser = await User.findByIdAndUpdate(id, updatedData, { new: true });
-    //    console.log("AFTER THE UPDATE: ", id);
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found keke', id }); // Trường hợp không tìm thấy user
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(updatedUser.email)) {
+      return res.status(400).json({ message: "Please enter a valid email address." });
     }
 
     res.status(200).json(updatedUser);
@@ -107,6 +105,10 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: "Please provide all required fields" });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Please enter a valid email address." });
+    }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists with this email" });

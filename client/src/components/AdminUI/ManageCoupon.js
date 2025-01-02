@@ -145,18 +145,18 @@ const ManageCoupon = () => {
 
   return (
     <div className="coupon-management-page">
-      <h2 style={{ textAlign: "center" }}>Manage Coupons</h2>
+      <h2 style={{ textAlign: "center" }} className="fade-in">Manage Coupons</h2>
       <div className="container mt-4">
         {showAddForm ? (
           <></>
         ) : (
-          <button onClick={toggleAddForm} className="btn blue-btn">
+          <button onClick={toggleAddForm} className="btn blue-btn slide-in-right">
             Add New Coupon <FaPlus className="ms-2"/>
           </button>
         )}
         {/* Add Coupon Form */}
         {showAddForm && (
-          <div className="form-group mt-3">
+          <div className="form-group mt-3 slide-in-left">
             <h3>Add Coupon</h3>
             <label htmlFor="code">Code</label>
             <input
@@ -232,7 +232,7 @@ const ManageCoupon = () => {
         )}
         {/* Edit Coupon Form */}
         {showEditForm && editingCoupon && (
-          <div className="modal-overlay">
+          <div className="modal-overlay zoom-in">
             <div className="form-group mt-3">
               <h3>Edit Coupon</h3>
               <input
@@ -416,7 +416,7 @@ const ManageCoupon = () => {
                       </p>
                       <div className="d-flex justify-content-center mt-3">
                         <button
-                          className="btn red-btn"
+                          className="btn red-btn slide-in-left"
                           onClick={() => setDeleteCouponId(coupon._id)}
                           style={{
                             backgroundColor: "#d9534f",
@@ -433,7 +433,7 @@ const ManageCoupon = () => {
                           <FaTrashAlt className="me-2"/> Remove
                         </button>
                         <button
-                          className="btn blue-btn"
+                          className="btn blue-btn slide-in-right"
                           onClick={() => toggleEditModal(coupon)}
                         >
                           <FaEdit className="me-2"/> Edit

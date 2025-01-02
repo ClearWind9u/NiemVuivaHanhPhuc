@@ -7,7 +7,7 @@ import "../css/UserProfile.css";
 const UserProfile = () => {
   const { userId, avatar, setAvatar } = useAuth(); // Sử dụng context
   const [user, setUser] = useState([]);
-  
+
   // Fetch user profile and set avatar
   const fetchUserProfile = async () => {
     try {
@@ -92,7 +92,7 @@ const UserProfile = () => {
 
   const updateUserProfile = async () => {
     if (!user.name || !user.username || !user.email || !user.email || !user.phone) {
-      alert("Please provide all required fields" );
+      alert("Please provide all required fields");
       return;
     }
     const updatedData = {
@@ -194,7 +194,7 @@ const UserProfile = () => {
                   name="avatar"
                   value={user.avatar}
                   onChange={(e) => {
-                    handleChange(e); 
+                    handleChange(e);
                     handleAvatarChange(e);
                   }}
                   className="form-control"
