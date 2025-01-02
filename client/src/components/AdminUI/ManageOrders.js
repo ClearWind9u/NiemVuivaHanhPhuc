@@ -329,14 +329,14 @@ const ManageOrder = () => {
           <div className="modal-overlay zoom-in">
             <div
               style={{
-                maxWidth: "90vw", // Tăng chiều rộng modal
-                maxHeight: "80vh", // Tăng chiều cao modal
-                backgroundColor: "#fff", // Màu nền
-                margin: "auto", // Đặt modal ở giữa
-                borderRadius: "10px", // Bo góc
-                padding: "20px", // Khoảng cách bên trong
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)", // Đổ bóng
-                overflowY: "auto", // Cuộn dọc nếu nội dung quá dài
+                maxWidth: "90vw",
+                maxHeight: "80vh",
+                backgroundColor: "#fff",
+                margin: "auto",
+                borderRadius: "10px",
+                padding: "20px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                overflowY: "auto",
               }}>
               <div className="user-table mt-4">
                 <div

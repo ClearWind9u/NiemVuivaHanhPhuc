@@ -13,7 +13,6 @@ const IncomeStatistics = () => {
   const [sortOrder, setSortOrder] = useState("asc"); // Default sorting order is ascending
   const navigate = useNavigate();
   const [staffWithOrders, setStaffWithOrders] = useState([]);
-
   const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
 
 
@@ -111,7 +110,7 @@ const IncomeStatistics = () => {
   };
 
   return (
-    <div className="user-management-page">
+    <div className="user-management-page fade-in">
       <h2 style={{ textAlign: "center" }}>
         Order History {">"} Show Statistics
       </h2>

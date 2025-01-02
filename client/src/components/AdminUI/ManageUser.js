@@ -77,7 +77,7 @@ const ManageUser = () => {
       role: editingUser.role,
     };
     try {
-      const response = await axios.put(`http://localhost:8000/user/admin/update/${id}`,
+      const response = await axios.put(`http://localhost:8000/user/update/${id}`,
         updatedData,
         {
           headers: { "Content-Type": "application/json" }
@@ -119,7 +119,7 @@ const ManageUser = () => {
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      alert("Failed to delete user.");
+      alert(error.response?.data?.message || "Failed to delete user.");
     }
   };
 

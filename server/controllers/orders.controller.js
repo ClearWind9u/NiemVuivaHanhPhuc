@@ -98,7 +98,7 @@ export const getOldOrders = async (req, res) => {
 
     // Truy vấn các hóa đơn có `order_time` nằm trong khoảng 6 tháng
     const oldOrders = await Order.find({
-      order_time: { $gte: sixMonthsAgo }, // Tìm hóa đơn có `order_time` lớn hơn 6 tháng trước
+      order_time: { $lte: sixMonthsAgo }, // Tìm hóa đơn có `order_time` lớn hơn 6 tháng trước
       staff_id: { $exists: true, $ne: null } 
     })
       .sort({ order_time: -1 }) // Sắp xếp theo ngày mới nhất

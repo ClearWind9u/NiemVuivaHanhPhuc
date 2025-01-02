@@ -7,8 +7,7 @@ export const addCartToOrder = async (req, res) => {
     try {
         let totalQuantity= 0;
         let totalPrice = 0;
-        const { user_id, paymentMethod } = req.body;
-        console.log(user_id);
+        const { user_id, paymentMethod, totalAmount } = req.body;
         const orderFoodlist = await Cart.find({ user_id: user_id, buyNow: true });
         const OrderDetail = orderFoodlist.map((orderFood) => {
             totalQuantity += orderFood.quantity;
@@ -28,7 +27,8 @@ export const addCartToOrder = async (req, res) => {
           details: OrderDetail,
           total_quantity: totalQuantity,
           total_price: totalPrice,
-          final_price: totalPrice,
+          discount: totalPrice - totalAmount,
+          final_price: totalAmount,
           payment_method: paymentMethod,
 
         })

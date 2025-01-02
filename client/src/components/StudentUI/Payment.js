@@ -28,6 +28,7 @@ const Payment = () => {
 
     const handleOrder = async (paymentMethod) => {
         try {
+            console.log(finalTotalCost);
             const response = await axios.post(
                 'http://localhost:8000/payment',
                 {

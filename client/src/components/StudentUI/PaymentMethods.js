@@ -5,8 +5,8 @@ const PaymentMethods = () => {
   return (
     /* PaymentMethods Content */
     <div className="edited-content align-items-center">
-      <p style={{ fontWeight: 'bold', fontSize: '1.5rem', textAlign: 'center' }}>Payment Methods</p>
-      <div className="edited-content">
+      <p style={{ fontWeight: 'bold', fontSize: '1.5rem', textAlign: 'center' }} className="zoom-in">Payment Methods</p>
+      <div className="edited-content fade-in">
         <p>JoHap supports flexible and secure payment methods for all customers shopping on the Website in the following forms:</p>
         <div className="row align-items-center">
           <div className="col-md-7">
@@ -21,7 +21,7 @@ const PaymentMethods = () => {
               <li>OCB Bank - Orient Commercial Bank</li>
             </ul>
           </div>
-          <div className="col-md-5">
+          <div className="col-md-5 zoom-in">
             <img src="../image/logo-OCB.png" alt="OCB BANK" style={{ width: '60%', height: 'auto', display: 'block' }} />
           </div>
         </div>

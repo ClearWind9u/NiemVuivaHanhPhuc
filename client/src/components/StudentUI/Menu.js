@@ -174,6 +174,7 @@ const Menu = () => {
         setSelectedFood(updatedFood);
         setReviewText(""); // Reset ô nhập
         setRating(0); // Reset rating
+        showNotification(`Review has been successfully sent!`);
       } else {
         alert(response.data.message || "Failed to send review.");
       }
@@ -278,10 +279,10 @@ const Menu = () => {
             review._id === reviewId ? updatedReview : review
           );
         }
-
         // Lưu state mới
         setSelectedFood(updatedFood);
         setEditingReview(null); // Thoát chế độ chỉnh sửa
+        showNotification(`Review has been successfully updated!`);
       } else {
         alert(response.data.message || "Failed to update review.");
       }
@@ -359,6 +360,7 @@ const Menu = () => {
         updatedFood.reviews = response.data.dish.reviews;
         setSelectedFood(updatedFood); // Cập nhật dữ liệu trên giao diện
         setCommentText(""); // Reset ô nhập
+        showNotification(`Comment has been successfully sent!`);
       } else {
         alert(response.data.message || "Failed to send comment.");
       }
@@ -430,6 +432,7 @@ const Menu = () => {
         // Lưu state mới
         setSelectedFood(updatedFood);
         setEditingComment(null); // Thoát chế độ chỉnh sửa
+        showNotification(`Comment has been successfully updated!`);
       } else {
         alert(response.data.message || "Failed to update comment.");
       }

@@ -21,17 +21,17 @@ const Wallet = () => {
 
     // Fetch danh sách student từ API
     const fetchUser = async () => {
-        try{
-            const response = await axios.get("http://localhost:8000/user/wallet/all", {
+        try {
+            const response = await axios.get("http://localhost:8000/user/admin/all", {
                 headers: {
-                  "Content-Type": "application/json",
+                    "Content-Type": "application/json",
                 },
-              });
-              console.log(response.data);
-              setUser(response.data);
-              setLoading(false);
+            });
+            console.log(response.data);
+            setUser(response.data);
+            setLoading(false);
         }
-        catch(err){
+        catch (err) {
             console.error("Error fetching user profiles:", err);
             setLoading(false);
         }
@@ -70,7 +70,7 @@ const Wallet = () => {
     // Khi nhấn "Confirm" trong modal nhập số tiền, chỉ hiển thị QR Modal
     const handleConfirmAddFunds = () => {
         const newAmount = parseFloat(amount);
-        if (selectedWallet ||!isNaN(newAmount) && newAmount > 0) {
+        if (selectedWallet || !isNaN(newAmount) && newAmount > 0) {
             setTransactionInfo({
                 amount: newAmount,
                 bankInfo: {
@@ -85,26 +85,19 @@ const Wallet = () => {
         }
     };
 
-    // Xử lý khi nhấn "OK" trong QR modal
-    const handleConfirmQR = async () => {
-        const newAmount = transactionInfo?.amount;
-        if (selectedWallet || newAmount > 0) {
-            const updatedData = {
-                balance: parseFloat(amount) + parseFloat(selectedUser.balance ? selectedUser.balance : 0),
-            };
-            console.log(selectedUser._id, " this is balance");
+    // Xử lý khi nhấn "OK" trong Transaction modal
+    const handleConfirmTransaction = async () => {
+        if (transactionInfo) {
             try {
-                const response = await axios.put(
-                    `http://localhost:8000/user/wallet/${selectedUser._id}`,
-                    updatedData,
-                    {
-                        headers: { "Content-Type": "application/json" },
-                    }
+                const response = await axios.post(
+                    "http://localhost:8000/wallet",
+                    { id: selectedUser._id, money: transactionInfo.amount },
+                    { headers: { "Content-Type": "application/json" } }
                 );
                 fetchUser();
                 if (response.status === 200) {
                     showNotification(
-                        `Added ${newAmount.toLocaleString()} VNĐ to ${selectedUser.username}'s wallet`
+                        `Added ${amount.toLocaleString()} VNĐ to ${selectedUser.username}'s wallet`
                     );
                     setShowQRModal(false); // Đóng modal QR sau khi thêm tiền thành công
                     handleCloseModal(); // Đóng modal nhập tiền
@@ -132,9 +125,9 @@ const Wallet = () => {
 
     return (
         <div>
-            <h2 style={{ textAlign: "center" }}>Student Wallets</h2>
-            <div className="main-section">
-                <div className="pending-invoices" style={{ flex: "0 0 70%" }}>
+            <h2 style={{ textAlign: "center" }} className="zoom-in">Student Wallets</h2>
+            <div className="main-section fade-in">
+                <div className="pending-invoices zoom-in" style={{ flex: "0 0 70%" }}>
                     <input
                         type="text"
                         placeholder="Search by user name"
@@ -151,15 +144,15 @@ const Wallet = () => {
                             </tr>
                         </thead>
                         <tbody>
-                        {user.filter((us) => us.role !== "admin" && us.role !== "staff").map((us) => (
+                            {user.filter((us) => us.role !== "admin" && us.role !== "staff").map((us) => (
                                 <tr key={us.id}>
-                                <td>{us.username}</td>
-                                {/* <td>{us.role.charAt(0).toUpperCase() + us.role.slice(1)}</td> */}
-                                <td>${us.balance || 0 }</td>
-                                <td>
-                                    <button className="btn blue-btn" onClick={() => handleAddFundsClick(us)}>Add Funds</button>
-                                </td>
-                            </tr>
+                                    <td>{us.username}</td>
+                                    {/* <td>{us.role.charAt(0).toUpperCase() + us.role.slice(1)}</td> */}
+                                    <td>${us.balance || 0}</td>
+                                    <td>
+                                        <button className="btn blue-btn" onClick={() => handleAddFundsClick(us)}>Add Funds</button>
+                                    </td>
+                                </tr>
                             ))}
                         </tbody>
                     </table>
@@ -169,7 +162,7 @@ const Wallet = () => {
 
             {/* Modal nhập số tiền */}
             {showModal && (
-                <div className="modal-overlay">
+                <div className="modal-overlay zoom-in">
                     <div className="modal-content">
                         <h3>Enter Amount to Add (VNĐ)</h3>
                         <input
@@ -195,7 +188,7 @@ const Wallet = () => {
 
             {/* QR Modal */}
             {showQRModal && transactionInfo && (
-                <div className="modal-overlay">
+                <div className="modal-overlay zoom-in">
                     <div className="modal-content">
                         <h3>Transaction QR Code</h3>
                         <div className="row">
@@ -218,7 +211,7 @@ const Wallet = () => {
                             <button className="btn red-btn" onClick={handleCloseQRModal}>
                                 Cancel
                             </button>
-                            <button className="btn blue-btn" onClick={handleConfirmQR}>
+                            <button className="btn blue-btn" onClick={handleConfirmTransaction}>
                                 OK
                             </button>
                         </div>

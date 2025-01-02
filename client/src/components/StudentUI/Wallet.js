@@ -97,23 +97,23 @@ const Wallet = () => {
     };
 
     return (
-        <div className="wallet">
+        <div className="wallet fade-in">
             <h2 style={{ textAlign: 'center' }}>My Wallet</h2>
             <div style={{ textAlign: 'center' }}>Save your credit and debit card details for faster checkout</div>
 
             <div className="wallet-content">
                 <div className="balance-section d-flex justify-content-between align-items-center">
-                    <div className="balance-info">
+                    <div className="balance-info zoom-in">
                         <h4>Your Balance</h4>
                         <p className="balance-amount">{balance} VNĐ</p>
                     </div>
-                    <button className="btn btn-secondary blue-btn" onClick={handleAddFunds}>Add Funds</button>
+                    <button className="btn btn-secondary blue-btn slide-in-right" onClick={handleAddFunds}>Add Funds</button>
                 </div>
                 {notification && <Notification message={notification} onClose={() => setNotification(null)} />}
             </div>
 
             {showModal && (
-                <div className="modal-overlay">
+                <div className="modal-overlay zoom-in">
                     <div className="modal-content">
                         <h3>Enter Amount to Add (VNĐ)</h3>
                         <input
@@ -135,7 +135,7 @@ const Wallet = () => {
             )}
 
             {showQRModal && transactionInfo && (
-                <div className="modal-overlay">
+                <div className="modal-overlay zoom-in">
                     <div className="modal-content">
                         <h3>Transaction QR Code</h3>
                         <div className="row">

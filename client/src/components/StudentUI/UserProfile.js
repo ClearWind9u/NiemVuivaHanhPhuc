@@ -148,12 +148,12 @@ const UserProfile = () => {
     setSelectedOrder(null);
   };
   return (
-    <div className="">
+    <div className="fade-in">
       <h2 style={{ textAlign: "center" }}>User Profile</h2>
       <div className="main-section">
         <div className="user-profile">
           <h3>User Profile</h3>
-          <div className="profile-picture">
+          <div className="profile-picture zoom-in">
             <img src={user?.avatar || "../image/avatar.jpg"} alt="User Avatar" />
           </div>
 
@@ -178,7 +178,7 @@ const UserProfile = () => {
                 <strong>Phone:</strong> {user.phone}
               </p>
               <button
-                className="btn btn-secondary blue-btn"
+                className="btn btn-secondary blue-btn slide-in-left"
                 onClick={toggleEditForm}
               >
                 Edit Information
@@ -287,7 +287,7 @@ const UserProfile = () => {
             </form>
           )}
         </div>
-        <div className="transaction-history">
+        <div className="transaction-history zoom-in">
           <h3>Purchase History</h3>
           <input
             type="text"
@@ -345,7 +345,7 @@ const UserProfile = () => {
           </table>
         </div>
         {isModalOpen && selectedOrder && (
-          <div className="modal-overlay">
+          <div className="modal-overlay zoom-in">
             <div className="modal" style={{ height: "90vh", width: "40vw" }}>
               <h3>Order Details</h3>
               <p>

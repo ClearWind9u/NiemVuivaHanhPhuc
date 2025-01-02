@@ -4,7 +4,7 @@ import "../css/ShippingPolicy.css";
 const ShippingPolicy = () => {
   return (
     /* ShippingPolicy Content */
-    <div className="edited-content align-items-center">
+    <div className="edited-content align-items-center fade-in">
       <p style={{ fontWeight: 'bold', fontSize: '1.5rem', textAlign: 'center' }}>Shipping Policy</p>
       <ol>
         <li style={{ fontWeight: 'bold', marginBottom: '10px' }}>Shipping and Delivery Conditions:</li>
@@ -18,7 +18,7 @@ const ShippingPolicy = () => {
           <li>Customers can contact JoHap directly to cancel the order in the system if the waiting time is too long.</li>
         </ul>
       </ol>
-      <img src="../image/delivery.png" alt="DELIVERY" style={{ width: '70%', height: 'auto', display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px' }} />
+      <img src="../image/delivery.png" alt="DELIVERY" style={{ width: '70%', height: 'auto', display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px' }} className="zoom-in"/>
     </div>
   );
 };

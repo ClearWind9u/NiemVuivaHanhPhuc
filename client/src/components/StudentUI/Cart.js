@@ -186,7 +186,7 @@ const Cart = () => {
     }
   };
   return (
-    <div className="">
+    <div className="fade-in">
       <h2 style={{ textAlign: "center" }}>
         Your Cart <FaShoppingCart />
       </h2>
@@ -201,7 +201,7 @@ const Cart = () => {
                 <div className="col-2 img-container">
                 <img
                   src={item.image}
-                  className="food-img"
+                  className="food-img zoom-in"
                   alt={item.name}
                   style={{ maxWidth: "100%", height: "auto", objectFit: "cover", borderRadius: "5px", }}
                 />
@@ -213,14 +213,14 @@ const Cart = () => {
                 <div className="col-3 d-flex align-items-center">
                   <div className="quantity-controls">
                     <button
-                      className="btn blue-btn quantity-decrease"
+                      className="btn blue-btn quantity-decrease slide-in-left"
                       onClick={() => handleQuantityChange(item.id, -1)}
                     >
                       -
                     </button>
                     <p className="form-control mx-2">{item.quantity}</p>
                     <button
-                      className="btn blue-btn quantity-increase"
+                      className="btn blue-btn quantity-increase slide-in-right"
                       onClick={() => handleQuantityChange(item.id, 1)}
                     >
                       +
@@ -241,7 +241,7 @@ const Cart = () => {
                     <label className="form-check-label">Buy Now</label>
                   </div>
                   <button
-                    className="btn red-btn"
+                    className="btn red-btn slide-in-right"
                     onClick={() => handleRemove(item)}
                   >
                     <FaTrashAlt className="me-1" /> Remove

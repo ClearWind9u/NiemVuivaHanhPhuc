@@ -150,8 +150,8 @@ const Invoices = () => {
 
     return (
         <div>
-            <h2 style={{ textAlign: "center" }}>Pending Invoices</h2>
-            <div className="main-section">
+            <h2 style={{ textAlign: "center" }} className="fade-in">Pending Invoices</h2>
+            <div className="main-section fade-in">
                 <div className="pending-invoices">
                     <input
                         type="text"
