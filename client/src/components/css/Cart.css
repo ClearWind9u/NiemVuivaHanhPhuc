@@ -1,0 +1,307 @@
+/* Main layout */
+h2 {
+    font-size: 22px;
+    margin: 10px;
+    font-weight: bold;
+}
+
+h3 {
+    font-size: 17px;
+    margin: 10px;
+    font-weight: bold;
+}
+
+.logo h1 {
+    color: #000;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.img-container {
+    width: 100px;
+    /* Set a fixed width for the image container */
+    height: 100px;
+    /* Set a fixed height for the image container */
+    overflow: hidden;
+    /* Hide overflow to ensure uniformity */
+    display: flex;
+    /* Center the image vertically */
+    justify-content: center;
+    /* Center the image horizontally */
+    align-items: center;
+    /* Align the image */
+}
+
+.food-image {
+    width: 100%;
+    /* Image takes up full width of container */
+    height: 100%;
+    /* Image takes up full height of container */
+    object-fit: cover;
+    /* Maintain aspect ratio while filling container */
+    border-radius: 5px;
+    /* Add slight rounding for a smooth look */
+}
+
+/* Improved cart item styling */
+.cart-item {
+    border: 1px solid #e0e0e0;
+    /* Border around each cart item */
+    padding: 10px 5px;
+    /* Padding inside the cart item */
+    border-radius: 8px;
+    /* Rounded corners for a smoother look */
+    background-color: #ffffff;
+    /* White background for contrast */
+    transition: box-shadow 0.3s;
+    /* Smooth hover effect */
+}
+
+.cart-item>div {
+    margin-right: 30px;
+    /* Adds gap between each section (e.g., image, title, quantity controls) */
+}
+
+.cart-item:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Shadow effect when hovering */
+}
+
+/* Ensure card items align consistently */
+.card-title {
+    margin-bottom: 5px;
+    /* Space between title and price */
+}
+
+.price {
+    font-weight: bold;
+    /* Emphasize the price */
+    color: #000;
+    /* Green color for the price */
+}
+
+.total-price {
+    font-weight: bold;
+    color: #dc3545;
+    /* Red color for the total price */
+}
+
+/* Buttons for quantity control */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-controls input {
+    width: 50px;
+    /* Smaller input for the quantity */
+    text-align: center;
+}
+
+.btn-secondary {
+    font-weight: 500;
+    text-align: center;
+    font-size: 20px;
+    border-radius: 8px;
+}
+
+.form-check-input {
+    margin-left: 80px;
+    /* Reduce spacing between checkbox and label */
+}
+/* General modal container */
+.coupons-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: "Arial", sans-serif;
+  }
+  
+  .coupons-header h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .coupons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .coupon-card {
+    background-color: #f9f9f9;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .coupon-card:hover {
+    border-color: #ff5c00;
+    background-color: #ffe8d6;
+  }
+  
+  .coupon-card.selected {
+    border-color: #ff5c00;
+    background-color: #ffe8d6;
+  }
+  
+  .coupon-content .coupon-code {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff5c00;
+    margin-bottom: 8px;
+  }
+  
+  .coupon-content .coupon-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  .coupon-content .coupon-discount {
+    font-size: 14px;
+    font-weight: bold;
+    color: #28a745;
+  }
+  
+  /* Footer buttons */
+  .coupons-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .coupons-footer .btn {
+    width: 48%;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .coupons-footer .btn.blue-btn {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .coupons-footer .btn.red-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* Error message */
+  .error-text {
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .no-coupons {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+  }
+  
+  
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .navbar-left {
+        width: 80px;
+        /* Reduce width of sidebar */
+    }
+
+    .main-content {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+    }
+
+    .header-section {
+        flex-direction: column;
+        /* Stack elements in the header vertically */
+        align-items: flex-start;
+        /* Align to the start */
+    }
+
+    .avatar img {
+        width: 30px;
+        /* Smaller avatar for mobile */
+        height: 30px;
+    }
+
+    h2 {
+        font-size: 20px;
+        /* Smaller heading size */
+    }
+
+    h3 {
+        font-size: 16px;
+        /* Smaller subheading size */
+    }
+
+    .cart-item {
+        flex-direction: column;
+        /* Stack items vertically in the cart */
+        align-items: flex-start;
+        /* Align items to the left */
+    }
+
+    .quantity-controls {
+        margin-bottom: 10px;
+        /* Space between quantity controls and other elements */
+    }
+
+    .btn {
+        width: 100%;
+        /* Make buttons take full width */
+    }
+
+    .buy-now-checkbox {
+        margin-top: 10px;
+        /* Add space above checkbox */
+    }
+}
+
+/* Media query for extra small screens (e.g., phones) */
+@media (max-width: 480px) {
+    .navbar-left {
+        width: 60px;
+        /* Further reduce sidebar width */
+    }
+
+    .nav-list button {
+        font-size: 1.2rem;
+        /* Smaller buttons */
+    }
+
+    .img-container {
+        width: 80px;
+        /* Smaller image container */
+        height: 80px;
+        /* Smaller image height */
+    }
+
+    .food-image {
+        width: 100%;
+        /* Maintain responsiveness */
+        height: auto;
+        /* Auto height for better aspect ratio */
+    }
+
+    .total-price {
+        font-size: 16px;
+        /* Smaller total price */
+    }
+}

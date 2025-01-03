@@ -1,0 +1,80 @@
+.user-section {
+  display: flex;
+  gap: 20px;
+}
+
+.user-table {
+  flex: 1;
+  min-width: 300px;
+  padding: 10px;
+  margin: 0 0 20px 0; 
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 520px; /* Limit the height of the table */
+  overflow-y: auto; /* Enable scrolling within each table */
+}
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.user-item h5 {
+  margin: 0;
+}
+
+.user-item .role,
+.user-item .email {
+  color: #666;
+  font-size: 14px;
+}
+
+.user-item .btn {
+  margin-left: 10px;
+}
+
+.form-group {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f3f3f3;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .user-section {
+    flex-direction: column; /* Stack user tables on smaller screens */
+    gap: 10px;
+  }
+
+  .user-table {
+    max-height: 300px; /* Reduce the height for smaller screens */
+  }
+}
