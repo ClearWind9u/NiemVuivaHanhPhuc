@@ -82,7 +82,6 @@ const Cart = () => {
       });
 
       const { discountedCost, voucherDiscount, message } = response.data;
-
       setVoucherDiscount(voucherDiscount);
       setFinalTotalCost(discountedCost);  // Update the total cost with the discount
       setVoucherError(null);
@@ -154,7 +153,6 @@ const Cart = () => {
         }
       );
       if (response.status === 201) {
-        console.log("response: ", response);
       } else throw new Error("Failed to buy now food");
     } catch (error) {
       console.error("Failed to buy now food:", error);

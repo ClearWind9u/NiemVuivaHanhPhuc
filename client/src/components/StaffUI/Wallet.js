@@ -27,7 +27,6 @@ const Wallet = () => {
                     "Content-Type": "application/json",
                 },
             });
-            console.log(response.data);
             setUser(response.data);
             setLoading(false);
         }

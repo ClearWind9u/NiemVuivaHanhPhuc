@@ -25,9 +25,9 @@ export const addDish = async (req, res) => {
     });
 
     await newDish.save();
-    res.status(201).json({ message: "Dish added successfully", dish: newDish });
+    res.status(201).json({ message: "Food added successfully", dish: newDish });
   } catch (error) {
-    console.error("Error adding dish:", error.message);
+    console.error("Error adding food:", error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
@@ -41,12 +41,12 @@ export const updateDish = async (req, res) => {
     const updatedDish = await Food.findOneAndUpdate({ id }, updates, { new: true });
 
     if (!updatedDish) {
-      return res.status(404).json({ message: "Dish not found" });
+      return res.status(404).json({ message: "Food not found" });
     }
 
-    res.status(200).json({ message: "Dish updated successfully", dish: updatedDish });
+    res.status(200).json({ message: "Food updated successfully", dish: updatedDish });
   } catch (error) {
-    console.error("Error updating dish:", error.message);
+    console.error("Error updating food:", error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
@@ -55,13 +55,14 @@ export const updateDish = async (req, res) => {
 export const deleteDish = async (req, res) => {
   try {
     const { id } = req.params;
+
     const deletedDish = await Food.findOneAndDelete({ id });
-
     if (!deletedDish) {
-      return res.status(404).json({ message: "Dish not found" });
+      return res.status(404).json({ message: "Food not found" });
     }
+    await Cart.deleteMany({ id: id });
 
-    res.status(200).json({ message: "Dish deleted successfully" });
+    res.status(200).json({ message: "Food deleted successfully" });
   } catch (error) {
     console.error("Error deleting dish:", error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });
@@ -75,7 +76,7 @@ export const searchDishes = async (req, res) => {
     const dishes = await Food.find({ name: { $regex: name, $options: "i" } });
     res.status(200).json(dishes);
   } catch (error) {
-    console.error("Error searching dishes:", error.message);
+    console.error("Error searching foods:", error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
@@ -104,7 +105,7 @@ export const getAllDishes = async (req, res) => {
       dishes
     });
   } catch (error) {
-    console.error("Error fetching dishes:", error.message);
+    console.error("Error fetching foods:", error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
@@ -112,46 +113,63 @@ export const getAllDishes = async (req, res) => {
 export const addCart = async (req, res) => {
   try {
     const { id, user_id } = req.body;
+
+    // Kiểm tra món ăn có tồn tại hay không
     const dish = await Food.findOne({ id });
-      if (!dish) {
-        return res.status(404).json({ message: "Dish not found" });
-      }
-      if (dish.quantity === 0) {
-        return res.status(400).json({ message: "Đã hết món" });
-      }
-    const addFood = await Cart.findOne({ id: id, user_id: user_id });
-    if (addFood) {
-      const quantity = addFood.quantity + 1;
-      const total = addFood.total + addFood.price;
-      await addFood.updateOne({ quantity: quantity, total: total })
-      res.status(201).json({ message: "Dish added to cart successfully sss", cart: addFood });
+    if (!dish) {
+      return res.status(404).json({ message: "Food not found" });
     }
-    else {
+
+    // Kiểm tra món ăn còn số lượng hay không
+    if (dish.quantity === 0) {
+      return res.status(400).json({ message: "Đã hết món" });
+    }
+
+    // Tìm món ăn trong giỏ hàng của người dùng
+    const existingCartItem = await Cart.findOne({ id, user_id });
+
+    if (existingCartItem) {
+      // Cộng dồn số lượng và tổng tiền nếu món đã có trong giỏ hàng
+      const updatedQuantity = existingCartItem.quantity + 1;
+      const updatedTotal = existingCartItem.total + dish.price;
+
+      await existingCartItem.updateOne({ 
+        quantity: updatedQuantity, 
+        total: updatedTotal 
+      });
+
+      return res.status(201).json({ 
+        message: "Food added to cart successfully", 
+        cart: { ...existingCartItem._doc, quantity: updatedQuantity, total: updatedTotal } 
+      });
+    } else {
+      // Kiểm tra người dùng có tồn tại hay không
       const customer = await User.findOne({ _id: user_id });
       if (!customer) {
         return res.status(404).json({ message: "User not found" });
       }
-      const quantity = 1;
-      const price = dish.price;
-      const image = dish.image;
-      const total = dish.price;
-      const name = dish.name;
-      const newCart = new Cart({
-        id: id,
-        user_id: user_id,
-        name: name,
-        quantity: quantity,
-        price: price,
-        total: total,
-        image: image,
+
+      // Tạo một mục mới trong giỏ hàng
+      const newCartItem = new Cart({
+        id,
+        user_id,
+        name: dish.name,
+        quantity: 1,
+        price: dish.price,
+        total: dish.price,
+        image: dish.image,
         buyNow: false,
       });
-      await newCart.save();
-      res.status(201).json({ message: "Dish added to cart successfully", cart: newCart });
+
+      await newCartItem.save();
+
+      return res.status(201).json({ 
+        message: "Food added to cart successfully", 
+        cart: newCartItem 
+      });
     }
   } catch (error) {
     console.error("Error adding dish to cart:", error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
-
 };

@@ -32,7 +32,6 @@ const IncomeStatistics = () => {
     const fetchPurchaseHistory = async (staffId) => {
       try {
         const response = await axios.get(`http://localhost:8000/staff/orders/${staffId}`);
-        console.log('API',response.data);
         return response.data.formattedOrders || []; 
         // Lưu dữ liệu vào state
       } catch (error) {
@@ -44,7 +43,6 @@ const IncomeStatistics = () => {
       const updatedStaffUsers = await Promise.all(
         staffUsers.map(async (member) => {
           const purchaseHistory = await fetchPurchaseHistory(member._id);
-          console.log("purchaseHistory for member", member.name, purchaseHistory); 
           // Lọc đơn hàng theo ngày
           const filteredOrders = Array.isArray(purchaseHistory) ? purchaseHistory.filter((order) => {
             const orderDate = new Date(order.order_time.split("-").reverse().join("-"));

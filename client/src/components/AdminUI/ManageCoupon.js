@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { FaEdit, FaPlus, FaTrashAlt } from "react-icons/fa";
 import Notification from "../Notification";
 import "../css/ManageCoupon.css";
 
@@ -412,7 +412,7 @@ const ManageCoupon = () => {
                         <strong>{coupon.percentDiscount}%</strong>
                       </p>
                       <p className="coupon-discount text-center">
-                        Money Discount: <strong>{coupon.moneyDiscount} VND</strong>
+                        Money Discount: <strong>{coupon.moneyDiscount} VNĐ</strong>
                       </p>
                       <div className="d-flex justify-content-center mt-3">
                         <button

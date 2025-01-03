@@ -97,41 +97,40 @@ const Invoices = () => {
 
     // Xử lý Decline
     const handleDecline = async (pending) => {
-        console.log("Student ID:", pending.student_id);
         try {
-            // Refund the student by making a PUT request to update their balance
-            const refundResponse = await axios.put(
-                `http://localhost:8000/user/refund/${pending.student_id}`,
-                { amount: pending.final_price }, // Refund the total price
+            // Proceed with deleting the order after refund
+            const deleteResponse = await axios.delete(
+                `http://localhost:8000/orders/${pending._id}/decline`,
                 {
                     headers: {
                         "Content-Type": "application/json",
                     },
                 }
             );
-
-            if (refundResponse.status === 200) {
-                // Proceed with deleting the order after refund
-                const deleteResponse = await axios.delete(
-                    `http://localhost:8000/orders/${pending._id}/decline`,
-                    {
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
+            if (deleteResponse.status === 200) {
+                // Refund the student by making a PUT request to update their balance if their payment method = online
+                if (pending.payment_method === "online") {
+                    const refundResponse = await axios.put(
+                        `http://localhost:8000/user/refund/${pending.student_id}`,
+                        { amount: pending.final_price }, // Refund the total price
+                        {
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        }
+                    );
+                    if (refundResponse.status === 200) {
+                        showNotification("Order declined and refunded to the student!");
                     }
-                );
-
-                if (deleteResponse.status === 200) {
-                    // Xóa hóa đơn khỏi danh sách pendingInvoices
-                    //setPendingInvoices((prev) => prev.filter((invoice) => invoice._id !== pending._id));
-                    showNotification("Order declined and refunded to the student!");
-                } else {
-                    console.error("Failed to delete the order.");
-                    alert("Failed to decline the order.");
+                    else {
+                        console.error("Failed to refund the student.");
+                        alert("Failed to refund the student.");
+                    }
                 }
+                showNotification("Order declined successfully!");
             } else {
-                console.error("Failed to refund the student.");
-                alert("Failed to refund the student.");
+                console.error("Failed to delete the order.");
+                alert("Failed to decline the order.");
             }
         } catch (error) {
             console.error("Error declining the order:", error);

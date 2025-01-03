@@ -77,8 +77,10 @@ export const validateCoupon = async (req, res) => {
       if (coupon.moneyDiscount) {
         voucherDiscount += coupon.moneyDiscount;
       }
+
+      if (voucherDiscount > totalCost) voucherDiscount = totalCost;
   
-      discountedCost = Math.max(0, totalCost - voucherDiscount);
+      discountedCost = totalCost - voucherDiscount;
   
       // Send back the updated cost and discount information
       return res.status(200).json({
