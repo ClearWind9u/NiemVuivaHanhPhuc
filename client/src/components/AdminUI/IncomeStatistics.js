@@ -45,7 +45,7 @@ const IncomeStatistics = () => {
           const purchaseHistory = await fetchPurchaseHistory(member._id);
           // Lọc đơn hàng theo ngày
           const filteredOrders = Array.isArray(purchaseHistory) ? purchaseHistory.filter((order) => {
-            const orderDate = new Date(order.order_time.split("-").reverse().join("-"));
+            const orderDate = new Date(order.order_time);
             const start = startDate ? new Date(startDate) : null;
             const end = endDate ? new Date(endDate) : null;
             return (!start || orderDate >= start) && (!end || orderDate <= end);
@@ -114,8 +114,7 @@ const IncomeStatistics = () => {
       </h2>
       <button
         onClick={() => handleNavigation("/admin/manage-order")}
-        className="btn red-btn"
-      >
+        className="btn red-btn">
         Go Back
       </button>
 

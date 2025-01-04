@@ -95,10 +95,10 @@ const ManageOrder = () => {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesStartDate = startDate
-      ? new Date(purchase.date) >= new Date(startDate)
+      ? new Date(purchase.order_time) >= new Date(startDate)
       : true;
     const matchesEndDate = endDate
-      ? new Date(purchase.date) <= new Date(endDate)
+      ? new Date(purchase.order_time) <= new Date(endDate)
       : true;
     return matchesSearch && matchesStartDate && matchesEndDate;
   });
@@ -117,7 +117,6 @@ const ManageOrder = () => {
     try {
       const confirmDelete = window.confirm("Are you sure you want to delete this order?");
       if (!confirmDelete) return;
-
       const response = await axios.delete(`http://localhost:8000/orders_old/${orderId}`);
 
       if (response.status === 200) {

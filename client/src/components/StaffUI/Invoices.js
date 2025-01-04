@@ -74,6 +74,8 @@ const Invoices = () => {
     // Xử lý Accept
     const handleAccept = async (pending) => {
         try {
+            const confirmAccept = window.confirm("Are you sure you want to accept this order?");
+            if (!confirmAccept) return;
             const response = await axios.put(
                 `http://localhost:8000/orders/${pending._id}/assign-staff`,
                 { staff_id: userId },
@@ -98,6 +100,8 @@ const Invoices = () => {
     // Xử lý Decline
     const handleDecline = async (pending) => {
         try {
+            const confirmDecline = window.confirm("Are you sure you want to decline this order?");
+            if (!confirmDecline) return;
             // Proceed with deleting the order after refund
             const deleteResponse = await axios.delete(
                 `http://localhost:8000/orders/${pending._id}/decline`,
