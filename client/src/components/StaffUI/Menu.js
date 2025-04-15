@@ -20,6 +20,7 @@ const Menu = () => {
   const [notification, setNotification] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
   
   const showNotification = (message) => {
     setNotification(message);
@@ -28,7 +29,7 @@ const Menu = () => {
 
   const fetchFoodList = async (page = 1, limit = 6) => {
     try {
-      const response = await axios.get(`http://localhost:8000/menu/all`, {
+      const response = await axios.get(`${API_URL}/menu/all`, {
         params: {
           page,
           limit,
@@ -50,7 +51,7 @@ const Menu = () => {
 
   const getUserInfo = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+      const response = await axios.get(`${API_URL}/user/${userId}`, {
         headers: { "Content-Type": "application/json" }
       });
       return response.data; // Trả về dữ liệu user
@@ -95,7 +96,7 @@ const Menu = () => {
       // Tạo object món ăn đã được cập nhật
       const updatedFood = { ...foodToUpdate, reviews: updatedReviews };
       // Gửi yêu cầu PUT với axios
-      const response = await axios.put(`http://localhost:8000/menu/update/${foodId}`, updatedFood, {
+      const response = await axios.put(`${API_URL}/menu/update/${foodId}`, updatedFood, {
         headers: { "Content-Type": "application/json" },
       });
       if (response.status !== 200) {
@@ -128,7 +129,7 @@ const Menu = () => {
     try {
       // Cập nhật dữ liệu bằng axios
       const response = await axios.put(
-        `http://localhost:8000/menu/update/${selectedFood.id}`,
+        `${API_URL}/menu/update/${selectedFood.id}`,
         updatedFood, // Truyền dữ liệu đã cập nhật
         { headers: { "Content-Type": "application/json" } }
       );
@@ -177,7 +178,7 @@ const Menu = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:8000/menu/update/${updatedFood.id}`,
+        `${API_URL}/menu/update/${updatedFood.id}`,
         updatedFood,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -199,7 +200,7 @@ const Menu = () => {
     try {
       // Gọi API trước khi cập nhật state để đảm bảo dữ liệu nhất quán
       const response = await axios.delete(
-        `http://localhost:8000/foods/${foodId}/reviews/${reviewId}/comments/${commentId}`,
+        `${API_URL}/foods/${foodId}/reviews/${reviewId}/comments/${commentId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -236,7 +237,7 @@ const Menu = () => {
 
       // Gửi yêu cầu cập nhật bình luận
       const response = await axios.put(
-        `http://localhost:8000/foods/${foodId}/reviews/${reviewId}/comments/${commentId}`,
+        `${API_URL}/foods/${foodId}/reviews/${reviewId}/comments/${commentId}`,
         { newComment }, // Gửi nội dung bình luận mới
         {
           headers: {
@@ -293,7 +294,7 @@ const Menu = () => {
 
       // Gửi yêu cầu PUT tới API để lưu thay đổi vào database
       const response = await axios.put(
-        `http://localhost:8000/menu/update/${foodId}`,
+        `${API_URL}/menu/update/${foodId}`,
         updatedStatus, {
         headers: { "Content-Type": "application/json" }
       });

@@ -12,10 +12,11 @@ const Invoices = () => {
     const [userInfo, setUserInfo] = useState(null);
     const [pendingInvoices, setPendingInvoices] = useState([]); // Lưu trữ hóa đơn từ API
     const [notification, setNotification] = useState(null);
+    const API_URL = "https://joy-and-happiness-be.vercel.app";
 
     const fetchPendingInvoices = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/staff/pending_invoices`, {
+            const response = await axios.get(`${API_URL}/staff/pending_invoices`, {
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -39,7 +40,7 @@ const Invoices = () => {
 
     const getUserInfo = async (userId) => {
         try {
-            const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+            const response = await axios.get(`${API_URL}/user/${userId}`, {
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -77,7 +78,7 @@ const Invoices = () => {
             const confirmAccept = window.confirm("Are you sure you want to accept this order?");
             if (!confirmAccept) return;
             const response = await axios.put(
-                `http://localhost:8000/orders/${pending._id}/assign-staff`,
+                `${API_URL}/orders/${pending._id}/assign-staff`,
                 { staff_id: userId },
                 {
                     headers: {
@@ -104,7 +105,7 @@ const Invoices = () => {
             if (!confirmDecline) return;
             // Proceed with deleting the order after refund
             const deleteResponse = await axios.delete(
-                `http://localhost:8000/orders/${pending._id}/decline`,
+                `${API_URL}/orders/${pending._id}/decline`,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -115,7 +116,7 @@ const Invoices = () => {
                 // Refund the student by making a PUT request to update their balance if their payment method = online
                 if (pending.payment_method === "online") {
                     const refundResponse = await axios.put(
-                        `http://localhost:8000/user/refund/${pending.student_id}`,
+                        `${API_URL}/user/refund/${pending.student_id}`,
                         { amount: pending.final_price }, // Refund the total price
                         {
                             headers: {

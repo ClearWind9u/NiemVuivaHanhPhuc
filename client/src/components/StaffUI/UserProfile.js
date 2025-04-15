@@ -7,11 +7,12 @@ import "../css/UserProfile.css";
 const UserProfile = () => {
   const { userId, avatar, setAvatar } = useAuth(); // Sử dụng context
   const [user, setUser] = useState([]);
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
   
   // Fetch user profile and set avatar
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/user/${userId}`);
+      const response = await axios.get(`${API_URL}/user/${userId}`);
       setUser(response.data);
       setAvatar(response.data.avatar);  // Cập nhật avatar vào context
     } catch (error) {
@@ -38,7 +39,7 @@ const UserProfile = () => {
     // Gọi API để lấy dữ liệu lịch sử mua hàng
     const fetchPurchaseHistory = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/staff/orders/${user._id}`);
+        const response = await axios.get(`${API_URL}/staff/orders/${user._id}`);
         //console.log('API',response.data);
         setPurchaseHistory(response.data.formattedOrders); // Lưu dữ liệu vào state
       } catch (error) {
@@ -108,7 +109,7 @@ const UserProfile = () => {
     try {
       console.log(updatedData);
       console.log("userId beinggg sent:", userId);
-      const response = await axios.put(`http://localhost:8000/user/update/${userId}`,
+      const response = await axios.put(`${API_URL}/user/update/${userId}`,
         updatedData,
         {
           headers: { "Content-Type": "application/json" }
@@ -133,7 +134,7 @@ const UserProfile = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:8000/orders/${orderId}`
+        `${API_URL}/orders/${orderId}`
       );
 
       setSelectedOrder(response.data); // Lưu chi tiết hóa đơn vào state

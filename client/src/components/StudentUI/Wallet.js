@@ -13,12 +13,13 @@ const Wallet = () => {
     const [balance, setBalance] = useState(0);
     const [showQRModal, setShowQRModal] = useState(false);
     const [transactionInfo, setTransactionInfo] = useState(null);
+    const API_URL = "https://joy-and-happiness-be.vercel.app";
 
     // Fetch balance for the logged-in user
     useEffect(() => {
         const fetchBalance = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/user/${userId}`, {
+                const response = await axios.get(`${API_URL}/user/${userId}`, {
                     headers: {
                         "Content-Type": "application/json",
                     },
@@ -68,7 +69,7 @@ const Wallet = () => {
         if (transactionInfo) {
             try {
                 const response = await axios.post(
-                    "http://localhost:8000/wallet",
+                    `${API_URL}/wallet`,
                     { id: transactionInfo.userId, money: transactionInfo.amount },
                     { headers: { "Content-Type": "application/json" } }
                 );

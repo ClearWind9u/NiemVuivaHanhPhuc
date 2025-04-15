@@ -26,7 +26,7 @@ const StaffFooter = () => {
                                 <i className=""></i> 0113 114 115
                             </li>
                             <li>
-                                <i className=""></i> johaphcmut@gmail.com
+                                <i className=""></i> johapsystem@gmail.com
                             </li>
                             <li style={{ marginTop: '10px' }}>
                                 <Link to="https://www.facebook.com/truongdhbachkhoa" className="social-icon text-white me-3">
@@ -37,7 +37,7 @@ const StaffFooter = () => {
                                     <i id="instagram" className="fab fa-instagram"></i>
                                 </Link>
                                 <Tooltip anchorSelect="#instagram" place="bottom"> Follow on Instagram </Tooltip>
-                                <Link to="https://mail.google.com/mail/?view=cm&fs=1&to=johaphcmut@gmail.com&su=Subject%20Here&body=Body%20content%20here"
+                                <Link to="https://mail.google.com/mail/?view=cm&fs=1&to=johapsystem@gmail.com&su=Subject%20Here&body=Body%20content%20here"
                                     target="_blank" rel="noopener noreferrer" className="social-icon text-white me-3">
                                     <i id="envelope" className="fas fa-envelope"></i>
                                 </Link>

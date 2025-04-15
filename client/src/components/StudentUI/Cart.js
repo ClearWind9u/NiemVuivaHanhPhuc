@@ -22,11 +22,12 @@ const Cart = () => {
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const navigate = useNavigate();
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
 
   // Fetch cart items for the user
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/cart/${userId}`);
+      const response = await axios.get(`${API_URL}/cart/${userId}`);
       setCartItems(response.data);
     } catch (error) {
       console.error("Error fetching cart items:", error);
@@ -36,7 +37,7 @@ const Cart = () => {
   // Fetch valid coupons when modal opens
   const fetchCoupons = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/coupons/valid");
+      const response = await axios.get(`${API_URL}/coupons/valid`);
       setCoupons(response.data);
     } catch (error) {
       console.error("Error fetching valid coupons:", error);
@@ -76,7 +77,7 @@ const Cart = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8000/coupons/validate", {
+      const response = await axios.post(`${API_URL}/coupons/validate`, {
         code: selectedCoupon.code,  // Send coupon code
         totalCost: totalCost,       // Send total cost for discount calculation
       });
@@ -98,7 +99,7 @@ const Cart = () => {
     if (delta === 1) {
       try {
         const response = await axios.post(
-          "http://localhost:8000/cart/add",
+          `${API_URL}/cart/add`,
           {
             id: id,
             user_id: userId,
@@ -122,7 +123,7 @@ const Cart = () => {
       }
       try {
         const response = await axios.post(
-          "http://localhost:8000/cart/minus",
+          `${API_URL}/cart/minus`,
           {
             id: id,
             user_id: userId,
@@ -141,7 +142,7 @@ const Cart = () => {
   const handleBuyNowChange = async (id) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/cart/buynow",
+        `${API_URL}/cart/buynow`,
         {
           id: id,
           user_id: userId,
@@ -161,7 +162,7 @@ const Cart = () => {
   const handleRemove = async (item) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/cart/remove",
+        `${API_URL}/cart/remove`,
         {
           id: item.id,
           user_id: userId,

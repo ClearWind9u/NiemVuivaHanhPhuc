@@ -26,7 +26,7 @@ const PrivacyPolicy = () => {
         <img src="../image/logo2.png" alt="JoHap" style={{ width: '10%', height: 'auto', display: 'block', marginBottom: '10px'}} className="zoom-in"/>
         <div style={{ marginBottom: '10px', marginLeft: '15px' }}>Address: Bach Khoa University - Di An Campus</div>
         <div style={{ marginBottom: '10px', marginLeft: '15px' }}>Hotline: 0113 114 115</div>
-        <div style={{ marginLeft: '15px' }}>Email: johaphcmut@gmail.com</div>
+        <div style={{ marginLeft: '15px' }}>Email: johapsystem@gmail.com</div>
       </div>
     </div>
   );

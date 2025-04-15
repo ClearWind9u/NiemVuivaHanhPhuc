@@ -16,11 +16,12 @@ const ManageMenu = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [notification, setNotification] = useState(null);
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
 
   // Fetch menu items from API
   const fetchMenuItems = async (page = 1, limit = 5) => {
     try {
-      const response = await axios.get(`http://localhost:8000/menu/all`, {
+      const response = await axios.get(`${API_URL}/menu/all`, {
         params: {
           page,
           limit,
@@ -39,7 +40,7 @@ const ManageMenu = () => {
 
   const handleRemove = async () => {
     try {
-      await axios.delete(`http://localhost:8000/menu/delete/${deleteTargetId}`);
+      await axios.delete(`${API_URL}/menu/delete/${deleteTargetId}`);
       setMenuItems((items) => items.filter((item) => item.id !== deleteTargetId));
       setShowConfirmation(false);
       setNotification("Remove food successfully!");
@@ -69,7 +70,7 @@ const ManageMenu = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8000/menu/add", {
+      const response = await axios.post(`${API_URL}/menu/add`, {
         name: newItem.name,
         price: newItem.price,
         image: newItem.image,
@@ -91,7 +92,7 @@ const ManageMenu = () => {
 
   const updateItem = async () => {
     try {
-      const response = await axios.put(`http://localhost:8000/menu/update/${editingItem.id}`, {
+      const response = await axios.put(`${API_URL}/menu/update/${editingItem.id}`, {
         name: editingItem.name,
         price: editingItem.price,
         image: editingItem.image,

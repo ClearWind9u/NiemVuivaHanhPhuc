@@ -17,6 +17,7 @@ const Login = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [message, setMessage] = useState("");
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,9 +26,9 @@ const Login = () => {
     try {
       if (isForgotPassword) {
         // Send OTP
-        const response = await axios.post("http://localhost:8000/forgot-password", { email });
+        const response = await axios.post(`${API_URL}/forgot-password`, { email });
         if (response.status === 200) {
-          alert("OTP has been sent to your email!");
+          alert(`We've sent an OTP to your email. Don't forget to check your spam folder!`);
           setIsForgotPassword(false);
           setIsResetPassword(true);
         }
@@ -37,7 +38,7 @@ const Login = () => {
           setMessage("Passwords do not match!");
           return;
         }
-        const response = await axios.post("http://localhost:8000/reset-password", {
+        const response = await axios.post(`${API_URL}/reset-password`, {
           email,
           otp: resetToken,
           newPassword,
@@ -48,7 +49,7 @@ const Login = () => {
         }
       } else if (isRegister) {
         // Register new user
-        const response = await axios.post("http://localhost:8000/register", {
+        const response = await axios.post(`${API_URL}/register`, {
           username,
           password,
           name, // Include name in the request
@@ -62,7 +63,7 @@ const Login = () => {
         }
       } else {
         // Login
-        const response = await axios.post("http://localhost:8000/login", {
+        const response = await axios.post(`${API_URL}/login`, {
           username,
           password,
           role,

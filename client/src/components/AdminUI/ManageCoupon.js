@@ -19,7 +19,7 @@ const ManageCoupon = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [deleteCouponId, setDeleteCouponId] = useState(null);
   const [notification, setNotification] = useState(null);
-  const API_URL = "http://localhost:8000/coupons";
+  const API_URL = "https://joy-and-happiness-be.vercel.app/coupons";
 
   useEffect(() => {
     // Fetch coupons on component mount

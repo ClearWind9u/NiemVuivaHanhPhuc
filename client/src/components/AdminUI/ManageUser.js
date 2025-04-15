@@ -3,7 +3,6 @@ import axios from "axios";
 import { FaTrashAlt, FaEdit, FaPlus } from "react-icons/fa";
 import "../css/ManageUser.css";
 import Notification from "../Notification";
-import bcrypt from "bcryptjs";
 
 const ManageUser = () => {
   const [staffUsers, setStaffUsers] = useState([]);
@@ -17,10 +16,11 @@ const ManageUser = () => {
   const [confirmationId, setConfirmationId] = useState(null);
   const [confirmationRole, setConfirmationRole] = useState(null);
   const [notification, setNotification] = useState(null);
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/user/admin/all", {
+      const response = await axios.get(`${API_URL}/user/admin/all`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -51,7 +51,7 @@ const ManageUser = () => {
 
   const addUser = async () => {
     try {
-      const response = await axios.post("http://localhost:8000/user/admin/create", newUser, {
+      const response = await axios.post(`${API_URL}/user/admin/create`, newUser, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -77,7 +77,7 @@ const ManageUser = () => {
       role: editingUser.role,
     };
     try {
-      const response = await axios.put(`http://localhost:8000/user/update/${id}`,
+      const response = await axios.put(`${API_URL}/user/update/${id}`,
         updatedData,
         {
           headers: { "Content-Type": "application/json" }
@@ -99,7 +99,7 @@ const ManageUser = () => {
 
   const handleRemove = async (id, role) => {
     try {
-      const response = await axios.delete(`http://localhost:8000/user/admin/${id}`, {
+      const response = await axios.delete(`${API_URL}/user/admin/${id}`, {
         headers: {
           "Content-Type": "application/json",
         },

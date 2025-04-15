@@ -7,19 +7,18 @@ import "chart.js/auto";
 
 const IncomeStatistics = () => {
   const [staffUsers, setStaffUsers] = useState([]);
-  
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [sortOrder, setSortOrder] = useState("asc"); // Default sorting order is ascending
   const navigate = useNavigate();
   const [staffWithOrders, setStaffWithOrders] = useState([]);
-  const [purchaseHistory, setPurchaseHistory] = useState([]); // State để lưu lịch sử mua hàng
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
 
 
   // Hàm gọi API lấy danh sách nhân viên có vai trò là 'staff'
   const fetchStaffUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/user/admin/staff");
+      const response = await axios.get(`${API_URL}/user/admin/staff`);
       setStaffUsers(response.data.staff);
     } catch (error) {
       console.error("Error fetching staff users:", error);
@@ -31,7 +30,7 @@ const IncomeStatistics = () => {
     // Gọi API để lấy dữ liệu lịch sử mua hàng
     const fetchPurchaseHistory = async (staffId) => {
       try {
-        const response = await axios.get(`http://localhost:8000/staff/orders/${staffId}`);
+        const response = await axios.get(`${API_URL}/staff/orders/${staffId}`);
         return response.data.formattedOrders || []; 
         // Lưu dữ liệu vào state
       } catch (error) {

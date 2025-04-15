@@ -11,7 +11,7 @@ const Payment = () => {
     const handleNavigation = (path) => {
         navigate(path);
     };
-
+    const API_URL = "https://joy-and-happiness-be.vercel.app";
     const location = useLocation();
     const { cartItems, finalTotalCost } = location.state || { cartItems: [], finalTotalCost: 0 };
 
@@ -30,7 +30,7 @@ const Payment = () => {
         try {
             console.log(finalTotalCost);
             const response = await axios.post(
-                'http://localhost:8000/payment',
+                `${API_URL}/payment`,
                 {
                     user_id: userId,
                     paymentMethod: paymentMethod,

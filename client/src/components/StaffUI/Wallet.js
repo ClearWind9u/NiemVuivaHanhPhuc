@@ -15,14 +15,14 @@ const Wallet = () => {
     const [error, setError] = useState(null);
     const [transactionInfo, setTransactionInfo] = useState(null);
     const [showQRModal, setShowQRModal] = useState(false);
-
     const [user, setUser] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
+    const API_URL = "https://joy-and-happiness-be.vercel.app";
 
     // Fetch danh sách student từ API
     const fetchUser = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/user/admin/all", {
+            const response = await axios.get(`${API_URL}/user/admin/all`, {
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -89,7 +89,7 @@ const Wallet = () => {
         if (transactionInfo) {
             try {
                 const response = await axios.post(
-                    "http://localhost:8000/wallet",
+                    `${API_URL}/wallet`,
                     { id: selectedUser._id, money: transactionInfo.amount },
                     { headers: { "Content-Type": "application/json" } }
                 );

@@ -30,7 +30,7 @@ const AdminFooter = () => {
                                 <i className=""></i> 0113 114 115
                             </li>
                             <li>
-                                <i className=""></i> johaphcmut@gmail.com
+                                <i className=""></i> johapsystem@gmail.com
                             </li>
                             <li style={{ marginTop: "10px" }}>
                                 <Link
@@ -52,7 +52,7 @@ const AdminFooter = () => {
                                     Follow on Instagram
                                 </Tooltip>
                                 <Link
-                                    to="https://mail.google.com/mail/?view=cm&fs=1&to=johaphcmut@gmail.com&su=Subject%20Here&body=Body%20content%20here"
+                                    to="https://mail.google.com/mail/?view=cm&fs=1&to=johapsystem@gmail.com&su=Subject%20Here&body=Body%20content%20here"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="social-icon text-white me-3"

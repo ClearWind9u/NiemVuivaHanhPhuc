@@ -22,7 +22,7 @@ const StudentFooter = () => {
             <ul className="list-unstyled">
               <li>Bach Khoa University - Di An Campus</li>
               <li>0113 114 115</li>
-              <li>johaphcmut@gmail.com</li>
+              <li>johapsystem@gmail.com</li>
               <li style={{ marginTop: '10px' }}>
                 <Link to="https://www.facebook.com/truongdhbachkhoa" className="social-icon text-white me-3">
                   <i id="facebook" className="fab fa-facebook"></i>
@@ -35,7 +35,7 @@ const StudentFooter = () => {
                 <Tooltip anchorSelect="#instagram" place="bottom">Follow on Instagram</Tooltip>
 
                 <Link
-                  to="https://mail.google.com/mail/?view=cm&fs=1&to=johaphcmut@gmail.com&su=Subject%20Here&body=Body%20content%20here"
+                  to="https://mail.google.com/mail/?view=cm&fs=1&to=johapsystem@gmail.com&su=Subject%20Here&body=Body%20content%20here"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="social-icon text-white me-3"

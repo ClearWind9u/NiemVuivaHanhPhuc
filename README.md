@@ -8,8 +8,11 @@ JoHap (Joy and Happiness Canteen) là một hệ thống quản lý căn tin hi�
 
 JoHap được chia thành hai phần chính:
 
-1. **Frontend (FE)**: Giao diện người dùng, phát triển bằng React.
-2. **Backend (BE)**: Máy chủ API, phát triển bằng Node.js.
+1. **Frontend (FE)**: Giao diện người dùng, phát triển bằng React.  
+   🔗 [Truy cập tại đây](https://joy-and-happiness.vercel.app)
+
+2. **Backend (BE)**: Máy chủ API, phát triển bằng Node.js.  
+   🔗 [Truy cập tại đây](https://joy-and-happiness-be.vercel.app)
 
 ### 1. Chạy Frontend
 

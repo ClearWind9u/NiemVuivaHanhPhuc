@@ -16,13 +16,14 @@ const ManageOrder = () => {
   const [orderHistory, setOrderHistory] = useState([]);
   const [isOldOrdersModalOpen, setIsOldOrdersModalOpen] = useState(false);
   const navigate = useNavigate();
+  const API_URL = "https://joy-and-happiness-be.vercel.app";
   const handleNavigation = (path) => {
     navigate(path); // Programmatically navigate to the specified path
   };
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/user/admin/all", {
+      const response = await axios.get(`${API_URL}/user/admin/all`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -45,8 +46,8 @@ const ManageOrder = () => {
   const fetchOrderHistory = async (userId, isStaff) => {
     try {
       const url = isStaff
-        ? `http://localhost:8000/staff/orders/${userId}` // API cho nhân viên
-        : `http://localhost:8000/student/orders/${userId}`; // API cho sinh viên
+        ? `${API_URL}/staff/orders/${userId}` // API cho nhân viên
+        : `${API_URL}/student/orders/${userId}`; // API cho sinh viên
       const response = await axios.get(url);
       setOrderHistory(response.data.formattedOrders);
       setShowOrderHistory(true);
@@ -105,7 +106,7 @@ const ManageOrder = () => {
 
   const fetchOldOrders = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/orders_old`);
+      const response = await axios.get(`${API_URL}/orders_old`);
       setOldOrders(response.data);
       setIsOldOrdersModalOpen(true);
     } catch (error) {
@@ -117,7 +118,7 @@ const ManageOrder = () => {
     try {
       const confirmDelete = window.confirm("Are you sure you want to delete this order?");
       if (!confirmDelete) return;
-      const response = await axios.delete(`http://localhost:8000/orders_old/${orderId}`);
+      const response = await axios.delete(`${API_URL}/orders_old/${orderId}`);
 
       if (response.status === 200) {
         alert("Order deleted successfully!");
@@ -140,7 +141,7 @@ const ManageOrder = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:8000/orders/${orderId}`
+        `${API_URL}/orders/${orderId}`
       );
 
       setSelectedOrder(response.data); // Lưu chi tiết hóa đơn vào state
